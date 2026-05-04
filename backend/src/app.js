@@ -7,9 +7,11 @@ import 'dotenv/config'
 import express    from 'express'
 import cors       from 'cors'
 
-import authRoutes     from './routes/auth.routes.js'
-import mascotasRoutes from './routes/mascotas.routes.js'
-import vacunasRoutes  from './routes/vacunas.routes.js'
+import authRoutes         from './routes/auth.routes.js'
+import mascotasRoutes     from './routes/mascotas.routes.js'
+import vacunasRoutes      from './routes/vacunas.routes.js'
+import clinicasRoutes     from './routes/clinicas.routes.js'
+import veterinariosRoutes from './routes/veterinarios.routes.js'
 import { errorHandler, notFound } from './middleware/error.middleware.js'
 
 const app  = express()
@@ -40,11 +42,14 @@ app.get('/health', (req, res) => {
 
 // ── Rutas de la API ──────────────────────────────────────────
 
-app.use('/api/auth',     authRoutes)
-app.use('/api/mascotas', mascotasRoutes)
-app.use('/api/vacunas',  vacunasRoutes)
+app.use('/api/auth',          authRoutes)
+app.use('/api/mascotas',      mascotasRoutes)
+app.use('/api/vacunas',       vacunasRoutes)
+app.use('/api/clinicas',      clinicasRoutes)
+app.use('/api/veterinarios',  veterinariosRoutes)
 
 // Aquí irán los demás módulos cuando los desarrollemos:
+// app.use('/api/citas',      citasRoutes)
 // app.use('/api/clinicas',   clinicasRoutes)
 // app.use('/api/vacunas',    vacunasRoutes)
 // app.use('/api/citas',      citasRoutes)
