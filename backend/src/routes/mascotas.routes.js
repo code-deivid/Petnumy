@@ -19,16 +19,29 @@ import {
   updateMascota,
   deleteMascota
 } from '../controllers/mascotas.controller.js'
+import {
+  getVacunasMascota,
+  addVacunaMascota,
+  updateVacunaMascota,
+  deleteVacunaMascota
+} from '../controllers/vacunas.controller.js'
 
 const router = Router()
 
 // Aplicamos requireAuth a todas las rutas de este módulo
 router.use(requireAuth)
 
-router.get('/',     getMascotas)
-router.get('/:id',  getMascotaById)
-router.post('/',    createMascota)
-router.patch('/:id',updateMascota)
+// ── CRUD mascotas ────────────────────────────────────────────
+router.get('/',      getMascotas)
+router.get('/:id',   getMascotaById)
+router.post('/',     createMascota)
+router.patch('/:id', updateMascota)
 router.delete('/:id',deleteMascota)
+
+// ── Vacunas de una mascota (rutas anidadas) ──────────────────
+router.get   ('/:id/vacunas',                     getVacunasMascota)
+router.post  ('/:id/vacunas',                     addVacunaMascota)
+router.patch ('/:id/vacunas/:vacunaMascotaId',    updateVacunaMascota)
+router.delete('/:id/vacunas/:vacunaMascotaId',    deleteVacunaMascota)
 
 export default router
