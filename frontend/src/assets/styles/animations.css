@@ -1,0 +1,109 @@
+/* src/assets/styles/animations.css */
+/* ============================================================
+   Animaciones de Petnumy
+   - Transiciones de página (Vue <Transition>)
+   - Animaciones de entrada de elementos
+   - Micro-interacciones
+   ============================================================ */
+
+/* ── Transición de página (fade suave) ────────────────────── */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity var(--transition-normal),
+              transform var(--transition-normal);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ── Fade simple (modales, overlays) ──────────────────────── */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-normal);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ── Slide desde abajo (drawer, paneles) ──────────────────── */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: opacity var(--transition-normal),
+              transform var(--transition-normal);
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* ── Animación de entrada de cards en lista ───────────────── */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-animate {
+  animation: cardEntrance var(--transition-slow) ease both;
+}
+
+/* Escalonado para listas de cards */
+.card-animate:nth-child(1) { animation-delay: 0ms;   }
+.card-animate:nth-child(2) { animation-delay: 60ms;  }
+.card-animate:nth-child(3) { animation-delay: 120ms; }
+.card-animate:nth-child(4) { animation-delay: 180ms; }
+.card-animate:nth-child(5) { animation-delay: 240ms; }
+.card-animate:nth-child(6) { animation-delay: 300ms; }
+
+/* ── Spinner de carga ─────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ── Pulse suave (skeleton loading) ──────────────────────────*/
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.skeleton {
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* ── Bounce al hacer hover en iconos de mascota ───────────── */
+@keyframes pawBounce {
+  0%, 100% { transform: scale(1) rotate(0deg);    }
+  30%      { transform: scale(1.15) rotate(-8deg); }
+  60%      { transform: scale(1.05) rotate(4deg);  }
+}
+
+.icon-bounce:hover {
+  animation: pawBounce 0.5s ease;
+}

@@ -1,0 +1,143 @@
+/* src/assets/styles/main.css */
+/* ============================================================
+   PETNUMY — Sistema de diseño Animal Crossing
+   Estructura:
+     1. Variables CSS (design tokens)
+     2. Reset y base
+     3. Tipografía
+     4. Scrollbar personalizado
+   ============================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── 1. Variables CSS ─────────────────────────────────────── */
+:root {
+  /* Colores principales */
+  --color-primary:      #6DBE7E;   /* Verde hierba */
+  --color-primary-dark: #54a568;   /* Verde hover */
+  --color-secondary:    #F9C74F;   /* Amarillo sol */
+  --color-accent:       #F4A261;   /* Naranja amable */
+  --color-danger:       #E07070;   /* Rojo suave para errores */
+
+  /* Fondos */
+  --color-bg:           #FDFAF3;   /* Blanco cálido — fondo general */
+  --color-surface:      #FFFFFF;   /* Blanco puro — cards */
+  --color-surface-alt:  #F5F0E8;   /* Beige claro — hover / inputs */
+
+  /* Textos */
+  --color-text:         #4A3728;   /* Marrón tierra — texto principal */
+  --color-text-soft:    #8B7355;   /* Marrón suave — texto secundario */
+  --color-text-muted:   #B8A99A;   /* Marrón claro — placeholders */
+
+  /* Bordes */
+  --color-border:       #E8DDD0;   /* Borde suave */
+  --color-border-focus: #6DBE7E;   /* Borde al enfocar inputs */
+
+  /* Radios */
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
+
+  /* Sombras */
+  --shadow-sm:  0 2px 8px rgba(74, 55, 40, 0.07);
+  --shadow-md:  0 4px 16px rgba(74, 55, 40, 0.10);
+  --shadow-lg:  0 8px 32px rgba(74, 55, 40, 0.13);
+  --shadow-card: 0 2px 12px rgba(74, 55, 40, 0.08);
+
+  /* Tipografía */
+  --font-display: 'Nunito', sans-serif;
+  --font-body:    'Poppins', sans-serif;
+
+  /* Transiciones */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* Layout */
+  --navbar-height: 64px;
+  --max-width:     1100px;
+  --page-padding:  1.5rem;
+}
+
+/* ── 2. Reset y base ──────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-body);
+  border: none;
+  background: none;
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  outline: none;
+}
+
+/* ── 3. Tipografía ────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.1rem;  }
+
+p {
+  color: var(--color-text-soft);
+  line-height: 1.7;
+}
+
+/* ── 4. Scrollbar personalizado (solo escritorio) ─────────── */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar       { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--color-surface-alt); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
+}
