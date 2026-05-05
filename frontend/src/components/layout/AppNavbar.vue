@@ -37,6 +37,14 @@ async function handleLogout() {
         >
           Clínicas
         </RouterLink>
+        <RouterLink
+          v-if="isLoggedIn"
+          :to="{ name: 'mis-mascotas' }"
+          class="navbar-link"
+          active-class="navbar-link--active"
+        >
+          Mis mascotas
+        </RouterLink>
       </nav>
 
       <!-- Acciones de usuario -->

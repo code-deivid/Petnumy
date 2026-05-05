@@ -17,6 +17,7 @@ const LoginPage           = () => import('@/pages/LoginPage.vue')
 const RegistroPage        = () => import('@/pages/RegistroPage.vue')
 const ClinicasPage        = () => import('@/pages/ClinicasPage.vue')
 const ClinicaDetallePage  = () => import('@/pages/ClinicaDetallePage.vue')
+const MisMascotasPage     = () => import('@/pages/MisMascotasPage.vue')
 
 const routes = [
   // ── Rutas públicas ───────────────────────────────────────
@@ -52,6 +53,12 @@ const routes = [
     path: '/clinicas/:id',
     name: 'clinica-detalle',
     component: ClinicaDetallePage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/mis-mascotas',
+    name: 'mis-mascotas',
+    component: MisMascotasPage,
     meta: { requiresAuth: true }
   },
 
