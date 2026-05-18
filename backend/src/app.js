@@ -13,6 +13,7 @@ import vacunasRoutes      from './routes/vacunas.routes.js'
 import clinicasRoutes     from './routes/clinicas.routes.js'
 import veterinariosRoutes from './routes/veterinarios.routes.js'
 import razasRoutes        from './routes/razas.routes.js'
+import especiesRoutes     from './routes/especies.routes.js'
 import citasRoutes        from './routes/citas.routes.js'
 import { errorHandler, notFound } from './middleware/error.middleware.js'
 
@@ -50,6 +51,7 @@ app.use('/api/vacunas',       vacunasRoutes)
 app.use('/api/clinicas',      clinicasRoutes)
 app.use('/api/veterinarios',  veterinariosRoutes)
 app.use('/api/razas',         razasRoutes)
+app.use('/api/especies',      especiesRoutes)
 app.use('/api/citas',         citasRoutes)
 
 // Aquí irán los demás módulos cuando los desarrollemos:

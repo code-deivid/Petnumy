@@ -1,36 +1,31 @@
 // src/router/index.js
-// ============================================================
-//  Router de Petnumy
-//
-//  Rutas públicas  → accesibles sin sesión
-//  Rutas privadas  → redirigen a /login si no hay sesión
-//  Rutas de auth   → redirigen a /home si ya hay sesión
-//    (para que un usuario logado no vea Login ni Registro)
-// ============================================================
-
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store.js'
 
-// Carga diferida (lazy load) de páginas para mejor rendimiento
-const HomePage            = () => import('@/pages/HomePage.vue')
-const LoginPage           = () => import('@/pages/LoginPage.vue')
-const RegistroPage        = () => import('@/pages/RegistroPage.vue')
-const ClinicasPage        = () => import('@/pages/ClinicasPage.vue')
-const ClinicaDetallePage  = () => import('@/pages/ClinicaDetallePage.vue')
-const MisMascotasPage     = () => import('@/pages/MisMascotasPage.vue')
-const MisCitasPage        = () => import('@/pages/MisCitasPage.vue')
-const NuevaCitaPage       = () => import('@/pages/NuevaCitaPage.vue')
+// ── Páginas ────────────────────────────────────────────────────
+const LandingPage       = () => import('@/pages/LandingPage.vue')
+const HomePage          = () => import('@/pages/HomePage.vue')
+const LoginPage         = () => import('@/pages/LoginPage.vue')
+const RegistroPage      = () => import('@/pages/RegistroPage.vue')
+const ClinicasPage      = () => import('@/pages/ClinicasPage.vue')
+const ClinicaDetallePage = () => import('@/pages/ClinicaDetallePage.vue')
+const MisMascotasPage   = () => import('@/pages/MisMascotasPage.vue')
+const NuevaMascotaPage  = () => import('@/pages/NuevaMascotaPage.vue')
+const MisCitasPage      = () => import('@/pages/MisCitasPage.vue')
+const NuevaCitaPage     = () => import('@/pages/NuevaCitaPage.vue')
+
 
 const routes = [
-  // ── Rutas públicas ───────────────────────────────────────
+  // ── Pública: landing de bienvenida ──────────────────────────
   {
     path: '/',
-    name: 'home',
-    component: HomePage,
-    meta: { requiresAuth: false }
+    name: 'landing',
+    component: LandingPage,
+    meta: { requiresAuth: false, redirectIfAuth: true }
+    // Si ya hay sesión → redirige a /mis-mascotas
   },
 
-  // ── Rutas de autenticación (redirigen si ya hay sesión) ──
+  // ── Rutas de auth ────────────────────────────────────────────
   {
     path: '/login',
     name: 'login',
@@ -44,7 +39,25 @@ const routes = [
     meta: { requiresAuth: false, redirectIfAuth: true }
   },
 
-  // ── Rutas privadas ───────────────────────────────────────
+  // ── Rutas privadas ───────────────────────────────────────────
+  {
+    path: '/home',
+    name: 'home',
+    component: HomePage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/mis-mascotas',
+    name: 'mis-mascotas',
+    component: MisMascotasPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/nueva-mascota',
+    name: 'nueva-mascota',
+    component: NuevaMascotaPage,
+    meta: { requiresAuth: true }
+  },
   {
     path: '/clinicas',
     name: 'clinicas',
@@ -55,12 +68,6 @@ const routes = [
     path: '/clinicas/:id',
     name: 'clinica-detalle',
     component: ClinicaDetallePage,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/mis-mascotas',
-    name: 'mis-mascotas',
-    component: MisMascotasPage,
     meta: { requiresAuth: true }
   },
   {
@@ -76,7 +83,7 @@ const routes = [
     meta: { requiresAuth: true }
   },
 
-  // ── Fallback 404 → redirige a home ───────────────────────
+  // ── Fallback ─────────────────────────────────────────────────
   {
     path: '/:pathMatch(.*)*',
     redirect: '/'
@@ -86,22 +93,21 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-  // Scroll al inicio en cada navegación
   scrollBehavior: () => ({ top: 0, behavior: 'smooth' })
 })
 
-// ── Guard global de navegación ───────────────────────────────
+// ── Guard global ─────────────────────────────────────────────────
 router.beforeEach((to) => {
   const authStore = useAuthStore()
 
-  // Ruta privada y no hay sesión → redirige a login
+  // Ruta privada sin sesión → login
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  // Ruta de auth y ya hay sesión → redirige a clínicas
+  // Landing/login/registro con sesión activa → mis mascotas
   if (to.meta.redirectIfAuth && authStore.isLoggedIn) {
-    return { name: 'clinicas' }
+    return { name: 'mis-mascotas' }
   }
 })
 

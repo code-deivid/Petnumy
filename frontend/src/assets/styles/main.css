@@ -1,104 +1,167 @@
-/* src/assets/styles/main.css — Petnumy v3 */
+/* src/assets/styles/main.css — Petnumy Design v5 (source of truth: prototipo exportado) */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Paleta principal */
-  --color-primary:       #F4845F;
-  --color-primary-dark:  #D96A45;
-  --color-primary-light: #FDE8DF;
-  --color-teal:          #5CC8C0;
-  --color-teal-dark:     #45AEA7;
-  --color-teal-light:    #E0F5F4;
-  --color-danger:        #D95F5F;
-  --color-danger-light:  #FDEAEA;
+  /* ── Paleta extraída del prototipo exportado ──────────────── */
 
-  /* Superficies */
-  --color-bg:            #EDE8DF;
-  --color-surface:       #FFFFFF;
-  --color-surface-alt:   #F5F0E8;
-  --color-navbar:        #D4C4A8;
+  /* Primario / Coral */
+  --color-primary:        #F08263;   /* coral CTA — exacto del prototipo */
+  --color-primary-dark:   #D4613E;   /* coral hover */
+  --color-primary-light:  #FDE3D7;   /* coral muy claro — fondos suaves */
+  --color-primary-mid:    #F5A882;   /* coral medio */
 
-  /* Texto */
-  --color-text:          #3D2B1F;
-  --color-text-soft:     #7A5C48;
-  --color-text-muted:    #B0A090;
+  /* Teal / Turquesa */
+  --color-teal:           #7CCBC2;   /* turquesa — exacto del prototipo */
+  --color-teal-dark:      #4AADA5;   /* turquesa hover */
+  --color-teal-light:     #E0F1EE;   /* turquesa muy claro */
+  --color-teal-mid:       #CCE6E6;   /* turquesa suave */
 
-  /* Bordes */
-  --color-border:        #E0D8CE;
-  --color-border-focus:  #5CC8C0;
+  /* Danger */
+  --color-danger:         #D95F5F;
+  --color-danger-light:   #FDEAEA;
 
-  /* Radios */
-  --radius-sm:   8px;
-  --radius-md:   14px;
-  --radius-lg:   22px;
-  --radius-xl:   30px;
-  --radius-full: 9999px;
+  /* ── Superficies ──────────────────────────────────────────── */
+  --color-bg:             #F5EFE3;   /* beige cálido fondo — exacto del prototipo */
+  --color-surface:        #FFFFFF;   /* blanco puro — cards */
+  --color-surface-alt:    #F7F2EA;   /* beige muy claro — inputs */
+  --color-surface-warm:   #EDE6DA;   /* beige medio — hover inputs */
+  --color-surface-mint:   #E3F2DF;   /* verde menta — card consejo */
 
-  /* Sombras */
-  --shadow-xs:   0 1px 4px  rgba(61,43,31,0.07);
-  --shadow-sm:   0 2px 8px  rgba(61,43,31,0.08);
-  --shadow-md:   0 6px 20px rgba(61,43,31,0.11);
-  --shadow-lg:   0 12px 40px rgba(61,43,31,0.14);
-  --shadow-card: 0 3px 14px rgba(61,43,31,0.09);
+  /* Navbar */
+  --color-navbar:         #F2C8A7;   /* durazno suave — exacto del prototipo */
+  --color-navbar-border:  #E6B991;   /* borde inferior navbar */
 
-  /* Fuentes */
+  /* ── Texto ────────────────────────────────────────────────── */
+  --color-text:           #3C2E1F;   /* marrón oscuro — exacto del prototipo */
+  --color-text-soft:      #6B4C38;   /* marrón medio */
+  --color-text-muted:     #9B8A75;   /* marrón suave — exacto del prototipo */
+  --color-text-on-primary:#FFFFFF;
+
+  /* ── Bordes ───────────────────────────────────────────────── */
+  --color-border:         #E2D8CC;
+  --color-border-focus:   #7CCBC2;
+
+  /* ── Radios — del prototipo rx=24 para cards, pill para botones ── */
+  --radius-xs:    5px;
+  --radius-sm:    8px;
+  --radius-md:    14px;
+  --radius-lg:    24px;   /* cards grandes — rx=24 del prototipo */
+  --radius-xl:    32px;
+  --radius-full:  9999px; /* botones pill */
+
+  /* ── Sombras ──────────────────────────────────────────────── */
+  --shadow-xs:   0 1px 3px  rgba(60,46,31,0.06);
+  --shadow-sm:   0 2px 8px  rgba(60,46,31,0.08);
+  --shadow-md:   0 4px 16px rgba(60,46,31,0.10);
+  --shadow-lg:   0 8px 32px rgba(60,46,31,0.13);
+  --shadow-xl:   0 16px 48px rgba(60,46,31,0.16);
+  --shadow-card: 0 2px 14px rgba(60,46,31,0.07);   /* sombra suave de cards */
+
+  /* ── Fuentes ──────────────────────────────────────────────── */
   --font-display: 'Nunito', sans-serif;
   --font-body:    'Poppins', sans-serif;
 
-  /* Transiciones */
-  --transition-fast:   140ms ease;
-  --transition-normal: 240ms ease;
-  --transition-slow:   380ms ease;
+  /* ── Transiciones ─────────────────────────────────────────── */
+  --transition-fast:   130ms ease;
+  --transition-normal: 220ms ease;
+  --transition-slow:   360ms ease;
 
-  /* Layout */
-  --navbar-height: 66px;
-  --max-width:     1100px;
-  --page-padding:  1.5rem;
+  /* ── Layout — del prototipo: canvas 1440, padding 40px, navbar 90px ── */
+  --navbar-height:  90px;            /* exacto del prototipo */
+  --max-width:      1360px;          /* canvas 1440 - padding 40px×2 */
+  --page-padding:   2.5rem;          /* ≈40px, exacto del prototipo */
+  --page-padding-y: 1.75rem;         /* gap navbar→content ≈30px del prototipo */
+  --card-gap:       1.5rem;          /* gap entre cards ≈22-28px */
 }
 
 /* ── Reset ─────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-body);
   background-color: var(--color-bg);
-  /* Patrón de olas suave */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 20 Q20 0 40 20 Q60 40 80 20' fill='none' stroke='%235CC8C0' stroke-width='1.4' stroke-opacity='0.15'/%3E%3C/svg%3E");
-  background-size: 80px 40px;
+  /* Patrón de arcos — del prototipo: stroke #7CCBC2, olas grandes */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='440' height='220'%3E%3Cpath d='M0 220 A220 220 0 0 1 440 220' fill='none' stroke='%237CCBC2' stroke-width='2.5' stroke-opacity='0.28'/%3E%3C/svg%3E");
+  background-size: 440px 220px;
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
 }
 
-img   { max-width: 100%; display: block; }
-a     { color: inherit; text-decoration: none; }
+img    { max-width: 100%; display: block; }
+a      { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: var(--font-body); border: none; background: none; }
-input, textarea, select { font-family: var(--font-body); font-size: 1rem; outline: none; }
+input, textarea, select {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  outline: none;
+}
 
 /* ── Tipografía ────────────────────────────────────────────── */
-h1,h2,h3,h4,h5,h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 800;
   line-height: 1.2;
   color: var(--color-text);
 }
-h1 { font-size: clamp(1.6rem, 4vw, 2.25rem); }
-h2 { font-size: clamp(1.3rem, 3vw, 1.75rem); }
-h3 { font-size: 1.15rem; }
-h4 { font-size: 1rem; }
-p  { color: var(--color-text-soft); line-height: 1.7; }
+
+h1 { font-size: clamp(1.6rem, 3.5vw, 2.25rem); letter-spacing: -0.4px; }
+h2 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); letter-spacing: -0.2px; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 0.95rem; }
+
+p {
+  color: var(--color-text-soft);
+  line-height: 1.7;
+}
+
+strong { color: var(--color-text); font-weight: 700; }
 
 /* ── Scrollbar ─────────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+
+/* ── Contenedor de página ──────────────────────────────────── */
+.page-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-padding);
+}
+
+.page-section {
+  padding: var(--page-padding-y) 0;
+}
+
+/* ── Responsive page-padding ──────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --page-padding:   1.25rem;
+    --page-padding-y: 1.5rem;
+    --card-gap:       1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --page-padding: 1rem;
+  }
+}
