@@ -1,32 +1,25 @@
 <!-- src/pages/LoginPage.vue -->
-
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth.js'
 
 const route = useRoute()
 const { login, loading, error } = useAuth()
 
-const email    = ref('')
-const password = ref('')
-
-// Mensaje de éxito si viene de registro
-const successMessage = computed(() =>
-  route.query.registered === 'true'
-    ? '¡Cuenta creada! Ya puedes iniciar sesión 🎉'
-    : null
-)
-
-// Validación local básica
+const email     = ref('')
+const password  = ref('')
 const formError = ref(null)
+
+const successMessage = computed(() =>
+  route.query.registered === 'true' ? '¡Cuenta creada! Ya puedes iniciar sesión.' : null
+)
 
 function validate() {
   if (!email.value.trim())    return 'El email es obligatorio'
   if (!password.value.trim()) return 'La contraseña es obligatoria'
   return null
 }
-
 async function handleSubmit() {
   formError.value = validate()
   if (formError.value) return
@@ -35,81 +28,57 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="auth-page flex items-center justify-center">
+  <div class="auth-page">
     <div class="auth-card card">
 
-      <!-- Cabecera -->
-      <div class="auth-header flex flex-col items-center gap-2">
-        <span class="auth-icon">🐾</span>
-        <h1 class="auth-title">¡Bienvenido de nuevo!</h1>
-        <p class="auth-subtitle">Inicia sesión para gestionar a tus mascotas</p>
+      <div class="auth-head">
+        <h1>Iniciar sesión</h1>
+        <p>Bienvenido de nuevo a Petnumy</p>
       </div>
 
-      <!-- Mensaje de registro exitoso -->
       <Transition name="fade">
-        <div v-if="successMessage" class="auth-success">
-          {{ successMessage }}
-        </div>
+        <div v-if="successMessage" class="msg msg-success">{{ successMessage }}</div>
+      </Transition>
+      <Transition name="fade">
+        <div v-if="error" class="msg msg-error">{{ error }}</div>
       </Transition>
 
-      <!-- Error del servidor -->
-      <Transition name="fade">
-        <div v-if="error" class="auth-error">
-          {{ error }}
-        </div>
-      </Transition>
+      <div class="auth-form">
 
-      <!-- Formulario -->
-      <div class="auth-form flex flex-col gap-4">
-
-        <div class="flex flex-col gap-1">
-          <label class="label" for="email">Email</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            placeholder="tu@email.com"
-            class="input"
-            :class="{ 'input-error': formError && !email }"
-            autocomplete="email"
-            @keyup.enter="handleSubmit"
-          />
+        <div class="input-group">
+          <label class="label" for="email">Correo electrónico</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input id="email" v-model="email" type="email" placeholder="tu@email.com" class="input" :class="{ 'input-error': formError && !email }" autocomplete="email" @keyup.enter="handleSubmit"/>
+          </div>
         </div>
 
-        <div class="flex flex-col gap-1">
+        <div class="input-group">
           <label class="label" for="password">Contraseña</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            placeholder="••••••••"
-            class="input"
-            :class="{ 'input-error': formError && !password }"
-            autocomplete="current-password"
-            @keyup.enter="handleSubmit"
-          />
-          <span v-if="formError" class="input-message-error">
-            {{ formError }}
-          </span>
+          <div class="input-wrapper">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input id="password" v-model="password" type="password" placeholder="••••••••" class="input" :class="{ 'input-error': formError && !password }" autocomplete="current-password" @keyup.enter="handleSubmit"/>
+          </div>
+          <span v-if="formError" class="input-error-msg">{{ formError }}</span>
         </div>
 
-        <button
-          class="btn btn-primary"
-          :disabled="loading"
-          @click="handleSubmit"
-        >
-          <span v-if="loading" class="spinner" style="width:18px;height:18px;border-width:2px" />
+        <button class="btn btn-primary btn-block" :disabled="loading" @click="handleSubmit">
+          <span v-if="loading" class="spinner" style="width:16px;height:16px;border-width:2px"/>
           <span v-else>Entrar</span>
         </button>
 
       </div>
 
-      <!-- Footer del formulario -->
-      <p class="auth-footer-text">
-        ¿Aún no tienes cuenta?
-        <RouterLink :to="{ name: 'registro' }" class="auth-link">
-          Regístrate aquí
-        </RouterLink>
+      <div class="divider-label">o continúa con</div>
+
+      <button class="btn-social" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuar con Google
+      </button>
+
+      <p class="auth-footer">
+        ¿No tienes cuenta?
+        <RouterLink :to="{ name: 'registro' }" class="auth-footer-link">Regístrate</RouterLink>
       </p>
 
     </div>
@@ -119,81 +88,35 @@ async function handleSubmit() {
 <style scoped>
 .auth-page {
   min-height: calc(100vh - var(--navbar-height));
+  display: flex; align-items: center; justify-content: center;
   padding: 2rem var(--page-padding);
-  background-color: var(--color-bg);
 }
 
 .auth-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 2.25rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  width: 100%; max-width: 420px;
+  padding: 2.25rem;
+  display: flex; flex-direction: column; gap: 1.25rem;
+  box-shadow: var(--shadow-lg);
 }
 
-/* Cabecera */
-.auth-header {
-  text-align: center;
-}
+.auth-head { text-align: center; }
+.auth-head h1 { font-size: 1.65rem; margin-bottom: 0.3rem; }
+.auth-head p  { font-size: 0.875rem; margin: 0; }
 
-.auth-icon {
-  font-size: 2.5rem;
-  line-height: 1;
-}
+.auth-form { display: flex; flex-direction: column; gap: 1rem; }
 
-.auth-title {
-  font-size: 1.5rem;
-  color: var(--color-text);
-}
-
-.auth-subtitle {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-/* Mensajes */
-.auth-success {
-  background-color: #E8F7EC;
-  color: #3A8A51;
-  border: 1.5px solid #B6DFC0;
+.btn-social {
+  width: 100%; padding: 0.7rem 1rem;
   border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-family: var(--font-display);
-  font-weight: 600;
-  text-align: center;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.875rem;
+  color: var(--color-text-soft);
+  opacity: 0.6; cursor: not-allowed;
 }
 
-.auth-error {
-  background-color: #FDEAEA;
-  color: #B04040;
-  border: 1.5px solid #F0BABA;
-  border-radius: var(--radius-md);
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  font-family: var(--font-display);
-  font-weight: 600;
-  text-align: center;
-}
-
-/* Footer */
-.auth-footer-text {
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-.auth-link {
-  color: var(--color-primary);
-  font-family: var(--font-display);
-  font-weight: 700;
-  transition: color var(--transition-fast);
-}
-
-.auth-link:hover {
-  color: var(--color-primary-dark);
-}
+.auth-footer { text-align: center; font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+.auth-footer-link { color: var(--color-primary); font-weight: 700; }
+.auth-footer-link:hover { color: var(--color-primary-dark); }
 </style>

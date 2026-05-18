@@ -18,6 +18,8 @@ const RegistroPage        = () => import('@/pages/RegistroPage.vue')
 const ClinicasPage        = () => import('@/pages/ClinicasPage.vue')
 const ClinicaDetallePage  = () => import('@/pages/ClinicaDetallePage.vue')
 const MisMascotasPage     = () => import('@/pages/MisMascotasPage.vue')
+const MisCitasPage        = () => import('@/pages/MisCitasPage.vue')
+const NuevaCitaPage       = () => import('@/pages/NuevaCitaPage.vue')
 
 const routes = [
   // ── Rutas públicas ───────────────────────────────────────
@@ -59,6 +61,18 @@ const routes = [
     path: '/mis-mascotas',
     name: 'mis-mascotas',
     component: MisMascotasPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/mis-citas',
+    name: 'mis-citas',
+    component: MisCitasPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/nueva-cita',
+    name: 'nueva-cita',
+    component: NuevaCitaPage,
     meta: { requiresAuth: true }
   },
 

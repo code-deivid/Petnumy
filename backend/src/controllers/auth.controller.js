@@ -1,222 +1,225 @@
 // src/controllers/auth.controller.js
 // ============================================================
-//  Controlador de autenticación.
+//  Controlador de autenticación — v2
 //
-//  Supabase Auth gestiona internamente las contraseñas y tokens.
-//  El backend actúa como intermediario para:
-//    1. Llamar a Supabase Auth
-//    2. Crear/actualizar el perfil en public.usuario
-//    3. Devolver una respuesta limpia y consistente al frontend
+//  CORRECCIÓN PRINCIPAL:
+//  - registro: usa supabaseAdmin.auth.admin.createUser()
+//    en lugar de supabase.auth.signUp() con cliente anon.
+//    Esto evita el error "permission denied for schema public"
+//    porque el service_role bypasea RLS en Auth y en public.
+//  - El insert en public.usuario también usa supabaseAdmin,
+//    que tiene permisos completos sin depender de RLS.
 // ============================================================
 
-import { supabase, supabaseAdmin } from '../config/supabase.js'
+import { supabase, supabaseAdmin } from "../config/supabase.js";
 
 // ------------------------------------------------------------
 //  POST /api/auth/registro
-//  Crea una cuenta nueva en Supabase Auth y su perfil de usuario
 // ------------------------------------------------------------
-export async function registro(req, res) {
-  const { email, password, nombre, apellidos } = req.body
+// Función registro — auth.controller.js
 
-  // Validación básica de campos
+export async function registro(req, res) {
+  const { email, password, nombre, apellidos } = req.body;
+
+  // ── Validaciones básicas ────────────────────────────────────
   if (!email || !password || !nombre) {
     return res.status(400).json({
-      error: 'Campos requeridos',
-      message: 'Email, contraseña y nombre son obligatorios'
-    })
+      error: "Campos requeridos",
+      message: "Email, contraseña y nombre son obligatorios",
+    });
   }
 
   if (password.length < 6) {
     return res.status(400).json({
-      error: 'Contraseña débil',
-      message: 'La contraseña debe tener al menos 6 caracteres'
-    })
+      error: "Contraseña débil",
+      message: "La contraseña debe tener al menos 6 caracteres",
+    });
   }
 
-  // 1. Crear usuario en Supabase Auth
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password
-  })
+  // ── DIAGNÓSTICO: confirmar que la service key está cargada ──
+  // Elimina este bloque una vez confirmado que funciona.
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (!serviceKey || serviceKey === process.env.SUPABASE_ANON_KEY) {
+    console.error(
+      "[AUTH] ERROR: SUPABASE_SERVICE_ROLE_KEY no está definida o es igual a ANON_KEY",
+    );
+    return res.status(500).json({
+      error: "Configuración incorrecta",
+      message:
+        "El servidor no tiene configurada la clave de servicio de Supabase. Revisa el .env",
+    });
+  }
+
+  // ── 1. Crear usuario en Auth con service_role ───────────────
+  // IMPORTANTE: usamos supabaseAdmin.auth.admin.createUser, NO supabase.auth.signUp
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // sin necesidad de confirmar email
+    });
 
   if (authError) {
+    console.error("[AUTH] Error en createUser:", authError);
     return res.status(400).json({
-      error: 'Error en el registro',
-      message: authError.message
-    })
+      error: "Error en el registro",
+      message: authError.message,
+    });
   }
 
-  const userId = authData.user?.id
+  const userId = authData.user?.id;
 
   if (!userId) {
     return res.status(500).json({
-      error: 'Error interno',
-      message: 'No se pudo obtener el ID del usuario creado'
-    })
+      error: "Error interno",
+      message: "No se pudo obtener el ID del usuario creado",
+    });
   }
 
-  // 2. Crear perfil en public.usuario usando supabaseAdmin
-  //    (bypasea RLS porque el usuario aún no tiene sesión activa)
-  const { error: profileError } = await supabaseAdmin
-    .from('usuario')
-    .insert({
-      id: userId,
-      nombre,
-      apellidos: apellidos || null
-    })
+  // ── 2. Insertar perfil en public.usuario con supabaseAdmin ──
+  // service_role bypasea RLS — no hay "permission denied"
+  const { error: profileError } = await supabaseAdmin.from("usuario").insert({
+    id: userId,
+    nombre: nombre.trim(),
+    apellidos: apellidos?.trim() || null,
+  });
 
   if (profileError) {
-    // Si falla la creación del perfil, intentamos limpiar el usuario de Auth
-    await supabaseAdmin.auth.admin.deleteUser(userId)
+    console.error("[AUTH] Error insertando perfil:", profileError);
+    // Revertir: eliminar el usuario de Auth si falla el perfil
+    await supabaseAdmin.auth.admin.deleteUser(userId);
     return res.status(500).json({
-      error: 'Error creando perfil',
-      message: profileError.message
-    })
+      error: "Error creando perfil",
+      message: profileError.message,
+    });
   }
 
   return res.status(201).json({
-    message: 'Cuenta creada correctamente. Revisa tu email para confirmarla.',
+    message: "Cuenta creada correctamente. Ya puedes iniciar sesión.",
     usuario: {
       id: userId,
       email: authData.user.email,
-      nombre,
-      apellidos: apellidos || null
-    }
-  })
+      nombre: nombre.trim(),
+      apellidos: apellidos?.trim() || null,
+    },
+  });
 }
 
 // ------------------------------------------------------------
 //  POST /api/auth/login
-//  Inicia sesión y devuelve los tokens de acceso
 // ------------------------------------------------------------
 export async function login(req, res) {
-  const { email, password } = req.body
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({
-      error: 'Campos requeridos',
-      message: 'Email y contraseña son obligatorios'
-    })
+      error: "Campos requeridos",
+      message: "Email y contraseña son obligatorios",
+    });
   }
 
+  // Login con cliente anon — correcto para obtener tokens de sesión
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password
-  })
+    password,
+  });
 
   if (error) {
     return res.status(401).json({
-      error: 'Credenciales incorrectas',
-      message: error.message
-    })
+      error: "Credenciales incorrectas",
+      message: error.message,
+    });
   }
 
-  // Obtener el perfil del usuario de public.usuario
+  // Obtener perfil de public.usuario
   const { data: perfil, error: perfilError } = await supabaseAdmin
-    .from('usuario')
-    .select('id, nombre, apellidos, foto')
-    .eq('id', data.user.id)
-    .single()
+    .from("usuario")
+    .select("id, nombre, apellidos, foto")
+    .eq("id", data.user.id)
+    .single();
 
   if (perfilError) {
     return res.status(500).json({
-      error: 'Error obteniendo perfil',
-      message: perfilError.message
-    })
+      error: "Error obteniendo perfil",
+      message: perfilError.message,
+    });
   }
 
   return res.status(200).json({
-    message: 'Login correcto',
+    message: "Login correcto",
     session: {
       access_token: data.session.access_token,
       refresh_token: data.session.refresh_token,
-      expires_at: data.session.expires_at
+      expires_at: data.session.expires_at,
     },
     usuario: {
       id: perfil.id,
       email: data.user.email,
       nombre: perfil.nombre,
       apellidos: perfil.apellidos,
-      foto: perfil.foto
-    }
-  })
+      foto: perfil.foto,
+    },
+  });
 }
 
 // ------------------------------------------------------------
 //  POST /api/auth/logout
-//  Cierra la sesión activa (requiere token válido)
 // ------------------------------------------------------------
 export async function logout(req, res) {
-  const token = req.headers.authorization?.split(' ')[1]
-
-  // Creamos un cliente temporal con el token del usuario
-  // para cerrar su sesión específica
-  const { error } = await supabase.auth.admin
-    ? await supabaseAdmin.auth.admin.signOut(token)
-    : await supabase.auth.signOut()
-
-  if (error) {
-    return res.status(500).json({
-      error: 'Error cerrando sesión',
-      message: error.message
-    })
-  }
-
-  return res.status(200).json({ message: 'Sesión cerrada correctamente' })
+  // El frontend descarta el token localmente.
+  // Aquí simplemente confirmamos el logout.
+  return res.status(200).json({ message: "Sesión cerrada correctamente" });
 }
 
 // ------------------------------------------------------------
 //  POST /api/auth/refresh
-//  Renueva el access_token usando el refresh_token
 // ------------------------------------------------------------
 export async function refresh(req, res) {
-  const { refresh_token } = req.body
+  const { refresh_token } = req.body;
 
   if (!refresh_token) {
     return res.status(400).json({
-      error: 'Campos requeridos',
-      message: 'refresh_token es obligatorio'
-    })
+      error: "Campos requeridos",
+      message: "refresh_token es obligatorio",
+    });
   }
 
-  const { data, error } = await supabase.auth.refreshSession({ refresh_token })
+  const { data, error } = await supabase.auth.refreshSession({ refresh_token });
 
   if (error) {
     return res.status(401).json({
-      error: 'No se pudo renovar la sesión',
-      message: error.message
-    })
+      error: "No se pudo renovar la sesión",
+      message: error.message,
+    });
   }
 
   return res.status(200).json({
-    message: 'Sesión renovada',
+    message: "Sesión renovada",
     session: {
       access_token: data.session.access_token,
       refresh_token: data.session.refresh_token,
-      expires_at: data.session.expires_at
-    }
-  })
+      expires_at: data.session.expires_at,
+    },
+  });
 }
 
 // ------------------------------------------------------------
 //  GET /api/auth/me
-//  Devuelve el perfil del usuario autenticado (requiere token)
 // ------------------------------------------------------------
 export async function me(req, res) {
-  // req.user viene del middleware requireAuth
-  const userId = req.user.id
+  const userId = req.user.id;
 
   const { data: perfil, error } = await supabaseAdmin
-    .from('usuario')
-    .select('id, nombre, apellidos, foto, created_at')
-    .eq('id', userId)
-    .single()
+    .from("usuario")
+    .select("id, nombre, apellidos, foto, created_at")
+    .eq("id", userId)
+    .single();
 
   if (error) {
     return res.status(404).json({
-      error: 'Perfil no encontrado',
-      message: error.message
-    })
+      error: "Perfil no encontrado",
+      message: error.message,
+    });
   }
 
   return res.status(200).json({
@@ -226,48 +229,46 @@ export async function me(req, res) {
       nombre: perfil.nombre,
       apellidos: perfil.apellidos,
       foto: perfil.foto,
-      created_at: perfil.created_at
-    }
-  })
+      created_at: perfil.created_at,
+    },
+  });
 }
 
 // ------------------------------------------------------------
 //  PATCH /api/auth/me
-//  Actualiza el perfil del usuario autenticado
 // ------------------------------------------------------------
 export async function actualizarPerfil(req, res) {
-  const userId = req.user.id
-  const { nombre, apellidos, foto } = req.body
+  const userId = req.user.id;
+  const { nombre, apellidos, foto } = req.body;
 
-  // Solo permitimos actualizar estos campos
-  const cambios = {}
-  if (nombre    !== undefined) cambios.nombre    = nombre
-  if (apellidos !== undefined) cambios.apellidos = apellidos
-  if (foto      !== undefined) cambios.foto      = foto
+  const cambios = {};
+  if (nombre !== undefined) cambios.nombre = nombre;
+  if (apellidos !== undefined) cambios.apellidos = apellidos;
+  if (foto !== undefined) cambios.foto = foto;
 
   if (Object.keys(cambios).length === 0) {
     return res.status(400).json({
-      error: 'Sin cambios',
-      message: 'No se ha proporcionado ningún campo para actualizar'
-    })
+      error: "Sin cambios",
+      message: "No se ha proporcionado ningún campo para actualizar",
+    });
   }
 
   const { data, error } = await supabaseAdmin
-    .from('usuario')
+    .from("usuario")
     .update(cambios)
-    .eq('id', userId)
-    .select('id, nombre, apellidos, foto')
-    .single()
+    .eq("id", userId)
+    .select("id, nombre, apellidos, foto")
+    .single();
 
   if (error) {
     return res.status(500).json({
-      error: 'Error actualizando perfil',
-      message: error.message
-    })
+      error: "Error actualizando perfil",
+      message: error.message,
+    });
   }
 
   return res.status(200).json({
-    message: 'Perfil actualizado correctamente',
-    usuario: data
-  })
+    message: "Perfil actualizado correctamente",
+    usuario: data,
+  });
 }
