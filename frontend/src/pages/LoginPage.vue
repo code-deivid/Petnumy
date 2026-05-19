@@ -35,7 +35,7 @@ async function handleSubmit() {
     <div class="login-left" aria-hidden="true">
       <!-- Logo + nombre -->
       <div class="left-brand">
-        <svg class="left-logo" viewBox="0 0 48 38" fill="none">
+        <!-- <svg class="left-logo" viewBox="0 0 48 38" fill="none">
           <path d="M10 34c0-2 1-3.5 2.5-3.5h22c3.5 0 6.5 2 8.5 5l2 2.5v-4c0-1-.9-2-2-2H36v-6h-3v6H15v-6h-3v6h-2c-1 0-2-.9-2-2V22c0-2 1-3 2.5-3H38c2 0 3.5 1 3.5 3v12" fill="#3C2E1F"/>
           <rect x="32" y="16" width="12" height="10" rx="2" fill="#3C2E1F"/>
           <rect x="8" y="10" width="13" height="13" rx="3.5" fill="#3C2E1F"/>
@@ -43,7 +43,7 @@ async function handleSubmit() {
           <circle cx="8.5" cy="13" r="1.5" fill="#F5EFE3"/>
           <rect x="30" y="30" width="6" height="7" rx="2" fill="#3C2E1F"/>
           <rect x="18" y="30" width="6" height="7" rx="2" fill="#3C2E1F"/>
-        </svg>
+        </svg> -->
         <span class="left-brand-name">Petnumy</span>
       </div>
 

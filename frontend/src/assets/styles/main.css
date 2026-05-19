@@ -1,105 +1,101 @@
-/* src/assets/styles/main.css — Petnumy Design v5 (source of truth: prototipo exportado) */
+/* src/assets/styles/main.css — Petnumy v5.2 */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* ── Paleta extraída del prototipo exportado ──────────────── */
+  /* Paleta */
+  --color-primary:        #F08263;
+  --color-primary-dark:   #D4613E;
+  --color-primary-light:  #FDE3D7;
+  --color-primary-mid:    #F5A882;
 
-  /* Primario / Coral */
-  --color-primary:        #F08263;   /* coral CTA — exacto del prototipo */
-  --color-primary-dark:   #D4613E;   /* coral hover */
-  --color-primary-light:  #FDE3D7;   /* coral muy claro — fondos suaves */
-  --color-primary-mid:    #F5A882;   /* coral medio */
+  --color-teal:           #7CCBC2;
+  --color-teal-dark:      #4AADA5;
+  --color-teal-light:     #E0F1EE;
+  --color-teal-mid:       #CCE6E6;
 
-  /* Teal / Turquesa */
-  --color-teal:           #7CCBC2;   /* turquesa — exacto del prototipo */
-  --color-teal-dark:      #4AADA5;   /* turquesa hover */
-  --color-teal-light:     #E0F1EE;   /* turquesa muy claro */
-  --color-teal-mid:       #CCE6E6;   /* turquesa suave */
-
-  /* Danger */
   --color-danger:         #D95F5F;
   --color-danger-light:   #FDEAEA;
 
-  /* ── Superficies ──────────────────────────────────────────── */
-  --color-bg:             #F5EFE3;   /* beige cálido fondo — exacto del prototipo */
-  --color-surface:        #FFFFFF;   /* blanco puro — cards */
-  --color-surface-alt:    #F7F2EA;   /* beige muy claro — inputs */
-  --color-surface-warm:   #EDE6DA;   /* beige medio — hover inputs */
-  --color-surface-mint:   #E3F2DF;   /* verde menta — card consejo */
+  /* Superficies */
+  --color-bg:             #F5EFE3;
+  --color-surface:        #FFFFFF;
+  --color-surface-alt:    #F7F2EA;
+  --color-surface-warm:   #EDE6DA;
+  --color-surface-mint:   #E3F2DF;
+  --color-navbar:         #F2C8A7;
+  --color-navbar-border:  #E6B991;
 
-  /* Navbar */
-  --color-navbar:         #F2C8A7;   /* durazno suave — exacto del prototipo */
-  --color-navbar-border:  #E6B991;   /* borde inferior navbar */
-
-  /* ── Texto ────────────────────────────────────────────────── */
-  --color-text:           #3C2E1F;   /* marrón oscuro — exacto del prototipo */
-  --color-text-soft:      #6B4C38;   /* marrón medio */
-  --color-text-muted:     #9B8A75;   /* marrón suave — exacto del prototipo */
+  /* Texto */
+  --color-text:           #3C2E1F;
+  --color-text-soft:      #6B4C38;
+  --color-text-muted:     #9B8A75;
   --color-text-on-primary:#FFFFFF;
 
-  /* ── Bordes ───────────────────────────────────────────────── */
+  /* Bordes */
   --color-border:         #E2D8CC;
   --color-border-focus:   #7CCBC2;
 
-  /* ── Radios — del prototipo rx=24 para cards, pill para botones ── */
+  /* Radios */
   --radius-xs:    5px;
   --radius-sm:    8px;
   --radius-md:    14px;
-  --radius-lg:    24px;   /* cards grandes — rx=24 del prototipo */
+  --radius-lg:    24px;
   --radius-xl:    32px;
-  --radius-full:  9999px; /* botones pill */
+  --radius-full:  9999px;
 
-  /* ── Sombras ──────────────────────────────────────────────── */
+  /* Sombras */
   --shadow-xs:   0 1px 3px  rgba(60,46,31,0.06);
   --shadow-sm:   0 2px 8px  rgba(60,46,31,0.08);
   --shadow-md:   0 4px 16px rgba(60,46,31,0.10);
   --shadow-lg:   0 8px 32px rgba(60,46,31,0.13);
   --shadow-xl:   0 16px 48px rgba(60,46,31,0.16);
-  --shadow-card: 0 2px 14px rgba(60,46,31,0.07);   /* sombra suave de cards */
+  --shadow-card: 0 2px 12px rgba(60,46,31,0.07);
 
-  /* ── Fuentes ──────────────────────────────────────────────── */
+  /* Fuentes */
   --font-display: 'Nunito', sans-serif;
   --font-body:    'Poppins', sans-serif;
 
-  /* ── Transiciones ─────────────────────────────────────────── */
+  /* Transiciones */
   --transition-fast:   130ms ease;
   --transition-normal: 220ms ease;
   --transition-slow:   360ms ease;
 
-  /* ── Layout — del prototipo: canvas 1440, padding 40px, navbar 90px ── */
-  --navbar-height:  90px;            /* exacto del prototipo */
-  --max-width:      1360px;          /* canvas 1440 - padding 40px×2 */
-  --page-padding:   2.5rem;          /* ≈40px, exacto del prototipo */
-  --page-padding-y: 1.75rem;         /* gap navbar→content ≈30px del prototipo */
-  --card-gap:       1.5rem;          /* gap entre cards ≈22-28px */
+  /* Layout */
+  --navbar-height:  90px;
+  --max-width:      1360px;
+  --page-padding:   2.5rem;
+  --page-padding-y: 2rem;
+  --card-gap:       1.5rem;
 }
 
 /* ── Reset ─────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   font-family: var(--font-body);
   background-color: var(--color-bg);
-  /* Patrón de arcos — del prototipo: stroke #7CCBC2, olas grandes */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='440' height='220'%3E%3Cpath d='M0 220 A220 220 0 0 1 440 220' fill='none' stroke='%237CCBC2' stroke-width='2.5' stroke-opacity='0.28'/%3E%3C/svg%3E");
-  background-size: 440px 220px;
+  /*
+    OLAS — alejadas y pequeñas.
+    Tile: 320×160px. Arco de radio 90px → patrón amplio y sutil.
+    Las olas se ven como en las capturas de referencia del prototipo.
+  */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237CCBC2' stroke-width='1.8' stroke-opacity='0.18'/%3E%3C/svg%3E");
+  background-size: 320px 160px;
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 img    { max-width: 100%; display: block; }
@@ -107,7 +103,7 @@ a      { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: var(--font-body); border: none; background: none; }
 input, textarea, select {
   font-family: var(--font-body);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   outline: none;
 }
 
@@ -118,50 +114,49 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
   color: var(--color-text);
 }
-
-h1 { font-size: clamp(1.6rem, 3.5vw, 2.25rem); letter-spacing: -0.4px; }
-h2 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); letter-spacing: -0.2px; }
-h3 { font-size: 1.1rem; }
+h1 { font-size: clamp(1.5rem, 5vw, 2.25rem); letter-spacing: -0.4px; }
+h2 { font-size: clamp(1.2rem, 4vw, 1.75rem); letter-spacing: -0.2px; }
+h3 { font-size: clamp(1rem, 3vw, 1.15rem); }
 h4 { font-size: 0.95rem; }
 
-p {
-  color: var(--color-text-soft);
-  line-height: 1.7;
-}
-
+p      { color: var(--color-text-soft); line-height: 1.7; }
 strong { color: var(--color-text); font-weight: 700; }
 
 /* ── Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-full);
-}
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
-/* ── Contenedor de página ──────────────────────────────────── */
+/* ── Layout ────────────────────────────────────────────────── */
 .page-container {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 var(--page-padding);
 }
+.page-section { padding: var(--page-padding-y) 0; }
 
-.page-section {
-  padding: var(--page-padding-y) 0;
-}
-
-/* ── Responsive page-padding ──────────────────────────────── */
+/* ── Responsive tokens ─────────────────────────────────────── */
 @media (max-width: 768px) {
   :root {
+    --navbar-height:  60px;
     --page-padding:   1.25rem;
     --page-padding-y: 1.5rem;
-    --card-gap:       1rem;
+    --card-gap:       0.875rem;
+  }
+  body {
+    /* Olas algo más pequeñas en tablet */
+    background-size: 220px 110px;
   }
 }
 
 @media (max-width: 480px) {
   :root {
-    --page-padding: 1rem;
+    --page-padding:   1rem;
+    --page-padding-y: 1.25rem;
+  }
+  body {
+    /* Olas pequeñas en móvil pero no tiny */
+    background-size: 160px 80px;
   }
 }
