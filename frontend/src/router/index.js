@@ -13,7 +13,7 @@ const MisMascotasPage   = () => import('@/pages/MisMascotasPage.vue')
 const NuevaMascotaPage  = () => import('@/pages/NuevaMascotaPage.vue')
 const MisCitasPage      = () => import('@/pages/MisCitasPage.vue')
 const NuevaCitaPage     = () => import('@/pages/NuevaCitaPage.vue')
-
+const PerfilPage        = () => import('@/pages/PerfilPage.vue')
 
 const routes = [
   // ── Pública: landing de bienvenida ──────────────────────────
@@ -80,6 +80,13 @@ const routes = [
     path: '/nueva-cita',
     name: 'nueva-cita',
     component: NuevaCitaPage,
+    meta: { requiresAuth: true }
+  },
+
+  {
+    path: '/perfil',
+    name: 'perfil',
+    component: PerfilPage,
     meta: { requiresAuth: true }
   },
 

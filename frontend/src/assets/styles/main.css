@@ -160,3 +160,77 @@ strong { color: var(--color-text); font-weight: 700; }
     background-size: 160px 80px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE
+   Se activa con: document.documentElement.setAttribute('data-theme','dark')
+   Usa los mismos acentos coral/teal — solo cambian fondos y textos.
+   Fondo oscuro cálido (no negro puro) para mantener el estilo cozy.
+   ══════════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  /* Fondos cálidos oscuros */
+  --color-bg:            #1E1A16;   /* marrón muy oscuro cálido */
+  --color-surface:       #2A2420;   /* card oscura */
+  --color-surface-alt:   #332D28;   /* input oscuro */
+  --color-surface-warm:  #3D3530;   /* hover oscuro */
+  --color-surface-mint:  #1E2B22;   /* mint oscuro */
+  --color-navbar:        #3D3020;   /* navbar oscura marrón cálido */
+  --color-navbar-border: #4A3A28;
+
+  /* Texto */
+  --color-text:          #F0E8DC;   /* beige claro para texto principal */
+  --color-text-soft:     #C4B09A;   /* beige medio */
+  --color-text-muted:    #8A7060;   /* muted oscuro */
+
+  /* Bordes */
+  --color-border:        #3D3530;
+  --color-border-focus:  #7CCBC2;
+
+  /* Los acentos coral y teal se mantienen idénticos */
+  /* --color-primary:    #F08263  ← sin cambio */
+  /* --color-teal:       #7CCBC2  ← sin cambio */
+}
+
+/* Olas más visibles en dark para que se noten sobre el fondo oscuro */
+[data-theme="dark"] body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237CCBC2' stroke-width='1.8' stroke-opacity='0.12'/%3E%3C/svg%3E");
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE — clase .dark en <html>
+   Sobreescribe las variables CSS. Los colores se mantienen cálidos
+   y los acentos coral/teal se conservan iguales.
+   ══════════════════════════════════════════════════════════════ */
+html.dark {
+  /* Superficies oscuras cálidas */
+  --color-bg:            #1E1A16;   /* marrón muy oscuro */
+  --color-surface:       #2A2420;   /* card oscura */
+  --color-surface-alt:   #322C27;   /* input oscuro */
+  --color-surface-warm:  #3A322C;   /* hover input */
+  --color-surface-mint:  #1E2A20;   /* mint oscuro */
+  --color-navbar:        #3A2E26;   /* navbar oscura cálida */
+  --color-navbar-border: #4A3830;
+
+  /* Texto sobre oscuro */
+  --color-text:          #F0E8DC;   /* crema claro */
+  --color-text-soft:     #C8B8A8;   /* beige medio */
+  --color-text-muted:    #8A7A6A;   /* beige oscuro */
+
+  /* Bordes */
+  --color-border:        #4A3C32;
+  --color-border-focus:  #7CCBC2;
+
+  /* Sombras más pronunciadas en dark */
+  --shadow-xs:   0 1px 3px  rgba(0,0,0,0.25);
+  --shadow-sm:   0 2px 8px  rgba(0,0,0,0.30);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.35);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.40);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.50);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.28);
+}
+
+/* Olas más sutiles en dark */
+html.dark body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237CCBC2' stroke-width='1.5' stroke-opacity='0.08'/%3E%3C/svg%3E");
+}

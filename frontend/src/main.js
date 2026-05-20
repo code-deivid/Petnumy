@@ -1,27 +1,35 @@
 // src/main.js
-// ============================================================
-//  Punto de entrada de Petnumy Frontend
-// ============================================================
-
-import { createApp }  from 'vue'
+import { createApp }   from 'vue'
 import { createPinia } from 'pinia'
 
 import App    from './App.vue'
 import router from './router/index.js'
+import i18n   from './i18n/index.js'
 
-// Estilos globales (orden importante)
+// Estilos globales
 import './assets/styles/main.css'
 import './assets/styles/components.css'
 import './assets/styles/animations.css'
+
+// ── Restaurar tema (dark/light) antes de montar ───────────────
+// Esto evita el "flash" de tema incorrecto al recargar
+const savedTheme = localStorage.getItem('petnumy_theme')
+if (savedTheme === 'dark') {
+  document.documentElement.classList.add('dark')
+}
+
+// ── Restaurar idioma ──────────────────────────────────────────
+const savedLocale = localStorage.getItem('petnumy_locale') || 'es'
+document.documentElement.setAttribute('lang', savedLocale)
 
 const app   = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
+app.use(i18n)
 
-// Restaurar sesión desde localStorage antes de montar
-// (debe ir después de app.use(pinia))
+// Restaurar sesión desde localStorage
 import { useAuthStore } from './stores/auth.store.js'
 const authStore = useAuthStore()
 authStore.restoreSession()
