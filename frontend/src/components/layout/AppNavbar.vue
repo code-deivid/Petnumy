@@ -8,48 +8,51 @@ import SettingsModal from '@/components/layout/SettingsModal.vue'
 const router    = useRouter()
 const authStore = useAuthStore()
 
-const isLoggedIn    = computed(() => authStore.isLoggedIn)
-const nombreUsuario = computed(() => authStore.nombreUsuario)
+const isLoggedIn = computed(() => authStore.isLoggedIn)
 
-// Estado de paneles
-const notifAbiertas  = ref(false)
+// ── Notificaciones (temporal — sin backend) ───────────────────
+// Cuando exista un endpoint real, reemplazar este array.
+const notifications = ref([])
+const hasNotifications = computed(() => notifications.value.length > 0)
+
+// ── Estado de paneles ─────────────────────────────────────────
+const notifAbiertas   = ref(false)
 const settingsVisible = ref(false)
-const mobileMenu     = ref(false)
-
-const navRef = ref(null)
+const mobileMenu      = ref(false)
+const navRef          = ref(null)
 
 function toggleNotif() {
-  notifAbiertas.value = !notifAbiertas.value
+  notifAbiertas.value   = !notifAbiertas.value
   settingsVisible.value = false
-  mobileMenu.value = false
+  mobileMenu.value      = false
 }
 
 function toggleSettings() {
   settingsVisible.value = !settingsVisible.value
-  notifAbiertas.value = false
-  mobileMenu.value = false
+  notifAbiertas.value   = false
+  mobileMenu.value      = false
 }
 
 function toggleMobile() {
-  mobileMenu.value = !mobileMenu.value
-  notifAbiertas.value = false
+  mobileMenu.value      = !mobileMenu.value
+  notifAbiertas.value   = false
   settingsVisible.value = false
 }
 
 function cerrarTodo() {
-  notifAbiertas.value  = false
+  notifAbiertas.value   = false
   settingsVisible.value = false
-  mobileMenu.value     = false
+  mobileMenu.value      = false
 }
 
+// Click fuera cierra notif y menú móvil.
+// SettingsModal tiene su propio manejo de click fuera.
 function handleClickOutside(e) {
   if (navRef.value && !navRef.value.contains(e.target)) {
     notifAbiertas.value = false
     mobileMenu.value    = false
-    // No cerramos settingsVisible aquí — lo maneja el modal con @close
   }
 }
-
 onMounted(()    => document.addEventListener('click', handleClickOutside))
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 
@@ -69,7 +72,7 @@ function irA(name) {
         class="nav-logo"
         @click="cerrarTodo"
       >
-        <svg class="nav-logo-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="nav-logo-svg" viewBox="0 0 64 64" fill="none">
           <path d="M54 18 A26 26 0 1 1 50 51" fill="none" stroke="#F08263" stroke-width="3.5" stroke-linecap="round"/>
           <ellipse cx="24" cy="17" rx="4.5" ry="6"   fill="#2E3150"/>
           <ellipse cx="40" cy="17" rx="4.5" ry="6"   fill="#2E3150"/>
@@ -84,33 +87,10 @@ function irA(name) {
 
       <!-- Nav links — desktop -->
       <nav class="nav-links">
-        <RouterLink
-          v-if="isLoggedIn"
-          :to="{ name: 'home' }"
-          class="nav-link"
-          active-class="nav-link--active"
-        >Home</RouterLink>
-
-        <RouterLink
-          v-if="isLoggedIn"
-          :to="{ name: 'mis-mascotas' }"
-          class="nav-link"
-          active-class="nav-link--active"
-        >Mis Mascotas</RouterLink>
-
-        <RouterLink
-          v-if="isLoggedIn"
-          :to="{ name: 'mis-citas' }"
-          class="nav-link"
-          active-class="nav-link--active"
-        >Mis Citas</RouterLink>
-
-        <RouterLink
-          v-if="isLoggedIn"
-          :to="{ name: 'clinicas' }"
-          class="nav-link"
-          active-class="nav-link--active"
-        >Veterinarios</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'home' }"         class="nav-link" active-class="nav-link--active">Home</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'mis-mascotas' }" class="nav-link" active-class="nav-link--active">Mis Mascotas</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'mis-citas' }"    class="nav-link" active-class="nav-link--active">Mis Citas</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'clinicas' }"     class="nav-link" active-class="nav-link--active">Veterinarios</RouterLink>
       </nav>
 
       <!-- Zona derecha -->
@@ -124,9 +104,14 @@ function irA(name) {
 
         <!-- Con sesión -->
         <template v-else>
+          <!--
+            nav-icons-wrap tiene position: relative.
+            Todos los dropdowns (notif, settings) se anclan aquí
+            con position: absolute desde su esquina top-right.
+          -->
           <div class="nav-icons-wrap">
 
-            <!-- Campana notificaciones -->
+            <!-- Campana -->
             <button
               class="nav-icon-btn"
               :class="{ 'nav-icon-btn--active': notifAbiertas }"
@@ -137,10 +122,11 @@ function irA(name) {
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              <span class="notif-dot" />
+              <!-- Punto rojo SOLO si hay notificaciones -->
+              <span v-if="hasNotifications" class="notif-dot" />
             </button>
 
-            <!-- Engranaje — abre SettingsModal -->
+            <!-- Engranaje -->
             <button
               class="nav-icon-btn"
               :class="{ 'nav-icon-btn--active': settingsVisible }"
@@ -153,11 +139,18 @@ function irA(name) {
               </svg>
             </button>
 
-            <!-- Dropdown notificaciones -->
+            <!-- Dropdown notificaciones — anclado al nav-icons-wrap -->
             <Transition name="dropdown">
               <div v-if="notifAbiertas" class="nav-dropdown notif-panel">
-                <p class="dp-section-label">Notificaciones</p>
-                <div class="notif-empty">
+                <p class="dp-label">Notificaciones</p>
+                <div class="notif-list" v-if="hasNotifications">
+                  <div
+                    v-for="n in notifications"
+                    :key="n.id"
+                    class="notif-item"
+                  >{{ n.titulo }}</div>
+                </div>
+                <div v-else class="notif-empty">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
@@ -166,6 +159,15 @@ function irA(name) {
                 </div>
               </div>
             </Transition>
+
+            <!--
+              SettingsModal anclado dentro de nav-icons-wrap.
+              position: absolute calculado desde este contenedor.
+            -->
+            <SettingsModal
+              :visible="settingsVisible"
+              @close="settingsVisible = false"
+            />
 
           </div>
         </template>
@@ -209,12 +211,6 @@ function irA(name) {
     </Transition>
 
   </header>
-
-  <!-- SettingsModal — fuera del header para evitar z-index issues -->
-  <SettingsModal
-    :visible="settingsVisible"
-    @close="settingsVisible = false"
-  />
 </template>
 
 <style scoped>
@@ -236,106 +232,61 @@ function irA(name) {
   gap: 1.5rem;
 }
 
-/* ── Logo ───────────────────────────────────────────────────── */
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  flex-shrink: 0;
-  text-decoration: none;
-}
+/* Logo */
+.nav-logo { display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; text-decoration: none; }
+.nav-logo-svg  { width: 38px; height: 38px; flex-shrink: 0; }
+.nav-logo-text { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--color-text); letter-spacing: -0.2px; }
 
-.nav-logo-svg {
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
-}
-
-.nav-logo-text {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.1rem;
-  color: var(--color-text);
-  letter-spacing: -0.2px;
-}
-
-/* ── Nav links ──────────────────────────────────────────────── */
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.1rem;
-  flex: 1;
-  justify-content: center;
-}
+/* Nav links */
+.nav-links { display: flex; align-items: center; gap: 0.1rem; flex: 1; justify-content: center; }
 
 .nav-link {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.875rem;
   color: rgba(60,46,31,0.65);
   padding: 0.38rem 0.85rem;
   border-radius: var(--radius-full);
   transition: background var(--transition-fast), color var(--transition-fast);
-  position: relative;
-  white-space: nowrap;
+  position: relative; white-space: nowrap;
 }
 .nav-link:hover { background: rgba(255,255,255,0.45); color: var(--color-text); }
 .nav-link--active { color: var(--color-text); font-weight: 700; }
 .nav-link--active::after {
-  content: '';
-  position: absolute;
-  bottom: 2px; left: 50%;
-  transform: translateX(-50%);
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--color-primary);
+  content: ''; position: absolute; bottom: 2px; left: 50%;
+  transform: translateX(-50%); width: 5px; height: 5px;
+  border-radius: 50%; background: var(--color-primary);
 }
 
-/* ── Acciones ───────────────────────────────────────────────── */
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-}
+/* Acciones */
+.nav-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+.nav-auth-ghost { color: rgba(60,46,31,0.65); }
+.nav-auth-ghost:hover { background: rgba(255,255,255,0.45); color: var(--color-text); }
 
-.nav-auth-ghost {
-  color: rgba(60,46,31,0.65);
-}
-.nav-auth-ghost:hover {
-  background: rgba(255,255,255,0.45);
-  color: var(--color-text);
-}
-
-/* Iconos campana y engranaje */
+/*
+  nav-icons-wrap: position relative es la clave.
+  Todos los dropdowns hijos usan position: absolute desde aquí.
+*/
 .nav-icons-wrap {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  position: relative;
+  position: relative;   /* ancla todos los dropdowns */
 }
 
 .nav-icon-btn {
-  width: 40px; height: 40px;
-  border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: rgba(255,255,255,0.5);
   display: flex; align-items: center; justify-content: center;
-  color: var(--color-text);
-  position: relative;
+  color: var(--color-text); position: relative;
   transition: background var(--transition-fast), transform var(--transition-fast);
   box-shadow: 0 1px 4px rgba(60,46,31,0.10);
 }
 .nav-icon-btn:hover,
-.nav-icon-btn--active {
-  background: rgba(255,255,255,0.85);
-  transform: scale(1.04);
-}
+.nav-icon-btn--active { background: rgba(255,255,255,0.85); transform: scale(1.04); }
 
+/* Punto rojo — solo renderizado con v-if cuando hay notificaciones */
 .notif-dot {
-  position: absolute;
-  top: 9px; right: 9px;
-  width: 7px; height: 7px;
-  border-radius: 50%;
+  position: absolute; top: 9px; right: 9px;
+  width: 7px; height: 7px; border-radius: 50%;
   background: var(--color-danger);
   border: 1.5px solid var(--color-navbar);
 }
@@ -343,55 +294,45 @@ function irA(name) {
 /* Dropdown notificaciones */
 .nav-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  top: calc(100% + 12px);   /* 12px bajo los botones */
+  right: 44px;               /* alineado con la campana */
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
-  z-index: 300;
+  z-index: 400;
   overflow: hidden;
   min-width: 230px;
   border: 1px solid var(--color-border);
 }
 
-.notif-panel { right: 44px; }
-
-.dp-section-label {
+.dp-label {
   font-family: var(--font-display); font-weight: 700;
   font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.8px;
-  color: var(--color-text-muted);
-  padding: 0.9rem 1rem 0.4rem; margin: 0;
+  color: var(--color-text-muted); padding: 0.9rem 1rem 0.4rem; margin: 0;
 }
 
 .notif-empty {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 0.4rem;
-  padding: 1.5rem 1rem;
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-  font-family: var(--font-display);
+  display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  padding: 1.5rem 1rem; color: var(--color-text-muted);
+  font-size: 0.8rem; font-family: var(--font-display);
 }
 
-/* ── Hamburguesa ────────────────────────────────────────────── */
+.notif-item {
+  padding: 0.7rem 1rem; font-size: 0.875rem; color: var(--color-text-soft);
+  border-bottom: 1px solid var(--color-border);
+}
+.notif-item:last-child { border-bottom: none; }
+
+/* Hamburguesa */
 .hamburger {
-  display: none;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  width: 40px; height: 40px;
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.5);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background var(--transition-fast);
+  display: none; flex-direction: column; justify-content: center;
+  align-items: center; gap: 5px; width: 40px; height: 40px;
+  border-radius: var(--radius-sm); background: rgba(255,255,255,0.5);
+  cursor: pointer; flex-shrink: 0; transition: background var(--transition-fast);
 }
 .hamburger:hover { background: rgba(255,255,255,0.8); }
-
 .ham-line {
-  display: block;
-  width: 18px; height: 2px;
-  border-radius: 2px;
+  display: block; width: 18px; height: 2px; border-radius: 2px;
   background: var(--color-text);
   transition: transform var(--transition-normal), opacity var(--transition-normal);
   transform-origin: center;
@@ -400,84 +341,47 @@ function irA(name) {
 .hamburger--open .ham-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .hamburger--open .ham-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ── Menú móvil ─────────────────────────────────────────────── */
+/* Menú móvil */
 .mobile-nav {
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  padding: 0.5rem 0.75rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  background: var(--color-surface); border-top: 1px solid var(--color-border);
+  padding: 0.5rem 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.2rem;
   box-shadow: 0 8px 24px rgba(60,46,31,0.12);
 }
-
 .mobile-link {
-  display: block;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 0.95rem;
+  display: block; padding: 0.75rem 1rem; border-radius: var(--radius-md);
+  font-family: var(--font-display); font-weight: 600; font-size: 0.95rem;
   color: var(--color-text-soft);
   transition: background var(--transition-fast), color var(--transition-fast);
-  text-align: left;
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
+  text-align: left; width: 100%; background: none; border: none; cursor: pointer;
 }
 .mobile-link:hover { background: var(--color-surface-alt); color: var(--color-text); }
 .mobile-link--active { color: var(--color-primary); font-weight: 700; }
-.mobile-link--settings { color: var(--color-text-soft); }
 .mobile-link--settings:hover { background: var(--color-surface-alt); }
-
-.mobile-divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: 0.35rem 0.5rem;
-}
-
+.mobile-divider { height: 1px; background: var(--color-border); margin: 0.35rem 0.5rem; }
 .mobile-cta {
-  margin: 0.25rem 0;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: #fff;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-align: center;
-  box-shadow: 0 3px 10px rgba(240,130,99,0.35);
+  margin: 0.25rem 0; padding: 0.75rem 1rem; border-radius: var(--radius-full);
+  background: var(--color-primary); color: #fff;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
+  text-align: center; box-shadow: 0 3px 10px rgba(240,130,99,0.35);
 }
 
-/* ── Transiciones ───────────────────────────────────────────── */
-.dropdown-enter-active,
-.dropdown-leave-active {
+/* Transiciones */
+.dropdown-enter-active, .dropdown-leave-active {
   transition: opacity var(--transition-fast), transform var(--transition-fast);
   transform-origin: top right;
 }
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: scale(0.96) translateY(-6px);
-}
+.dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: scale(0.96) translateY(-6px); }
 
-.mobile-menu-enter-active,
-.mobile-menu-leave-active {
+.mobile-menu-enter-active, .mobile-menu-leave-active {
   transition: opacity var(--transition-normal), transform var(--transition-normal);
 }
-.mobile-menu-enter-from,
-.mobile-menu-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
+.mobile-menu-enter-from, .mobile-menu-leave-to { opacity: 0; transform: translateY(-10px); }
 
-/* ── Responsive ─────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 900px) {
   .nav-links { gap: 0; }
   .nav-link  { padding: 0.35rem 0.6rem; font-size: 0.82rem; }
 }
-
 @media (max-width: 768px) {
   .nav-links      { display: none; }
   .nav-icons-wrap { display: none; }
@@ -485,7 +389,6 @@ function irA(name) {
   .nav-auth-ghost { display: none; }
   .nav-actions .btn-primary { display: none; }
 }
-
 @media (max-width: 380px) {
   .nav-logo-text { display: none; }
 }

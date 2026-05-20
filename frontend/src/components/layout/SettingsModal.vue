@@ -226,16 +226,21 @@ watch(() => props.visible, (v) => {
 <style scoped>
 /* ── Popover anclado bajo el engranaje ───────────────────────── */
 .sm-popover {
-  position: fixed;
-  top: calc(var(--navbar-height) + 8px);   /* justo bajo la navbar */
-  right: 1.25rem;                           /* alineado con el engranaje */
+  /*
+    position: absolute anclado al nav-icons-wrap (position: relative).
+    Se coloca justo debajo del engranaje, alineado a la derecha.
+    El contenedor padre (nav-icons-wrap) tiene position: relative.
+  */
+  position: absolute;
+  top: calc(100% + 12px);   /* 12px bajo los botones del navbar */
+  right: 0;                  /* alineado al borde derecho del nav-icons-wrap */
   width: 360px;
   background: var(--color-surface);
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  overflow: visible;         /* permite que el dropdown de idiomas salga */
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--color-border);
-  z-index: 500;
+  z-index: 400;
 }
 
 /* ── Cabecera beige ──────────────────────────────────────────── */
@@ -483,7 +488,7 @@ watch(() => props.visible, (v) => {
 .settings-modal-enter-from,
 .settings-modal-leave-to {
   opacity: 0;
-  transform: scale(0.96) translateY(-8px);
+  transform: scale(0.96) translateY(-6px);
 }
 
 .lang-drop-enter-active,
@@ -492,19 +497,25 @@ watch(() => props.visible, (v) => {
 .lang-drop-leave-to     { opacity: 0; transform: translateY(-6px) scale(0.97); }
 
 /* ── Responsive móvil ───────────────────────────────────────── */
-@media (max-width: 600px) {
+/*
+  En móvil el navbar oculta nav-icons-wrap, así que SettingsModal
+  se abre desde el botón del menú móvil. En ese caso no tiene
+  ancla visual — lo posicionamos fijo respecto al viewport.
+*/
+@media (max-width: 768px) {
   .sm-popover {
-    /* En móvil: ancho casi completo, centrado, con margen lateral */
-    right: 50%;
-    transform: translateX(50%);
+    position: fixed;
+    top: calc(var(--navbar-height) + 8px);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     width: calc(100% - 2rem);
     max-width: 380px;
-    top: calc(var(--navbar-height) + 6px);
   }
   .settings-modal-enter-from,
   .settings-modal-leave-to {
     opacity: 0;
-    transform: translateX(50%) scale(0.96) translateY(-8px);
+    transform: translateX(-50%) scale(0.96) translateY(-8px);
   }
   .sm-header { padding: 1.75rem 1.25rem 1.5rem; }
   .sm-avatar { width: 70px; height: 70px; }
