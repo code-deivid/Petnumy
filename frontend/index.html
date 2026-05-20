@@ -1,25 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Petnumy — La salud de tu mascota</title>
 
-    <link
-      rel="apple-touch-icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23F08263'/%3E%3Cellipse cx='24' cy='17' rx='4.5' ry='6' fill='white'/%3E%3Cellipse cx='40' cy='17' rx='4.5' ry='6' fill='white'/%3E%3Cellipse cx='15' cy='27' rx='4' ry='5.5' fill='white'/%3E%3Cellipse cx='49' cy='27' rx='4' ry='5.5' fill='white'/%3E%3Cpath d='M32 23c-9.5 0-17 7-17 13.5 0 5 4 8.5 8.5 8.5 3 0 5.5-1.5 8.5-1.5s5.5 1.5 8.5 1.5c4.5 0 8.5-3.5 8.5-8.5C49 30 41.5 23 32 23z' fill='white'/%3E%3Cpath d='M32 31.5c-1 0-2.8 1-2.8 2.8 0 .8.3 1.5.8 2L32 38l2-1.7c.5-.5.8-1.2.8-2 0-1.8-1.8-2.8-2.8-2.8z' fill='%23F08263'/%3E%3C/svg%3E"
-    />
+    <!--
+      FAVICON — logo Petnumy: pata con corazón dentro, círculo coral abierto.
+      Colores: coral #F08263, dark navy #2E3150, beige #F5EFE3
+    -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3C!-- Fondo blanco circular --%3E%3Ccircle cx='32' cy='32' r='32' fill='%23F5EFE3'/%3E%3C!-- Círculo coral abierto (no cierra arriba-derecha) --%3E%3Cpath d='M54 20 A26 26 0 1 1 50 50' fill='none' stroke='%23F08263' stroke-width='3.5' stroke-linecap='round'/%3E%3C!-- 4 dedos (almohadillas superiores) --%3E%3Cellipse cx='24' cy='17' rx='4.5' ry='6' fill='%232E3150'/%3E%3Cellipse cx='40' cy='17' rx='4.5' ry='6' fill='%232E3150'/%3E%3Cellipse cx='15' cy='27' rx='4' ry='5.5' fill='%232E3150'/%3E%3Cellipse cx='49' cy='27' rx='4' ry='5.5' fill='%232E3150'/%3E%3C!-- Almohadilla principal con forma de corazón --%3E%3Cpath d='M32 23c-9.5 0-17 7-17 13.5 0 5 4 8.5 8.5 8.5 3 0 5.5-1.5 8.5-1.5s5.5 1.5 8.5 1.5c4.5 0 8.5-3.5 8.5-8.5C49 30 41.5 23 32 23z' fill='%232E3150'/%3E%3C!-- Corazón blanco dentro --%3E%3Cpath d='M32 31.5c-1 0-2.8 1-2.8 2.8 0 .8.3 1.5.8 2L32 38l2-1.7c.5-.5.8-1.2.8-2 0-1.8-1.8-2.8-2.8-2.8z' fill='white'/%3E%3C!-- Luna/sombra beige cálido (igual que la imagen referencia) --%3E%3Cpath d='M44 33 Q52 40 44 50 Q36 56 32 45.5 Q36 52 42 48 Q50 42 44 33z' fill='%23F5EFE3' opacity='0.7'/%3E%3C/svg%3E" />
 
-    <link
-      rel="shortcut icon"
-      href="./src/assets/logo/Logo Petnumy2.ico"
-      type="image/x-icon"
-    />
+    <!-- Apple touch icon (fondo coral sólido) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23F08263'/%3E%3Cellipse cx='24' cy='17' rx='4.5' ry='6' fill='white'/%3E%3Cellipse cx='40' cy='17' rx='4.5' ry='6' fill='white'/%3E%3Cellipse cx='15' cy='27' rx='4' ry='5.5' fill='white'/%3E%3Cellipse cx='49' cy='27' rx='4' ry='5.5' fill='white'/%3E%3Cpath d='M32 23c-9.5 0-17 7-17 13.5 0 5 4 8.5 8.5 8.5 3 0 5.5-1.5 8.5-1.5s5.5 1.5 8.5 1.5c4.5 0 8.5-3.5 8.5-8.5C49 30 41.5 23 32 23z' fill='white'/%3E%3Cpath d='M32 31.5c-1 0-2.8 1-2.8 2.8 0 .8.3 1.5.8 2L32 38l2-1.7c.5-.5.8-1.2.8-2 0-1.8-1.8-2.8-2.8-2.8z' fill='%23F08263'/%3E%3C/svg%3E" />
+
     <meta name="theme-color" content="#F2C8A7" />
-    <meta
-      name="description"
-      content="Gestiona la salud de tus mascotas, consulta clínicas y reserva citas veterinarias."
-    />
+    <meta name="description" content="Gestiona la salud de tus mascotas, consulta clínicas y reserva citas veterinarias." />
 
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,6 +24,7 @@
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   </head>
   <body>
     <div id="app"></div>

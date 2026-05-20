@@ -112,8 +112,10 @@ async function compartir() {
               :class="mascota.genero === 'macho' ? 'md-genero--m' : 'md-genero--f'"
               title="Género"
             >
-              <svg v-if="mascota.genero === 'macho'" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M9 9a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 2a4 4 0 1 1-4 4 4 4 0 0 1 4-4zm7-7h5v5l-2-2-4.59 4.59A7.92 7.92 0 0 1 17 15a8 8 0 1 1-8-8 7.92 7.92 0 0 1 5.41 2.09L19 4.41z"/></svg>
-              <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm0 2a6 6 0 1 1-6 6 6 6 0 0 1 6-6zm0 14a1 1 0 0 1 1 1v2h-2v-2a1 1 0 0 1 1-1zm-3 0h2v1H9zm6 0h2v1h-2z"/></svg>
+              <iconify-icon
+                :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
+                width="13" height="13"
+              />
             </div>
             <!-- Nombre + raza bajo la foto (visible en móvil también) -->
             <div class="md-foto-name">
@@ -121,7 +123,12 @@ async function compartir() {
                 {{ mascota.raza.especie.especie.toUpperCase() }}
               </span>
               <h1 class="md-nombre">{{ mascota.nombre }}</h1>
-              <p class="md-raza-lbl">{{ mascota.raza?.nombre || '—' }}</p>
+              <p class="md-raza-lbl">
+              {{ mascota.raza?.nombre || '—' }}
+              <template v-if="mascota.es_mestizo && mascota.raza_secundaria">
+                <span style="color: var(--color-text-muted); font-weight:400"> + </span>{{ mascota.raza_secundaria.nombre }}
+              </template>
+            </p>
             </div>
           </div>
 
@@ -143,7 +150,10 @@ async function compartir() {
 
               <div v-if="mascota.genero" class="md-dato">
                 <span class="md-dato-icon md-dato-icon--teal">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="14" r="5"/><line x1="19" y1="5" x2="19" y2="11"/><line x1="16" y1="8" x2="22" y2="8"/></svg>
+                  <iconify-icon
+                    :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
+                    width="14" height="14"
+                  />
                 </span>
                 <div>
                   <span class="md-dato-key">Género</span>

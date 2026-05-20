@@ -1,6 +1,6 @@
 <!-- src/pages/NuevaMascotaPage.vue -->
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 import RazaSelect from '@/components/ui/RazaSelect.vue'
@@ -11,7 +11,6 @@ const router           = useRouter()
 const route            = useRoute()
 const { get, post, patch } = useApi()
 
-// ── Modo edición ──────────────────────────────────────────────
 const modoEdicion = computed(() => !!route.query.editar)
 const mascotaId   = computed(() => route.query.editar || null)
 
@@ -22,10 +21,10 @@ const cargando      = ref(false)
 const guardando     = ref(false)
 const formError     = ref(null)
 
-// Foto — FIX: fotoPreview se incluye en el body al guardar
-const fotoPreview  = ref(null)   // dataURL final (tras crop) o URL existente
-const fotoParaCrop = ref(null)   // dataURL temporal antes del crop
-const cropVisible  = ref(false)
+// Foto
+const fotoPreview   = ref(null)
+const fotoParaCrop  = ref(null)
+const cropVisible   = ref(false)
 
 // Toggle mestizo
 const esMestizo = ref(false)
@@ -36,7 +35,7 @@ const form = ref({
   id_raza:    '',
   id_raza2:   '',
   nacimiento: '',
-  genero:     '',   // solo 'macho' | 'hembra' — obligatorio
+  genero:     '',
   peso:       '',
   microchip:  ''
 })
@@ -85,7 +84,7 @@ async function cargarDatos() {
       })
   }
 
-  // Cargar datos en modo edición
+  // Modo edición: precargar datos incluyendo mestizo
   if (modoEdicion.value) {
     const { ok, data } = await get(`/api/mascotas/${mascotaId.value}`)
     if (ok && data.mascota) {
@@ -97,8 +96,15 @@ async function cargarDatos() {
       form.value.genero     = m.genero     || ''
       form.value.peso       = m.peso != null ? String(m.peso) : ''
       form.value.microchip  = m.microchip  || ''
-      // FIX: cargar foto existente en el preview
       if (m.foto) fotoPreview.value = m.foto
+
+      // Precargar mestizo DESPUÉS de id_raza para que razasParaSegunda filtre bien
+      // nextTick garantiza que el computed razasParaSegunda se actualiza con id_raza antes de setear id_raza2
+      if (m.es_mestizo && m.id_raza_secundaria) {
+        esMestizo.value = true
+        await nextTick()
+        form.value.id_raza2 = m.id_raza_secundaria
+      }
     }
   }
 
@@ -111,7 +117,6 @@ onMounted(cargarDatos)
 function handleFotoInput(e) {
   const file = e.target.files[0]
   if (!file) return
-  // Reset el input para permitir seleccionar el mismo archivo
   e.target.value = ''
   const reader = new FileReader()
   reader.onload = (ev) => {
@@ -122,7 +127,7 @@ function handleFotoInput(e) {
 }
 
 function onCropConfirm(dataUrl) {
-  fotoPreview.value  = dataUrl   // dataURL que se enviará al backend
+  fotoPreview.value  = dataUrl
   cropVisible.value  = false
   fotoParaCrop.value = null
 }
@@ -137,11 +142,10 @@ function validar() {
   if (!form.value.nombre.trim()) return 'El nombre de la mascota es obligatorio'
   if (!form.value.id_especie)    return 'La especie es obligatoria'
   if (!form.value.id_raza)       return 'La raza es obligatoria'
-  // FIX: género obligatorio
   if (!form.value.genero)        return 'Selecciona el género de la mascota'
   if (esMestizo.value) {
-    if (!form.value.id_raza2)              return 'Selecciona la segunda raza'
-    if (form.value.id_raza === form.value.id_raza2) return 'Las dos razas no pueden ser iguales'
+    if (!form.value.id_raza2)                          return 'Selecciona la segunda raza'
+    if (form.value.id_raza === form.value.id_raza2)    return 'Las dos razas no pueden ser iguales'
   }
   return null
 }
@@ -154,14 +158,16 @@ async function guardar() {
   guardando.value = true
 
   const body = {
-    nombre:     form.value.nombre.trim(),
-    id_raza:    form.value.id_raza,
-    genero:     form.value.genero,
-    nacimiento: form.value.nacimiento || undefined,
-    peso:       form.value.peso ? Number(form.value.peso) : undefined,
-    microchip:  form.value.microchip  || undefined,
-    // FIX: incluir foto en el body para que se guarde en la BD
-    foto:       fotoPreview.value     || undefined
+    nombre:              form.value.nombre.trim(),
+    id_raza:             form.value.id_raza,
+    genero:              form.value.genero,
+    nacimiento:          form.value.nacimiento || undefined,
+    peso:                form.value.peso       ? Number(form.value.peso) : undefined,
+    microchip:           form.value.microchip  || undefined,
+    foto:                fotoPreview.value     || undefined,
+    es_mestizo:          esMestizo.value,
+    // Si no es mestizo, enviar null explícitamente para limpiar la columna en BD
+    id_raza_secundaria:  esMestizo.value ? (form.value.id_raza2 || null) : null
   }
 
   let ok, data
@@ -187,22 +193,23 @@ function volver() { router.back() }
 <template>
   <div class="nm-page page-container">
 
-    <!-- Cabecera -->
     <div class="nm-head">
-      <button class="btn btn-ghost btn-sm back-btn" @click="volver">← Volver</button>
+      <button class="btn btn-ghost btn-sm back-btn" @click="volver">
+        ← Volver
+      </button>
       <h1>{{ modoEdicion ? 'Editar mascota' : 'Añadir una nueva Mascota' }}</h1>
     </div>
 
-    <!-- Loading -->
     <div v-if="cargando" class="loading-center">
       <div class="spinner spinner-dark" />
     </div>
 
     <template v-else>
+      <!-- nm-card SIN overflow:hidden para que DatePicker y RazaSelect salgan -->
       <div class="nm-card card">
         <div class="card-body nm-inner">
 
-          <!-- ── Columna foto ─────────────────────────────── -->
+          <!-- Columna foto -->
           <div class="nm-foto-col">
             <label class="nm-foto-area" for="foto-file">
               <div class="nm-foto-circle">
@@ -226,16 +233,10 @@ function volver() { router.back() }
                 {{ fotoPreview ? 'Cambiar foto' : 'Subir foto' }}
               </span>
             </label>
-            <input
-              id="foto-file"
-              type="file"
-              accept="image/*"
-              class="hidden-input"
-              @change="handleFotoInput"
-            />
+            <input id="foto-file" type="file" accept="image/*" class="hidden-input" @change="handleFotoInput" />
           </div>
 
-          <!-- ── Formulario ────────────────────────────────── -->
+          <!-- Formulario -->
           <div class="nm-form">
 
             <Transition name="fade">
@@ -257,9 +258,7 @@ function volver() { router.back() }
             <!-- Especie -->
             <div class="input-group">
               <label class="label">Especie *</label>
-              <div v-if="especies.length === 0" class="text-muted-sm">
-                No hay especies disponibles
-              </div>
+              <div v-if="especies.length === 0" class="text-muted-sm">No hay especies disponibles</div>
               <div v-else class="pill-group">
                 <button
                   v-for="esp in especies"
@@ -271,13 +270,12 @@ function volver() { router.back() }
               </div>
             </div>
 
-            <!-- Mestizo pill compacto — FIX: rediseño minimalista -->
+            <!-- Toggle mestizo — pill compacta -->
             <div v-if="form.id_especie" class="mestizo-pill" @click="toggleMestizo">
               <div class="mestizo-pill-text">
                 <span class="mestizo-pill-label">Mestizo</span>
                 <span class="mestizo-pill-sub">Mezcla de dos razas</span>
               </div>
-              <!-- Toggle mini inline -->
               <div class="mini-toggle" :class="{ 'mini-toggle--on': esMestizo }">
                 <div class="mini-toggle-thumb" />
               </div>
@@ -310,10 +308,14 @@ function volver() { router.back() }
               </Transition>
             </div>
 
-            <!-- Nacimiento + Género en fila -->
+            <!-- Fecha nacimiento + Género -->
             <div class="form-row">
               <div class="input-group">
                 <label class="label">Fecha de nacimiento</label>
+                <!--
+                  DatePicker usa position:fixed calculado,
+                  no se corta aunque haya overflow:hidden en padres.
+                -->
                 <DatePicker
                   v-model="form.nacimiento"
                   placeholder="Selecciona fecha"
@@ -321,13 +323,11 @@ function volver() { router.back() }
                 />
               </div>
 
-              <!-- FIX: solo Macho / Hembra, género obligatorio -->
+              <!-- Género — solo Macho / Hembra, obligatorio -->
               <div class="input-group">
                 <label class="label">
                   Género *
-                  <span v-if="formError && !form.genero" class="label-error">
-                    — Selecciona uno
-                  </span>
+                  <span v-if="formError && !form.genero" class="label-error">— Selecciona uno</span>
                 </label>
                 <div class="pill-group">
                   <button
@@ -335,6 +335,12 @@ function volver() { router.back() }
                     :class="['pill-btn pill-btn--macho', { 'pill-btn--on': form.genero === 'macho' }]"
                     @click="form.genero = 'macho'"
                   >
+                    <!--
+                      Iconify web component para el icono de género.
+                      Cargado desde CDN en index.html (o puede añadirse aquí con script).
+                      Fallback: texto si Iconify no está disponible.
+                    -->
+                    <iconify-icon icon="mdi:gender-male" width="14" height="14" style="vertical-align:middle;margin-right:3px" />
                     Macho
                   </button>
                   <button
@@ -342,6 +348,7 @@ function volver() { router.back() }
                     :class="['pill-btn pill-btn--hembra', { 'pill-btn--on': form.genero === 'hembra' }]"
                     @click="form.genero = 'hembra'"
                   >
+                    <iconify-icon icon="mdi:gender-female" width="14" height="14" style="vertical-align:middle;margin-right:3px" />
                     Hembra
                   </button>
                 </div>
@@ -352,37 +359,18 @@ function volver() { router.back() }
             <div class="form-row">
               <div class="input-group">
                 <label class="label">Peso (kg)</label>
-                <input
-                  v-model="form.peso"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  placeholder="10"
-                  class="input"
-                />
+                <input v-model="form.peso" type="number" min="0" step="0.1" placeholder="10" class="input" />
               </div>
               <div class="input-group">
                 <label class="label">Microchip</label>
-                <input
-                  v-model="form.microchip"
-                  type="text"
-                  placeholder="2346656453"
-                  class="input"
-                />
+                <input v-model="form.microchip" type="text" placeholder="2346656453" class="input" />
               </div>
             </div>
 
             <!-- Acciones -->
             <div class="nm-actions">
-              <button class="btn btn-primary" type="button" @click="volver">
-                Volver
-              </button>
-              <button
-                class="btn btn-teal"
-                type="button"
-                :disabled="guardando"
-                @click="guardar"
-              >
+              <button class="btn btn-primary" type="button" @click="volver">Volver</button>
+              <button class="btn btn-teal" type="button" :disabled="guardando" @click="guardar">
                 <span v-if="guardando" class="spinner" style="width:15px;height:15px;border-width:2px"/>
                 <span v-else>{{ modoEdicion ? 'Guardar cambios' : 'Registrar' }}</span>
               </button>
@@ -403,7 +391,6 @@ function volver() { router.back() }
       </div>
     </template>
 
-    <!-- Modal de recorte -->
     <CropModal
       :image-src="fotoParaCrop"
       :visible="cropVisible"
@@ -415,7 +402,6 @@ function volver() { router.back() }
 </template>
 
 <style scoped>
-/* ── Página ──────────────────────────────────────────────────── */
 .nm-page {
   padding-top: var(--page-padding-y);
   padding-bottom: 3rem;
@@ -428,252 +414,101 @@ function volver() { router.back() }
 .nm-head h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
 .back-btn { align-self: flex-start; padding-left: 0; color: var(--color-text-muted); }
 
-/* ── Card ────────────────────────────────────────────────────── */
-.nm-card { box-shadow: var(--shadow-md); }
+/* ── Card: SIN overflow:hidden para que DatePicker y RazaSelect salgan ── */
+.nm-card { box-shadow: var(--shadow-md); overflow: visible; }
 
 .nm-inner {
   display: grid;
   grid-template-columns: 185px 1fr;
   gap: 2.5rem;
   align-items: start;
+  /* overflow visible para que los dropdowns no queden cortados */
+  overflow: visible;
 }
 
-/* ── Foto ────────────────────────────────────────────────────── */
-.nm-foto-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.nm-foto-area {
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.55rem;
-}
-
+/* Foto */
+.nm-foto-col { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.nm-foto-area { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.55rem; }
 .nm-foto-circle {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+  width: 150px; height: 150px; border-radius: 50%;
   background: var(--color-surface-alt);
   border: 2.5px dashed var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
   transition: border-color var(--transition-fast);
 }
 .nm-foto-area:hover .nm-foto-circle { border-color: var(--color-teal); }
-
-.nm-foto-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
+.nm-foto-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .nm-foto-placeholder { opacity: 0.5; }
-
 .nm-foto-btn {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  position: absolute; bottom: 8px; right: 8px;
+  width: 28px; height: 28px; border-radius: 50%;
   background: var(--color-teal);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   box-shadow: 0 2px 8px rgba(124,203,194,0.5);
 }
-
-.nm-foto-label {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.72rem;
-  color: var(--color-primary);
-  text-align: center;
-}
-
+.nm-foto-label { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; color: var(--color-primary); text-align: center; }
 .hidden-input { display: none; }
 
-/* ── Formulario ──────────────────────────────────────────────── */
-.nm-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+/* Formulario */
+.nm-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-/* ── Pills genéricas (especie, género) ───────────────────────── */
-.pill-group {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
+/* Pills especie/género */
+.pill-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .pill-btn {
-  padding: 0.5rem 1.25rem;
-  border-radius: var(--radius-full);
+  padding: 0.5rem 1.25rem; border-radius: var(--radius-full);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface-alt);
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--color-text-soft);
-  cursor: pointer;
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast),
-    color var(--transition-fast);
+  font-family: var(--font-display); font-weight: 600; font-size: 0.85rem;
+  color: var(--color-text-soft); cursor: pointer;
+  display: flex; align-items: center;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
 }
 .pill-btn:hover { border-color: var(--color-teal); color: var(--color-text); }
+.pill-btn--on   { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary-dark); font-weight: 700; }
 
-/* Estado activo genérico (especie) */
-.pill-btn--on {
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
-  color: var(--color-primary-dark);
-  font-weight: 700;
-}
+/* Macho activo — azul pastel */
+.pill-btn--macho.pill-btn--on  { border-color: #7AAED4; background: #EEF4FB; color: #3A5FA0; }
+/* Hembra activo — rosa pastel */
+.pill-btn--hembra.pill-btn--on { border-color: #D48FAE; background: #FCF0F5; color: #A03A5A; }
 
-/* Estado activo macho — azul pastel */
-.pill-btn--macho.pill-btn--on {
-  border-color: #7AAED4;
-  background: #EEF4FB;
-  color: #3A5FA0;
-}
+.label-error { font-weight: 600; color: var(--color-danger); font-size: 0.72rem; text-transform: none; letter-spacing: 0; }
 
-/* Estado activo hembra — rosa pastel */
-.pill-btn--hembra.pill-btn--on {
-  border-color: #D48FAE;
-  background: #FCF0F5;
-  color: #A03A5A;
-}
-
-/* Error inline en label género */
-.label-error {
-  font-weight: 600;
-  color: var(--color-danger);
-  font-size: 0.72rem;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-/* ── Mestizo pill compacto ───────────────────────────────────── */
-/* FIX: rediseño minimalista — ya no es un rectángulo grande */
+/* Mestizo pill */
 .mestizo-pill {
-  display: inline-flex;           /* ← no ocupa todo el ancho */
-  align-items: center;
-  gap: 0.9rem;
+  display: inline-flex; align-items: center; gap: 0.9rem;
   padding: 0.55rem 1rem 0.55rem 1.1rem;
   background: var(--color-surface-alt);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-full);
-  cursor: pointer;
-  user-select: none;
-  transition:
-    border-color var(--transition-fast),
-    background var(--transition-fast);
-  width: fit-content;             /* ← ocupa solo lo necesario */
+  cursor: pointer; user-select: none; width: fit-content;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
 }
+.mestizo-pill:hover { border-color: var(--color-teal); background: var(--color-teal-light); }
+.mestizo-pill-text { display: flex; flex-direction: column; gap: 0.05rem; }
+.mestizo-pill-label { font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; color: var(--color-text); line-height: 1; }
+.mestizo-pill-sub   { font-size: 0.7rem; color: var(--color-text-muted); line-height: 1; }
+.mini-toggle { width: 36px; height: 20px; border-radius: var(--radius-full); background: var(--color-border); position: relative; flex-shrink: 0; cursor: pointer; transition: background var(--transition-normal); }
+.mini-toggle--on { background: var(--color-teal); }
+.mini-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(60,46,31,0.2); transition: transform var(--transition-normal); }
+.mini-toggle--on .mini-toggle-thumb { transform: translateX(16px); }
 
-.mestizo-pill:hover {
-  border-color: var(--color-teal);
-  background: var(--color-teal-light);
-}
+/* Acciones */
+.nm-actions { display: flex; gap: 0.75rem; justify-content: flex-end; padding-top: 0.5rem; }
 
-.mestizo-pill-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-}
-
-.mestizo-pill-label {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--color-text);
-  line-height: 1;
-}
-
-.mestizo-pill-sub {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  line-height: 1;
-}
-
-/* Toggle mini inline dentro de la pill */
-.mini-toggle {
-  width: 36px;
-  height: 20px;
-  border-radius: var(--radius-full);
-  background: var(--color-border);
-  position: relative;
-  flex-shrink: 0;
-  transition: background var(--transition-normal);
-}
-
-.mini-toggle--on {
-  background: var(--color-teal);
-}
-
-.mini-toggle-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(60,46,31,0.2);
-  transition: transform var(--transition-normal);
-}
-
-.mini-toggle--on .mini-toggle-thumb {
-  transform: translateX(16px);
-}
-
-/* ── Acciones ────────────────────────────────────────────────── */
-.nm-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  padding-top: 0.5rem;
-}
-
-/* ── Consejo ─────────────────────────────────────────────────── */
+/* Consejo */
 .consejo { border: 1.5px solid var(--color-teal-light); }
-.consejo-titulo {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--color-teal-dark);
-  margin-bottom: 0.35rem;
-}
-.consejo-texto { font-size: 0.875rem; color: var(--color-text-soft); margin: 0; }
+.consejo-titulo { font-family: var(--font-display); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--color-teal-dark); margin-bottom: 0.35rem; }
+.consejo-texto  { font-size: 0.875rem; color: var(--color-text-soft); margin: 0; }
 
-/* ── Util ────────────────────────────────────────────────────── */
 .text-muted-sm { font-size: 0.85rem; color: var(--color-text-muted); font-style: italic; }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 720px) {
   .nm-inner { grid-template-columns: 1fr; }
   .nm-foto-circle { width: 120px; height: 120px; }
 }
-
 @media (max-width: 480px) {
   .form-row { grid-template-columns: 1fr; }
   .nm-actions { flex-direction: column-reverse; }
