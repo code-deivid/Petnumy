@@ -1,6 +1,6 @@
 <!-- src/pages/NuevaMascotaPage.vue -->
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 import RazaSelect from '@/components/ui/RazaSelect.vue'
@@ -112,6 +112,10 @@ async function cargarDatos() {
 }
 
 onMounted(cargarDatos)
+// Si se navega a editar otra mascota sin desmontar el componente
+watch(() => route.query.editar, (newId) => {
+  if (newId !== undefined) cargarDatos()
+})
 
 // ── Foto y recorte ────────────────────────────────────────────
 function handleFotoInput(e) {

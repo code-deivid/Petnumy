@@ -1,6 +1,6 @@
 <!-- src/pages/MascotaDetallePage.vue -->
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 
@@ -13,10 +13,17 @@ const vacunas        = ref([])
 const loading        = ref(true)
 const loadingVacunas = ref(false)
 const error          = ref(null)
-const id             = route.params.id
+// cargarDatos extrae el id de route.params en cada llamada,
+// así funciona tanto en onMounted como en watch
+async function cargarDatos() {
+  const id = route.params.id
+  if (!id) return
 
-onMounted(async () => {
   loading.value = true
+  error.value   = null
+  mascota.value = null
+  vacunas.value = []
+
   const { ok, data } = await get(`/api/mascotas/${id}`)
   loading.value = false
   if (!ok) { error.value = data.message || 'No se encontró la mascota'; return }
@@ -27,6 +34,12 @@ onMounted(async () => {
   const { ok: okV, data: dV } = await get(`/api/mascotas/${id}/vacunas`)
   loadingVacunas.value = false
   if (okV && dV.vacunas) vacunas.value = dV.vacunas
+}
+
+// Ejecutar al montar Y al cambiar de mascota (navegación SPA entre mascotas)
+onMounted(cargarDatos)
+watch(() => route.params.id, (newId) => {
+  if (newId) cargarDatos()
 })
 
 // Computados
