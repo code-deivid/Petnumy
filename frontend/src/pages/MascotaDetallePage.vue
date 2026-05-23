@@ -3,10 +3,13 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
+import { getVacunaInfo, estadoConfig } from '@/data/vacunasInfo.js'
+import ModalAddVacuna    from '@/components/vacunas/ModalAddVacuna.vue'
+import ModalDetalleVacuna from '@/components/vacunas/ModalDetalleVacuna.vue'
 
 const route  = useRoute()
 const router = useRouter()
-const { get } = useApi()
+const { get, patch } = useApi()
 
 const mascota        = ref(null)
 const vacunas        = ref([])
@@ -34,6 +37,51 @@ async function cargarDatos() {
   const { ok: okV, data: dV } = await get(`/api/mascotas/${id}/vacunas`)
   loadingVacunas.value = false
   if (okV && dV.vacunas) vacunas.value = dV.vacunas
+}
+
+// ── Modales de vacunas ────────────────────────────────────────
+const modalAddVacuna     = ref(false)
+const modalDetalleVacuna = ref(false)
+const vacunaDetalle      = ref(null)   // vacuna_mascota seleccionada para ver detalle
+const marcandoId         = ref(null)   // id del registro que se está actualizando
+
+function abrirDetalle(vac) {
+  vacunaDetalle.value      = vac
+  modalDetalleVacuna.value = true
+}
+
+async function marcarCompletada(vac) {
+  marcandoId.value = vac.id
+  const { ok, data: dU } = await patch(
+    `/api/mascotas/${route.params.id}/vacunas/${vac.id}`,
+    {
+      estado:          'puesta',
+      fecha_aplicacion: new Date().toISOString().split('T')[0]
+    }
+  )
+  marcandoId.value = null
+  if (ok && dU.vacuna) {
+    const idx = vacunas.value.findIndex(v => v.id === vac.id)
+    if (idx !== -1) vacunas.value[idx] = dU.vacuna
+  }
+}
+
+async function onVacunaAdded() {
+  // Recargar historial completo desde el backend para tener datos frescos
+  const id = route.params.id
+  loadingVacunas.value = true
+  const { ok, data } = await get(`/api/mascotas/${id}/vacunas`)
+  loadingVacunas.value = false
+  if (ok && data.vacunas) vacunas.value = data.vacunas
+}
+
+// Días restantes para una vacuna
+function diasRestantes(proxima) {
+  if (!proxima) return null
+  const diff = Math.ceil((new Date(proxima) - Date.now()) / (1000*60*60*24))
+  if (diff > 0)  return `En ${diff} día${diff !== 1 ? 's' : ''}`
+  if (diff === 0) return 'Hoy'
+  return `Hace ${Math.abs(diff)} día${Math.abs(diff) !== 1 ? 's' : ''}`
 }
 
 // Ejecutar al montar Y al cambiar de mascota (navegación SPA entre mascotas)
@@ -91,7 +139,7 @@ async function compartir() {
   <div class="md-page page-container">
 
     <!-- Volver -->
-    <button class="btn btn-ghost btn-sm md-back" @click="router.push({ name: 'mis-mascotas' })">
+    <button type="button" class="btn btn-ghost btn-sm md-back" @click="router.push({ name: 'mis-mascotas' })">
       ← Mis mascotas
     </button>
 
@@ -102,7 +150,7 @@ async function compartir() {
     <div v-else-if="error" class="card">
       <div class="card-body" style="text-align:center;padding:2.5rem">
         <p>{{ error }}</p>
-        <button class="btn btn-primary" style="margin-top:1rem" @click="router.push({ name: 'mis-mascotas' })">Volver al listado</button>
+        <button type="button" class="btn btn-primary" style="margin-top:1rem" @click="router.push({ name: 'mis-mascotas' })">Volver al listado</button>
       </div>
     </div>
 
@@ -209,11 +257,11 @@ async function compartir() {
 
             <!-- Botones acción -->
             <div class="md-hero-btns">
-              <button class="btn btn-teal" @click="router.push({ name: 'nueva-mascota', query: { editar: mascota.id } })">
+              <button type="button" class="btn btn-teal" @click="router.push({ name: 'nueva-mascota', query: { editar: mascota.id } })">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Editar Perfil
               </button>
-              <button class="btn btn-outline" @click="compartir">
+              <button type="button" class="btn btn-outline" @click="compartir">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                 Compartir Ficha
               </button>
@@ -223,8 +271,10 @@ async function compartir() {
         </div>
       </div>
 
-      <!-- ══ HISTORIAL DE VACUNAS ══════════════════════════ -->
+      <!-- ══ HISTORIAL DE VACUNAS — cartilla premium ══════════ -->
       <section class="md-section">
+
+        <!-- Cabecera de sección -->
         <div class="md-section-head">
           <div class="md-section-title-row">
             <div class="md-section-icon">
@@ -232,56 +282,160 @@ async function compartir() {
             </div>
             <h2 class="md-section-h2">Historial de Vacunas</h2>
           </div>
-          <button class="btn btn-primary btn-sm" @click="router.push({ name: 'mis-mascotas' })">
-            + Añadir Vacuna
+          <button type="button" class="btn btn-primary btn-sm" @click="modalAddVacuna = true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Añadir Vacuna
           </button>
         </div>
 
-        <!-- Cargando -->
-        <div v-if="loadingVacunas" class="loading-center" style="padding:2rem 0">
-          <div class="spinner spinner-dark"/>
-        </div>
+        <!-- Cartilla — mini header con mascota -->
+        <div class="card vac-cartilla">
 
-        <!-- Sin vacunas -->
-        <div v-else-if="vacunas.length === 0" class="card md-vac-empty">
-          <div class="card-body md-vac-empty-body">
-            <div class="md-vac-empty-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <div class="vac-cartilla-head">
+            <div class="vac-cartilla-av">
+              <img v-if="mascota.foto" :src="mascota.foto" :alt="mascota.nombre" class="vac-cartilla-av-img"/>
+              <span v-else class="vac-cartilla-av-ini">{{ iniciales }}</span>
             </div>
-            <p class="md-vac-empty-title">Todavía no hay vacunas registradas</p>
-            <p class="md-vac-empty-sub">Añade la primera vacuna para llevar el control de la salud de <strong>{{ mascota.nombre }}</strong></p>
+            <div class="vac-cartilla-info">
+              <p class="vac-cartilla-nombre">{{ mascota.nombre }}</p>
+              <p class="vac-cartilla-sub">
+                Última actualización:
+                <strong>{{ vacunas.length > 0 ? fmt(vacunas[0].created_at) : 'Sin registros' }}</strong>
+              </p>
+            </div>
+            <!-- Stats rápidas -->
+            <div class="vac-stats">
+              <div class="vac-stat">
+                <span class="vac-stat-num">{{ vacunas.filter(v => v.estado === 'puesta').length }}</span>
+                <span class="vac-stat-lbl">Al día</span>
+              </div>
+              <div class="vac-stat">
+                <span class="vac-stat-num vac-stat-num--warn">{{ vacunas.filter(v => v.estado === 'pendiente').length }}</span>
+                <span class="vac-stat-lbl">Pendientes</span>
+              </div>
+              <div class="vac-stat">
+                <span class="vac-stat-num vac-stat-num--danger">{{ vacunas.filter(v => v.estado === 'retrasada').length }}</span>
+                <span class="vac-stat-lbl">Atrasadas</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Tabla de vacunas -->
-        <div v-else class="card md-vac-table">
-          <!-- Cabecera -->
-          <div class="md-vac-thead">
-            <span>Nombre de vacuna</span>
-            <span>Administrada</span>
-            <span>Próxima dosis</span>
-            <span>Estado</span>
+          <!-- Loading skeleton -->
+          <div v-if="loadingVacunas" class="vac-list">
+            <div class="vac-ske" v-for="i in 3" :key="i" />
           </div>
-          <!-- Filas -->
+
+          <!-- Sin vacunas — empty state elegante -->
+          <div v-else-if="vacunas.length === 0" class="vac-empty">
+            <div class="vac-empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <p class="vac-empty-title">Cartilla vacía</p>
+            <p class="vac-empty-sub">Añade la primera vacuna de <strong>{{ mascota.nombre }}</strong></p>
+            <button type="button" class="btn btn-teal btn-sm" style="margin-top:.75rem" @click="modalAddVacuna = true">
+              + Añadir primera vacuna
+            </button>
+          </div>
+
+          <!-- Cabecera de columnas -->
+          <div v-else class="vac-thead">
+            <span class="vac-th">Vacuna</span>
+            <span class="vac-th">Última dosis</span>
+            <span class="vac-th">Próxima dosis</span>
+            <span class="vac-th">Estado</span>
+            <span class="vac-th">Días restantes</span>
+            <span class="vac-th">Acción</span>
+          </div>
+
+          <!-- Filas premium -->
           <div
             v-for="vac in vacunas"
             :key="vac.id"
-            class="md-vac-row"
+            class="vac-row"
+            :class="`vac-row--${vac.estado}`"
           >
-            <div class="md-vac-name-col">
-              <span class="md-vac-name">{{ vac.vacuna?.nombre || '—' }}</span>
-              <span v-if="vac.vacuna?.descripcion" class="md-vac-desc">{{ vac.vacuna.descripcion }}</span>
+            <!-- Icono + nombre -->
+            <div class="vac-col-nombre" @click="abrirDetalle(vac)">
+              <div class="vac-row-icon" :class="`vac-row-icon--${vac.estado}`">
+                <span v-if="getVacunaInfo(vac.vacuna?.nombre)?.icon" class="vac-icon-emoji">
+                  {{ getVacunaInfo(vac.vacuna?.nombre).icon }}
+                </span>
+                <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="vac-nombre-wrap">
+                <span class="vac-nombre">{{ vac.vacuna?.nombre || '—' }}</span>
+                <span class="vac-desc">{{ getVacunaInfo(vac.vacuna?.nombre)?.descripcionCorta || vac.vacuna?.descripcion || '' }}</span>
+              </div>
             </div>
-            <span class="md-vac-fecha">{{ fmt(vac.fecha_aplicacion) }}</span>
-            <span class="md-vac-fecha" :class="{ 'md-vac-fecha--alert': vac.estado === 'retrasada' }">
+
+            <!-- Fechas -->
+            <span class="vac-col vac-fecha">{{ fmt(vac.fecha_aplicacion) }}</span>
+            <span class="vac-col vac-fecha" :class="{ 'vac-fecha--alert': vac.estado === 'retrasada' }">
               {{ fmt(vac.proxima_aplicacion) }}
             </span>
-            <span :class="['bv', badgeClass[vac.estado] || 'bv--pendiente']">
-              {{ badgeLabel[vac.estado] || vac.estado }}
-            </span>
+
+            <!-- Badge estado -->
+            <div class="vac-col">
+              <span
+                class="vac-badge"
+                :style="{
+                  background: estadoConfig[vac.estado]?.bg    || '#F7F2EA',
+                  color:      estadoConfig[vac.estado]?.color || '#9B8A75'
+                }"
+              >{{ estadoConfig[vac.estado]?.label || vac.estado }}</span>
+            </div>
+
+            <!-- Días restantes -->
+            <div class="vac-col">
+              <span
+                class="vac-dias"
+                :class="{
+                  'vac-dias--ok':   vac.estado === 'puesta',
+                  'vac-dias--warn': vac.estado === 'pendiente',
+                  'vac-dias--bad':  vac.estado === 'retrasada'
+                }"
+              >
+                {{ diasRestantes(vac.proxima_aplicacion) || '—' }}
+              </span>
+            </div>
+
+            <!-- Acción -->
+            <div class="vac-col">
+              <button type="button"
+                v-if="vac.estado !== 'puesta'"
+                class="btn btn-primary btn-sm vac-accion-btn"
+                :disabled="marcandoId === vac.id"
+                @click.stop="marcarCompletada(vac)"
+              >
+                <span v-if="marcandoId === vac.id" class="spinner" style="width:11px;height:11px;border-width:1.5px"/>
+                <span v-else>Marcar completada</span>
+              </button>
+              <button type="button"
+                v-else
+                class="vac-ver-btn"
+                @click.stop="abrirDetalle(vac)"
+              >
+                Ver certificado →
+              </button>
+            </div>
+
           </div>
         </div>
       </section>
+
+      <!-- Modales de vacunas -->
+      <ModalAddVacuna
+        :visible="modalAddVacuna"
+        :mascota="mascota"
+        :mascota-id="mascota?.id"
+        @close="modalAddVacuna = false"
+        @added="onVacunaAdded"
+      />
+      <ModalDetalleVacuna
+        :visible="modalDetalleVacuna"
+        :vacuna="vacunaDetalle"
+        @close="modalDetalleVacuna = false"
+      />
 
       <!-- ══ RECORDATORIOS ══════════════════════════════════ -->
       <div class="md-tips-row">
@@ -497,5 +651,164 @@ async function compartir() {
   .md-hero-btns  { flex-direction: column; }
   .md-hero-btns .btn { width: 100%; }
   .md-foto-ring  { width: 100px; height: 100px; }
+}
+
+/* ══ CARTILLA DE VACUNAS PREMIUM ════════════════════════════ */
+
+/* Card contenedora */
+.vac-cartilla { overflow: hidden; }
+
+/* Mini header de cartilla */
+.vac-cartilla-head {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  flex-wrap: wrap;
+}
+.vac-cartilla-av {
+  width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+  background: var(--color-primary-light); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.vac-cartilla-av-img  { width: 100%; height: 100%; object-fit: cover; }
+.vac-cartilla-av-ini  { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--color-primary-dark); }
+.vac-cartilla-nombre  { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text); margin: 0 0 0.1rem; }
+.vac-cartilla-sub     { font-size: 0.72rem; color: var(--color-text-muted); margin: 0; }
+.vac-cartilla-info    { flex: 1; }
+
+/* Stats rápidas */
+.vac-stats { display: flex; gap: 1.25rem; flex-shrink: 0; }
+.vac-stat  { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+.vac-stat-num { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--color-teal-dark); line-height: 1; }
+.vac-stat-num--warn   { color: #9A6A10; }
+.vac-stat-num--danger { color: var(--color-danger); }
+.vac-stat-lbl { font-size: 0.62rem; font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-text-muted); }
+
+/* Skeleton loading */
+.vac-list { display: flex; flex-direction: column; }
+.vac-ske {
+  height: 70px; margin: 0.5rem 1.5rem;
+  border-radius: var(--radius-md); background: var(--color-surface-alt);
+  animation: _pulse 1.5s ease-in-out infinite;
+}
+
+/* Empty state */
+.vac-empty {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 2.5rem 2rem; gap: 0.5rem;
+}
+.vac-empty-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--color-surface-alt); color: var(--color-text-muted); display: flex; align-items: center; justify-content: center; margin-bottom: 0.4rem; }
+.vac-empty-title { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--color-text); margin: 0; }
+.vac-empty-sub   { font-size: 0.83rem; color: var(--color-text-muted); max-width: 280px; margin: 0; }
+
+/* Cabecera columnas */
+.vac-thead {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr 1fr;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+}
+.vac-th {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.7px; color: var(--color-teal-dark);
+}
+
+/* Fila de vacuna */
+.vac-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr 1fr;
+  gap: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  transition: background var(--transition-fast);
+}
+.vac-row:last-child { border-bottom: none; }
+.vac-row:hover      { background: rgba(0,0,0,0.02); }
+
+/* Fondo sutil por estado */
+.vac-row--pendiente { background: rgba(254,249,231,0.4); }
+.vac-row--retrasada { background: rgba(253,234,234,0.4); }
+
+/* Columna nombre (clicable) */
+.vac-col-nombre {
+  display: flex; align-items: center; gap: 0.75rem;
+  cursor: pointer;
+}
+.vac-col-nombre:hover .vac-nombre { color: var(--color-teal-dark); }
+
+/* Icono de vacuna */
+.vac-row-icon {
+  width: 38px; height: 38px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 1rem;
+}
+.vac-row-icon--puesta    { background: var(--color-teal-light);    color: var(--color-teal-dark); }
+.vac-row-icon--pendiente { background: #FEF9E7;                    color: #9A6A10; }
+.vac-row-icon--retrasada { background: var(--color-danger-light);  color: var(--color-danger); }
+
+.vac-icon-emoji { font-size: 1.1rem; }
+
+.vac-nombre-wrap { display: flex; flex-direction: column; gap: 0.1rem; }
+.vac-nombre { font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--color-text); transition: color var(--transition-fast); }
+.vac-desc   { font-size: 0.7rem; color: var(--color-text-muted); }
+
+/* Columna genérica */
+.vac-col { display: flex; align-items: center; }
+
+/* Fechas */
+.vac-fecha       { font-size: 0.82rem; color: var(--color-text-soft); }
+.vac-fecha--alert { color: var(--color-danger); font-weight: 700; }
+
+/* Badge estado */
+.vac-badge {
+  display: inline-flex; align-items: center;
+  padding: 0.28rem 0.75rem; border-radius: var(--radius-full);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+}
+
+/* Días restantes */
+.vac-dias        { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; }
+.vac-dias--ok    { color: var(--color-teal-dark); }
+.vac-dias--warn  { color: #9A6A10; }
+.vac-dias--bad   { color: var(--color-danger); }
+
+/* Botón acción */
+.vac-accion-btn {
+  font-size: 0.72rem !important;
+  padding: 0.38rem 0.85rem !important;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+
+/* Enlace "ver certificado" */
+.vac-ver-btn {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.78rem;
+  color: var(--color-teal-dark); cursor: pointer; background: none; border: none;
+  transition: color var(--transition-fast);
+  white-space: nowrap;
+}
+.vac-ver-btn:hover { color: var(--color-teal); }
+
+/* Responsive tabla vacunas */
+@media (max-width: 860px) {
+  .vac-thead  { display: none; }
+  .vac-row    {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+  }
+  .vac-col-nombre { grid-column: 1 / -1; }
+  .vac-stats { gap: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+  .vac-cartilla-head { flex-direction: column; align-items: flex-start; }
+  .vac-row { grid-template-columns: 1fr; }
 }
 </style>
