@@ -6,10 +6,18 @@ import { useApi } from '@/composables/useApi.js'
 import { getVacunaInfo, estadoConfig } from '@/data/vacunasInfo.js'
 import ModalAddVacuna    from '@/components/vacunas/ModalAddVacuna.vue'
 import ModalDetalleVacuna from '@/components/vacunas/ModalDetalleVacuna.vue'
+import ReminderPopover    from '@/components/vacunas/ReminderPopover.vue'
+import { useRecordatorios } from '@/composables/useRecordatorios.js'
 
 const route  = useRoute()
 const router = useRouter()
-const { get, patch } = useApi()
+const { get, patch, remove } = useApi()
+
+const { getDeVacuna, cargar: cargarRecordatorios } = useRecordatorios()
+
+// Estado del popover de recordatorio (un único popover, referenciado por vacuna)
+const reminderVacId    = ref(null)   // id del vacuna_mascota con popover abierto
+const reminderBtnRefs  = ref({})     // refs de botones campana para posición
 
 const mascota        = ref(null)
 const vacunas        = ref([])
@@ -37,17 +45,49 @@ async function cargarDatos() {
   const { ok: okV, data: dV } = await get(`/api/mascotas/${id}/vacunas`)
   loadingVacunas.value = false
   if (okV && dV.vacunas) vacunas.value = dV.vacunas
+
+  // Cargar recordatorios en paralelo (no bloquea)
+  cargarRecordatorios()
 }
 
 // ── Modales de vacunas ────────────────────────────────────────
 const modalAddVacuna     = ref(false)
 const modalDetalleVacuna = ref(false)
-const vacunaDetalle      = ref(null)   // vacuna_mascota seleccionada para ver detalle
-const marcandoId         = ref(null)   // id del registro que se está actualizando
+const vacunaDetalle      = ref(null)   // vacuna_mascota para ver detalle
+const marcandoId         = ref(null)   // id que se está marcando completado
+const vacunaEditar       = ref(null)   // vacuna_mascota para editar
+const confirmEliminar    = ref(null)   // vacuna_mascota para confirmar borrado
+const eliminando         = ref(false)
 
 function abrirDetalle(vac) {
   vacunaDetalle.value      = vac
   modalDetalleVacuna.value = true
+}
+
+function abrirEditar(vac) {
+  vacunaEditar.value   = vac
+  modalAddVacuna.value = true
+}
+
+function pedirEliminar(vac) {
+  confirmEliminar.value = vac
+}
+
+async function confirmarEliminar() {
+  if (!confirmEliminar.value) return
+  eliminando.value = true
+  const id = route.params.id
+  const { ok, data } = await remove(
+    `/api/mascotas/${id}/vacunas/${confirmEliminar.value.id}`
+  )
+  eliminando.value = false
+  if (!ok) { return }
+  confirmEliminar.value = null
+  onVacunaAdded()   // recargar
+}
+
+function toggleReminder(vacId) {
+  reminderVacId.value = reminderVacId.value === vacId ? null : vacId
 }
 
 async function marcarCompletada(vac) {
@@ -345,6 +385,7 @@ async function compartir() {
             <span class="vac-th">Estado</span>
             <span class="vac-th">Días restantes</span>
             <span class="vac-th">Acción</span>
+            <span class="vac-th"></span>
           </div>
 
           <!-- Filas premium -->
@@ -399,8 +440,9 @@ async function compartir() {
               </span>
             </div>
 
-            <!-- Acción -->
-            <div class="vac-col">
+            <!-- Acciones: marcar + editar + borrar -->
+            <div class="vac-col vac-col-acciones">
+              <!-- Marcar / Ver -->
               <button type="button"
                 v-if="vac.estado !== 'puesta'"
                 class="btn btn-primary btn-sm vac-accion-btn"
@@ -417,18 +459,82 @@ async function compartir() {
               >
                 Ver certificado →
               </button>
+              <!-- Editar + Eliminar (siempre visibles al hover) -->
+              <div class="vac-micro-btns">
+                <button type="button" class="vac-micro-btn vac-micro-btn--edit"
+                  title="Editar" @click.stop="abrirEditar(vac)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button type="button" class="vac-micro-btn vac-micro-btn--del"
+                  title="Eliminar" @click.stop="pedirEliminar(vac)">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Campana recordatorio -->
+            <div class="vac-col vac-col-bell" style="position:relative">
+              <button
+                type="button"
+                class="vac-bell-btn"
+                :class="{ 'vac-bell-btn--active': getDeVacuna(vac.id) }"
+                :title="getDeVacuna(vac.id) ? 'Recordatorio activo' : 'Añadir recordatorio'"
+                :ref="el => { if (el) reminderBtnRefs[vac.id] = el }"
+                @click.stop="toggleReminder(vac.id)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                  fill="none"
+                  :stroke="getDeVacuna(vac.id) ? 'var(--color-teal-dark)' : 'currentColor'"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                </svg>
+                <span v-if="getDeVacuna(vac.id)" class="vac-bell-dot" />
+              </button>
+              <ReminderPopover
+                :visible="reminderVacId === vac.id"
+                :vacuna-mascota-id="vac.id"
+                :proxima-aplicacion="vac.proxima_aplicacion || ''"
+                :nombre-vacuna="vac.vacuna?.nombre || ''"
+                :trigger-el="reminderBtnRefs[vac.id]"
+                @close="reminderVacId = null"
+              />
             </div>
 
           </div>
         </div>
       </section>
 
+      <!-- Modal confirmación eliminar vacuna -->
+      <Transition name="modal-fade">
+        <div v-if="confirmEliminar" class="vac-confirm-overlay" @click.self="confirmEliminar = null">
+          <div class="vac-confirm-card card">
+            <div class="vac-confirm-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            </div>
+            <h3 class="vac-confirm-title">¿Eliminar esta vacuna del historial?</h3>
+            <p class="vac-confirm-desc">
+              <strong>{{ confirmEliminar.vacuna?.nombre }}</strong> será eliminada permanentemente.
+              Esta acción no se puede deshacer.
+            </p>
+            <div class="vac-confirm-btns">
+              <button type="button" class="btn btn-ghost" :disabled="eliminando" @click="confirmEliminar = null">Cancelar</button>
+              <button type="button" class="btn-eliminar-vac btn" :disabled="eliminando" @click="confirmarEliminar">
+                <span v-if="eliminando" class="spinner" style="width:13px;height:13px;border-width:2px"/>
+                <span v-else>Eliminar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
       <!-- Modales de vacunas -->
       <ModalAddVacuna
         :visible="modalAddVacuna"
         :mascota="mascota"
         :mascota-id="mascota?.id"
-        @close="modalAddVacuna = false"
+        :vacuna-editar="vacunaEditar"
+        @close="modalAddVacuna = false; vacunaEditar = null"
         @added="onVacunaAdded"
       />
       <ModalDetalleVacuna
@@ -705,7 +811,7 @@ async function compartir() {
 /* Cabecera columnas */
 .vac-thead {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr 1fr 40px;
   gap: 0.75rem;
   padding: 0.6rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
@@ -719,7 +825,7 @@ async function compartir() {
 /* Fila de vacuna */
 .vac-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 0.8fr 1fr 1fr 40px;
   gap: 0.75rem;
   padding: 0.9rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
@@ -810,5 +916,93 @@ async function compartir() {
 @media (max-width: 480px) {
   .vac-cartilla-head { flex-direction: column; align-items: flex-start; }
   .vac-row { grid-template-columns: 1fr; }
+}
+
+/* ── Botón campana recordatorio ─────────────────────────── */
+.vac-col-bell { display: flex; align-items: center; justify-content: center; }
+
+.vac-bell-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+.vac-bell-btn:hover  { background: var(--color-teal-light); color: var(--color-teal-dark); transform: scale(1.08); }
+.vac-bell-btn--active {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+
+.vac-bell-dot {
+  position: absolute; top: 4px; right: 4px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-teal);
+  border: 1.5px solid var(--color-surface);
+}
+
+/* ── Acciones vacuna: micro botones editar/eliminar ─────── */
+.vac-col-acciones { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start; }
+
+.vac-micro-btns {
+  display: flex; gap: 0.25rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.vac-row:hover .vac-micro-btns { opacity: 1; }
+
+.vac-micro-btn {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border: none; cursor: pointer;
+}
+.vac-micro-btn--edit { background: var(--color-teal-light); color: var(--color-teal-dark); }
+.vac-micro-btn--edit:hover { background: var(--color-teal); color: #fff; }
+.vac-micro-btn--del  { background: var(--color-surface-alt); color: var(--color-text-muted); }
+.vac-micro-btn--del:hover  { background: var(--color-danger-light); color: var(--color-danger); }
+
+/* ── Modal confirmación eliminar vacuna ─────────────────── */
+.vac-confirm-overlay {
+  position: fixed; inset: 0;
+  background: rgba(30,20,14,0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 800;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.vac-confirm-card {
+  width: 100%; max-width: 360px;
+  padding: 1.75rem 1.5rem;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.85rem; text-align: center;
+  box-shadow: var(--shadow-xl);
+}
+.vac-confirm-icon {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: var(--color-danger-light); color: var(--color-danger);
+  display: flex; align-items: center; justify-content: center;
+}
+.vac-confirm-title { font-size: 0.95rem; margin: 0; }
+.vac-confirm-desc  { font-size: 0.83rem; color: var(--color-text-soft); margin: 0; }
+.vac-confirm-btns  { display: flex; gap: 0.75rem; width: 100%; justify-content: center; }
+
+.btn-eliminar-vac {
+  background: var(--color-danger); color: #fff;
+  padding: 0.65rem 1.4rem; border-radius: var(--radius-full);
+  font-family: var(--font-display); font-weight: 700; font-size: 0.875rem;
+  border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+  box-shadow: 0 3px 10px rgba(217,95,95,0.3);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.btn-eliminar-vac:hover:not(:disabled) { background: #be4b4b; transform: translateY(-1px); }
+.btn-eliminar-vac:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .vac-confirm-btns { flex-direction: column; }
+  .vac-confirm-btns .btn, .btn-eliminar-vac { width: 100%; justify-content: center; }
+  .vac-micro-btns { opacity: 1; }  /* Siempre visible en móvil */
 }
 </style>

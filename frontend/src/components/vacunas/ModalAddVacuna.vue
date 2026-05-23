@@ -1,26 +1,28 @@
 <!-- src/components/vacunas/ModalAddVacuna.vue -->
-<!-- Modal premium para añadir vacuna — cards seleccionables por especie -->
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useApi } from '@/composables/useApi.js'
 import { getVacunaInfo } from '@/data/vacunasInfo.js'
+import DatePicker from '@/components/ui/DatePicker.vue'
 
 const props = defineProps({
-  visible:   { type: Boolean, default: false },
-  mascota:   { type: Object,  default: null  },  // necesitamos especie
-  mascotaId: { type: String,  default: ''    }
+  visible:    { type: Boolean, default: false },
+  mascota:    { type: Object,  default: null  },
+  mascotaId:  { type: String,  default: ''    },
+  // Modo edición: pasar el objeto vacuna_mascota completo
+  vacunaEditar: { type: Object, default: null }
 })
 const emit = defineEmits(['close', 'added'])
 
-const { get, post } = useApi()
+const { get, post, patch } = useApi()
 
-// ── Estado ────────────────────────────────────────────────────
+// ── Estado ─────────────────────────────────────────────────────
 const catalogo      = ref([])
 const loadingCat    = ref(false)
 const guardando     = ref(false)
 const errorMsg      = ref(null)
-const vacunaSeleccionada = ref(null)   // objeto vacuna del catálogo
-const paso          = ref(1)           // 1: seleccionar vacuna, 2: rellenar datos
+const vacunaSeleccionada = ref(null)
+const paso          = ref(1)   // 1: elegir vacuna  2: rellenar datos
 
 const form = ref({
   estado:             'puesta',
@@ -28,34 +30,90 @@ const form = ref({
   proxima_aplicacion: ''
 })
 
-// ── Computados ────────────────────────────────────────────────
-const idEspecie = computed(() => props.mascota?.raza?.especie?.id || null)
+const modoEdicion = computed(() => !!props.vacunaEditar)
 
-// Catálogo enriquecido con info local
-const catalogoEnriquecido = computed(() =>
-  catalogo.value.map(v => ({
-    ...v,
-    info: getVacunaInfo(v.nombre)
-  }))
+// ── Info enriquecida de la vacuna seleccionada ──────────────────
+const infoVacuna = computed(() =>
+  vacunaSeleccionada.value
+    ? getVacunaInfo(vacunaSeleccionada.value.nombre)
+    : null
 )
 
-// ── Cargar catálogo por especie ───────────────────────────────
+// ── Próxima dosis automática ────────────────────────────────────
+// Calcula la fecha sugerida según la frecuencia de la vacuna
+const proximaAutoSugerida = computed(() => {
+  if (!form.value.fecha_aplicacion || form.value.proxima_aplicacion) return null
+  if (!infoVacuna.value?.frecuencia) return null
+
+  const base  = new Date(form.value.fecha_aplicacion + 'T12:00:00')
+  const frec  = infoVacuna.value.frecuencia.toLowerCase()
+
+  if (frec.includes('anual') || frec.includes('año')) {
+    base.setFullYear(base.getFullYear() + 1)
+  } else if (frec.includes('trienal') || frec.includes('3 año') || frec.includes('3 años')) {
+    base.setFullYear(base.getFullYear() + 3)
+  } else if (frec.includes('semestral') || frec.includes('6 mes')) {
+    base.setMonth(base.getMonth() + 6)
+  } else if (frec.includes('mensual')) {
+    base.setMonth(base.getMonth() + 1)
+  } else {
+    return null
+  }
+
+  return base.toISOString().split('T')[0]
+})
+
+const proximaAutoTexto = computed(() => {
+  if (!proximaAutoSugerida.value) return null
+  return new Date(proximaAutoSugerida.value + 'T12:00:00')
+    .toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+})
+
+// ── Especie ─────────────────────────────────────────────────────
+const idEspecie = computed(() => props.mascota?.raza?.especie?.id || null)
+
+// Catálogo enriquecido
+const catalogoEnriquecido = computed(() =>
+  catalogo.value.map(v => ({ ...v, info: getVacunaInfo(v.nombre) }))
+)
+
+// ── Cargar catálogo ─────────────────────────────────────────────
 async function cargarCatalogo() {
   if (!idEspecie.value) return
   loadingCat.value = true
-  const params = idEspecie.value ? `?id_especie=${idEspecie.value}` : ''
-  const { ok, data } = await get(`/api/vacunas${params}`)
+  const { ok, data } = await get(`/api/vacunas?id_especie=${idEspecie.value}`)
   loadingCat.value = false
   if (ok && data.vacunas) catalogo.value = data.vacunas
 }
 
+// ── Watch visible ───────────────────────────────────────────────
 watch(() => props.visible, (v) => {
-  if (v) {
-    reset()
-    cargarCatalogo()
-    document.body.style.overflow = 'hidden'
+  if (!v) { document.body.style.overflow = ''; return }
+  document.body.style.overflow = 'hidden'
+  reset()
+  if (modoEdicion.value) {
+    // Precargar datos de la vacuna a editar
+    const ve = props.vacunaEditar
+    // Buscar en el catálogo la vacuna correspondiente
+    cargarCatalogo().then(() => {
+      const encontrada = catalogo.value.find(c => c.id === ve.vacuna?.id)
+      if (encontrada) {
+        vacunaSeleccionada.value = { ...encontrada, info: getVacunaInfo(encontrada.nombre) }
+      } else {
+        // Crear objeto mínimo con los datos del registro
+        vacunaSeleccionada.value = {
+          id:     ve.vacuna?.id,
+          nombre: ve.vacuna?.nombre || '',
+          info:   getVacunaInfo(ve.vacuna?.nombre)
+        }
+      }
+      form.value.estado             = ve.estado             || 'puesta'
+      form.value.fecha_aplicacion   = ve.fecha_aplicacion   || ''
+      form.value.proxima_aplicacion = ve.proxima_aplicacion || ''
+      paso.value = 2
+    })
   } else {
-    document.body.style.overflow = ''
+    cargarCatalogo()
   }
 })
 
@@ -68,16 +126,19 @@ function reset() {
 
 function seleccionar(v) {
   vacunaSeleccionada.value = v
-  // Auto fecha de hoy si estado es "puesta"
   if (form.value.estado === 'puesta' && !form.value.fecha_aplicacion) {
     form.value.fecha_aplicacion = new Date().toISOString().split('T')[0]
   }
   paso.value = 2
 }
 
-function volver() { paso.value = 1; errorMsg.value = null }
+function volver() {
+  if (modoEdicion.value) { emit('close'); return }
+  paso.value = 1
+  errorMsg.value = null
+}
 
-// ── Guardar ───────────────────────────────────────────────────
+// ── Guardar ─────────────────────────────────────────────────────
 async function guardar() {
   if (!vacunaSeleccionada.value) return
   errorMsg.value = null
@@ -87,15 +148,35 @@ async function guardar() {
     return
   }
 
+  // Usar fecha auto si el usuario dejó próxima dosis vacía
+  const proximaFinal = form.value.proxima_aplicacion || proximaAutoSugerida.value || null
+
   guardando.value = true
-  const body = {
-    id_vacuna:          vacunaSeleccionada.value.id,
-    estado:             form.value.estado,
-    fecha_aplicacion:   form.value.fecha_aplicacion    || null,
-    proxima_aplicacion: form.value.proxima_aplicacion  || null
+
+  let ok, data
+  if (modoEdicion.value) {
+    // PATCH
+    ;({ ok, data } = await patch(
+      `/api/mascotas/${props.mascotaId}/vacunas/${props.vacunaEditar.id}`,
+      {
+        estado:             form.value.estado,
+        fecha_aplicacion:   form.value.fecha_aplicacion  || null,
+        proxima_aplicacion: proximaFinal
+      }
+    ))
+  } else {
+    // POST
+    ;({ ok, data } = await post(
+      `/api/mascotas/${props.mascotaId}/vacunas`,
+      {
+        id_vacuna:          vacunaSeleccionada.value.id,
+        estado:             form.value.estado,
+        fecha_aplicacion:   form.value.fecha_aplicacion  || null,
+        proxima_aplicacion: proximaFinal
+      }
+    ))
   }
 
-  const { ok, data } = await post(`/api/mascotas/${props.mascotaId}/vacunas`, body)
   guardando.value = false
 
   if (!ok) {
@@ -103,11 +184,10 @@ async function guardar() {
     return
   }
 
-  emit('added', data.vacuna)
+  emit('added')
   emit('close')
 }
 
-// Fecha mínima para próxima dosis = hoy
 const hoy = new Date().toISOString().split('T')[0]
 </script>
 
@@ -117,7 +197,7 @@ const hoy = new Date().toISOString().split('T')[0]
       <Transition name="modal-slide">
         <div v-if="visible" class="mav-modal card">
 
-          <!-- ── Cabecera ─────────────────────────────────── -->
+          <!-- Cabecera -->
           <div class="mav-header">
             <div class="mav-header-left">
               <div class="mav-header-icon">
@@ -126,11 +206,11 @@ const hoy = new Date().toISOString().split('T')[0]
                 </svg>
               </div>
               <div>
-                <h3 class="mav-title">Añadir Vacuna</h3>
+                <h3 class="mav-title">{{ modoEdicion ? 'Editar Vacuna' : 'Añadir Vacuna' }}</h3>
                 <p class="mav-sub">
                   {{ paso === 1
                     ? `Vacunas para ${mascota?.raza?.especie?.especie || 'tu mascota'}`
-                    : vacunaSeleccionada?.nombre }}
+                    : (vacunaSeleccionada?.nombre || '') }}
                 </p>
               </div>
             </div>
@@ -141,20 +221,14 @@ const hoy = new Date().toISOString().split('T')[0]
             </button>
           </div>
 
-          <!-- ── Paso 1: Seleccionar vacuna ──────────────── -->
+          <!-- Paso 1: seleccionar vacuna -->
           <div v-if="paso === 1" class="mav-body">
-
-            <!-- Loading catálogo -->
             <div v-if="loadingCat" class="mav-loading">
-              <div class="mav-ske" v-for="i in 4" :key="i" />
+              <div class="mav-ske" v-for="i in 5" :key="i" />
             </div>
-
-            <!-- Sin catálogo -->
             <div v-else-if="catalogo.length === 0" class="mav-empty">
               <p>No hay vacunas disponibles para esta especie.</p>
             </div>
-
-            <!-- Grid de cards de vacuna -->
             <div v-else class="mav-grid">
               <button type="button"
                 v-for="v in catalogoEnriquecido"
@@ -165,7 +239,7 @@ const hoy = new Date().toISOString().split('T')[0]
               >
                 <div class="mav-card-icon">
                   <span v-if="v.info?.icon" class="mav-card-emoji">{{ v.info.icon }}</span>
-                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                   </svg>
                 </div>
@@ -178,22 +252,20 @@ const hoy = new Date().toISOString().split('T')[0]
                 </svg>
               </button>
             </div>
-
           </div>
 
-          <!-- ── Paso 2: Rellenar datos ──────────────────── -->
-          <div v-else-if="paso === 2" class="mav-body">
+          <!-- Paso 2: rellenar datos -->
+          <div v-else-if="paso === 2" class="mav-body mav-body--datepickers">
 
-            <!-- Vacuna elegida (resumen) -->
+            <!-- Vacuna elegida -->
             <div class="mav-elegida">
-              <span class="mav-elegida-emoji">{{ vacunaSeleccionada?.info?.icon || '💉' }}</span>
+              <span class="mav-elegida-emoji">{{ infoVacuna?.icon || '💉' }}</span>
               <div>
                 <p class="mav-elegida-nombre">{{ vacunaSeleccionada?.nombre }}</p>
-                <p class="mav-elegida-desc">{{ vacunaSeleccionada?.info?.descripcionCorta || vacunaSeleccionada?.descripcion }}</p>
+                <p class="mav-elegida-desc">{{ infoVacuna?.descripcionCorta || vacunaSeleccionada?.descripcion }}</p>
               </div>
             </div>
 
-            <!-- Error -->
             <Transition name="fade">
               <div v-if="errorMsg" class="msg msg-error">{{ errorMsg }}</div>
             </Transition>
@@ -202,61 +274,66 @@ const hoy = new Date().toISOString().split('T')[0]
             <div class="input-group">
               <label class="label">Estado *</label>
               <div class="mav-estado-btns">
-                <button
+                <button type="button"
                   v-for="e in [
                     { val: 'puesta',    label: 'Puesta / Completada', color: 'teal'   },
                     { val: 'pendiente', label: 'Pendiente',           color: 'yellow' },
                     { val: 'retrasada', label: 'Atrasada',            color: 'red'    }
                   ]"
                   :key="e.val"
-                  type="button"
                   :class="['mav-estado-btn', `mav-estado-btn--${e.color}`, { 'mav-estado-btn--on': form.estado === e.val }]"
                   @click="form.estado = e.val"
                 >{{ e.label }}</button>
               </div>
             </div>
 
-            <!-- Fecha administrada -->
+            <!-- Fecha administrada — DatePicker custom (Teleport, no se corta) -->
             <div class="input-group">
-              <label class="label">Fecha administrada{{ form.estado === 'puesta' ? ' *' : '' }}</label>
-              <input
+              <label class="label">
+                Fecha administrada{{ form.estado === 'puesta' ? ' *' : '' }}
+              </label>
+              <DatePicker
                 v-model="form.fecha_aplicacion"
-                type="date"
-                class="input"
-                :max="hoy"
+                placeholder="Selecciona fecha"
+                :max-date="hoy"
               />
             </div>
 
-            <!-- Próxima dosis -->
+            <!-- Próxima dosis — DatePicker custom -->
             <div class="input-group">
               <label class="label">Próxima dosis</label>
-              <input
+              <DatePicker
                 v-model="form.proxima_aplicacion"
-                type="date"
-                class="input"
-                :min="hoy"
+                placeholder="Selecciona fecha (opcional)"
               />
-              <span class="input-hint">Deja en blanco si no aplica o no sabes la fecha.</span>
+              <!-- Sugerencia automática -->
+              <Transition name="fade">
+                <span v-if="proximaAutoTexto" class="input-hint mav-hint-auto">
+                  Si lo dejas vacío, se calculará automáticamente:
+                  <strong>{{ proximaAutoTexto }}</strong>
+                </span>
+                <span v-else class="input-hint">
+                  Deja en blanco si no aplica o no sabes la fecha.
+                </span>
+              </Transition>
             </div>
 
           </div>
 
-          <!-- ── Footer con botones ──────────────────────── -->
+          <!-- Footer -->
           <div class="mav-footer">
-            <button type="button"
-              class="btn btn-ghost"
+            <button type="button" class="btn btn-ghost"
               @click="paso === 1 ? $emit('close') : volver()"
             >
-              {{ paso === 1 ? 'Cancelar' : '← Volver' }}
+              {{ paso === 1 ? 'Cancelar' : (modoEdicion ? 'Cancelar' : '← Volver') }}
             </button>
-            <button type="button"
-              v-if="paso === 2"
+            <button type="button" v-if="paso === 2"
               class="btn btn-teal"
               :disabled="guardando"
               @click="guardar"
             >
               <span v-if="guardando" class="spinner" style="width:14px;height:14px;border-width:2px"/>
-              <span v-else>Guardar vacuna</span>
+              <span v-else>{{ modoEdicion ? 'Guardar cambios' : 'Guardar vacuna' }}</span>
             </button>
           </div>
 
@@ -267,43 +344,33 @@ const hoy = new Date().toISOString().split('T')[0]
 </template>
 
 <style scoped>
-/* Overlay */
 .mav-overlay {
   position: fixed; inset: 0;
-  background: rgba(30, 20, 14, 0.45);
+  background: rgba(30,20,14,0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 700;
   display: flex; align-items: center; justify-content: center;
   padding: 1rem;
 }
-
-/* Modal */
 .mav-modal {
   width: 100%; max-width: 520px;
-  max-height: 88vh;
+  /* Sin overflow:hidden para no cortar los DatePicker */
   display: flex; flex-direction: column;
   box-shadow: var(--shadow-xl);
-  overflow: hidden;
+  max-height: 90vh;
 }
-
-/* Header */
 .mav-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
   gap: 1rem; flex-shrink: 0;
 }
-.mav-header-left  { display: flex; align-items: center; gap: 0.75rem; }
-.mav-header-icon  { width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--color-teal-light); color: var(--color-teal-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.mav-header-left { display: flex; align-items: center; gap: 0.75rem; }
+.mav-header-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--color-teal-light); color: var(--color-teal-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .mav-title { font-size: 1rem; margin: 0; }
 .mav-sub   { font-size: 0.78rem; color: var(--color-text-muted); margin: 0; }
-.mav-close {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--color-surface-alt); color: var(--color-text-soft);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: background var(--transition-fast), color var(--transition-fast);
-}
+.mav-close { width: 30px; height: 30px; border-radius: 50%; background: var(--color-surface-alt); color: var(--color-text-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background var(--transition-fast), color var(--transition-fast); }
 .mav-close:hover { background: var(--color-danger-light); color: var(--color-danger); }
 
 /* Body scrollable */
@@ -311,81 +378,59 @@ const hoy = new Date().toISOString().split('T')[0]
   flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem;
   display: flex; flex-direction: column; gap: 1rem;
 }
-
-/* Loading skeletons */
-.mav-loading { display: flex; flex-direction: column; gap: 0.6rem; }
-.mav-ske {
-  height: 64px; border-radius: var(--radius-md);
-  background: var(--color-surface-alt);
-  animation: _pulse 1.5s ease-in-out infinite;
+/* El body con datepickers NO tiene overflow hidden para que el Teleport funcione */
+.mav-body--datepickers {
+  overflow: visible;
+  /* Pero necesitamos scroll: usamos scroll en el modal completo */
+  overflow-y: auto;
 }
+
+.mav-loading { display: flex; flex-direction: column; gap: 0.6rem; }
+.mav-ske { height: 60px; border-radius: var(--radius-md); background: var(--color-surface-alt); animation: _pulse 1.5s ease-in-out infinite; }
 @keyframes _pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
 
-/* Empty */
 .mav-empty { text-align: center; padding: 2rem; color: var(--color-text-muted); font-size: 0.875rem; }
 
-/* Grid de cards de vacuna */
-.mav-grid { display: flex; flex-direction: column; gap: 0.5rem; }
+.mav-grid { display: flex; flex-direction: column; gap: 0.45rem; }
 
 .mav-card {
   display: flex; align-items: center; gap: 0.85rem;
-  padding: 0.85rem 1rem;
+  padding: 0.8rem 1rem;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   cursor: pointer; text-align: left; width: 100%;
   transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
 }
-.mav-card:hover {
-  border-color: var(--color-teal);
-  background: var(--color-teal-light);
-  transform: translateX(3px);
-}
-.mav-card--sel {
-  border-color: var(--color-teal);
-  background: var(--color-teal-light);
-}
-
-.mav-card-icon {
-  width: 40px; height: 40px; border-radius: var(--radius-sm);
-  background: var(--color-surface-alt);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  font-size: 1.2rem;
-}
-.mav-card-emoji { font-size: 1.1rem; }
-
-.mav-card-info { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; }
+.mav-card:hover { border-color: var(--color-teal); background: var(--color-teal-light); transform: translateX(3px); }
+.mav-card--sel  { border-color: var(--color-teal); background: var(--color-teal-light); }
+.mav-card-icon  { width: 38px; height: 38px; border-radius: var(--radius-sm); background: var(--color-surface-alt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; }
+.mav-card-emoji { font-size: 1.05rem; }
+.mav-card-info  { flex: 1; display: flex; flex-direction: column; gap: 0.08rem; }
 .mav-card-nombre { font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--color-text); }
-.mav-card-desc   { font-size: 0.72rem; color: var(--color-text-muted); }
+.mav-card-desc   { font-size: 0.7rem; color: var(--color-text-muted); }
 .mav-card-check  { color: var(--color-teal-dark); flex-shrink: 0; }
 
-/* Paso 2 — Vacuna elegida */
-.mav-elegida {
-  display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  background: var(--color-teal-light);
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--color-teal-mid);
-}
+.mav-elegida { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--color-teal-light); border-radius: var(--radius-md); border: 1.5px solid var(--color-teal-mid); }
 .mav-elegida-emoji  { font-size: 1.4rem; flex-shrink: 0; }
-.mav-elegida-nombre { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text); margin: 0 0 0.15rem; }
+.mav-elegida-nombre { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text); margin: 0 0 0.1rem; }
 .mav-elegida-desc   { font-size: 0.75rem; color: var(--color-text-muted); margin: 0; }
 
-/* Botones estado */
 .mav-estado-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .mav-estado-btn {
   padding: 0.45rem 1rem; border-radius: var(--radius-full);
-  border: 1.5px solid var(--color-border);
-  background: var(--color-surface-alt);
+  border: 1.5px solid var(--color-border); background: var(--color-surface-alt);
   font-family: var(--font-display); font-weight: 600; font-size: 0.8rem;
-  cursor: pointer; transition: all var(--transition-fast);
-  color: var(--color-text-soft);
+  cursor: pointer; transition: all var(--transition-fast); color: var(--color-text-soft);
 }
-.mav-estado-btn--teal.mav-estado-btn--on   { border-color: var(--color-teal);    background: var(--color-teal-light);    color: var(--color-teal-dark); }
-.mav-estado-btn--yellow.mav-estado-btn--on { border-color: #D4A017;              background: #FEF9E7;                    color: #9A6A10; }
-.mav-estado-btn--red.mav-estado-btn--on    { border-color: var(--color-danger);  background: var(--color-danger-light);  color: var(--color-danger); }
+.mav-estado-btn--teal.mav-estado-btn--on   { border-color: var(--color-teal);   background: var(--color-teal-light);   color: var(--color-teal-dark); }
+.mav-estado-btn--yellow.mav-estado-btn--on { border-color: #D4A017;             background: #FEF9E7;                   color: #9A6A10; }
+.mav-estado-btn--red.mav-estado-btn--on    { border-color: var(--color-danger); background: var(--color-danger-light); color: var(--color-danger); }
 
-/* Footer */
+/* Hint de fecha automática */
+.mav-hint-auto { color: var(--color-teal-dark) !important; }
+.mav-hint-auto strong { color: var(--color-teal-dark); }
+
 .mav-footer {
   display: flex; justify-content: flex-end; gap: 0.75rem;
   padding: 1rem 1.5rem;
@@ -395,13 +440,12 @@ const hoy = new Date().toISOString().split('T')[0]
 
 /* Animaciones */
 .modal-fade-enter-active, .modal-fade-leave-active { transition: opacity var(--transition-normal); }
-.modal-fade-enter-from, .modal-fade-leave-to       { opacity: 0; }
+.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
 .modal-slide-enter-active, .modal-slide-leave-active { transition: opacity var(--transition-normal), transform var(--transition-normal); }
-.modal-slide-enter-from, .modal-slide-leave-to       { opacity: 0; transform: scale(0.96) translateY(12px); }
+.modal-slide-enter-from, .modal-slide-leave-to { opacity: 0; transform: scale(0.96) translateY(12px); }
 
-/* Responsive */
 @media (max-width: 540px) {
-  .mav-modal { max-height: 92vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+  .mav-modal   { max-height: 92vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
   .mav-overlay { align-items: flex-end; padding: 0; }
   .mav-estado-btns { flex-direction: column; }
 }

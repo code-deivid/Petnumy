@@ -1,19 +1,22 @@
 <!-- src/components/layout/AppNavbar.vue -->
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store.js'
 import SettingsModal from '@/components/layout/SettingsModal.vue'
+import { useRecordatorios } from '@/composables/useRecordatorios.js'
 
 const router    = useRouter()
 const authStore = useAuthStore()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
 
-// ── Notificaciones (temporal — sin backend) ───────────────────
-// Cuando exista un endpoint real, reemplazar este array.
-const notifications = ref([])
-const hasNotifications = computed(() => notifications.value.length > 0)
+// ── Notificaciones — recordatorios reales desde backend ───────
+const { recordatorios, hasRecordatorios, cargar: cargarRecordatorios } = useRecordatorios()
+
+// Compatibilidad con el resto del template
+const notifications    = recordatorios
+const hasNotifications = hasRecordatorios
 
 // ── Estado de paneles ─────────────────────────────────────────
 const notifAbiertas   = ref(false)
@@ -39,6 +42,9 @@ function toggleMobile() {
   settingsVisible.value = false
 }
 
+// Recargar notificaciones al detectar login
+watch(isLoggedIn, (v) => { if (v) cargarRecordatorios(true) })
+
 function cerrarTodo() {
   notifAbiertas.value   = false
   settingsVisible.value = false
@@ -53,7 +59,11 @@ function handleClickOutside(e) {
     mobileMenu.value    = false
   }
 }
-onMounted(()    => document.addEventListener('click', handleClickOutside))
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  // Cargar recordatorios si hay sesión activa
+  if (isLoggedIn.value) cargarRecordatorios()
+})
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 
 function irA(name) {
@@ -142,20 +152,42 @@ function irA(name) {
             <!-- Dropdown notificaciones — anclado al nav-icons-wrap -->
             <Transition name="dropdown">
               <div v-if="notifAbiertas" class="nav-dropdown notif-panel">
-                <p class="dp-label">Notificaciones</p>
-                <div class="notif-list" v-if="hasNotifications">
+                <div class="notif-header">
+                  <p class="dp-label" style="padding:0;margin:0">Recordatorios</p>
+                  <span v-if="hasNotifications" class="notif-count">{{ notifications.length }}</span>
+                </div>
+                <!-- Lista de recordatorios -->
+                <div v-if="hasNotifications" class="notif-list">
                   <div
-                    v-for="n in notifications"
-                    :key="n.id"
+                    v-for="rec in notifications"
+                    :key="rec.id"
                     class="notif-item"
-                  >{{ n.titulo }}</div>
+                  >
+                    <div class="notif-item-icon">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                      </svg>
+                    </div>
+                    <div class="notif-item-text">
+                      <p class="notif-item-title">
+                        {{ rec.vacuna_mascota?.mascota?.nombre }} —
+                        {{ rec.vacuna_mascota?.vacuna?.nombre }}
+                      </p>
+                      <p class="notif-item-sub">
+                        Próxima: {{ rec.vacuna_mascota?.proxima_aplicacion
+                          ? new Date(rec.vacuna_mascota.proxima_aplicacion).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})
+                          : '—' }}
+                        · Aviso: {{ new Date(rec.fecha_recordatorio).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}) }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div v-else class="notif-empty">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
                   </svg>
-                  <span>Sin notificaciones</span>
+                  <span>Sin recordatorios activos</span>
                 </div>
               </div>
             </Transition>
@@ -392,4 +424,39 @@ function irA(name) {
 @media (max-width: 380px) {
   .nav-logo-text { display: none; }
 }
+
+/* ── Panel notificaciones — recordatorios ────────────────── */
+.notif-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1rem 0.4rem;
+}
+.notif-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--color-primary); color: #fff;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.65rem;
+}
+
+.notif-list { padding: 0.25rem 0.5rem 0.5rem; display: flex; flex-direction: column; gap: 0.2rem; }
+
+.notif-item {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+.notif-item:hover { background: var(--color-surface-alt); }
+
+.notif-item-icon {
+  width: 26px; height: 26px; border-radius: var(--radius-xs);
+  background: var(--color-teal-light); color: var(--color-teal-dark);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.notif-item-text { display: flex; flex-direction: column; gap: 0.1rem; flex: 1; min-width: 0; }
+.notif-item-title {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.78rem;
+  color: var(--color-text); margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.notif-item-sub { font-size: 0.68rem; color: var(--color-text-muted); margin: 0; }
 </style>
