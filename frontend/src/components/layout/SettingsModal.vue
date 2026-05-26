@@ -505,19 +505,38 @@ watch(() => props.visible, (v) => {
 @media (max-width: 768px) {
   .sm-popover {
     position: fixed;
-    top: calc(var(--navbar-height) + 8px);
+    top: calc(var(--navbar-height) + 10px);
     left: 50%;
     right: auto;
     transform: translateX(-50%);
     width: calc(100% - 2rem);
-    max-width: 380px;
+    max-width: 390px;
+    max-height: calc(100dvh - var(--navbar-height) - 20px);
+    overflow-y: auto;
+    overflow-x: visible;
+    border-radius: 30px;
+    z-index: 500;
+    -webkit-overflow-scrolling: touch;
   }
   .settings-modal-enter-from,
   .settings-modal-leave-to {
     opacity: 0;
     transform: translateX(-50%) scale(0.96) translateY(-8px);
   }
-  .sm-header { padding: 1.75rem 1.25rem 1.5rem; }
+  .sm-header { padding: 1.5rem 1.25rem 1.35rem; }
   .sm-avatar { width: 70px; height: 70px; }
+  .sm-body { padding: 0.8rem 0.9rem 0.95rem; }
+  .sm-item { min-height: 58px; }
+}
+
+@media (max-width: 380px) {
+  .sm-popover {
+    width: calc(100% - 1rem);
+    top: calc(var(--navbar-height) + 6px);
+    max-height: calc(100dvh - var(--navbar-height) - 12px);
+  }
+  .sm-header { padding: 1.25rem 1rem 1.15rem; }
+  .sm-avatar { width: 62px; height: 62px; }
+  .sm-body { padding: 0.65rem; }
 }
 </style>

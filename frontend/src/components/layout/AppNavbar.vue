@@ -2,12 +2,15 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '@/i18n/index.js'
 import { useAuthStore } from '@/stores/auth.store.js'
 import SettingsModal from '@/components/layout/SettingsModal.vue'
 import { useRecordatorios } from '@/composables/useRecordatorios.js'
 
 const router    = useRouter()
 const authStore = useAuthStore()
+const { locale } = useI18n()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
 
@@ -22,12 +25,50 @@ const hasNotifications = hasRecordatorios
 const notifAbiertas   = ref(false)
 const settingsVisible = ref(false)
 const mobileMenu      = ref(false)
+const mobileMenuView  = ref('nav') // 'nav' | 'settings'
+const langOpenMobile  = ref(false)
 const navRef          = ref(null)
+
+const usuarioActual = computed(() => authStore.usuario || {})
+const nombrePerfil = computed(() => authStore.nombreUsuario || 'Usuario')
+const fotoPerfil = computed(() => usuarioActual.value?.foto || null)
+const inicialesPerfil = computed(() => {
+  const n = usuarioActual.value?.nombre || ''
+  const a = usuarioActual.value?.apellidos || ''
+  return ((n[0] || '') + (a[0] || '')).toUpperCase() || 'U'
+})
+
+const isDarkMobile = ref(localStorage.getItem('petnumy_theme') === 'dark' || document.documentElement.classList.contains('dark'))
+function toggleDarkMobile() {
+  isDarkMobile.value = !isDarkMobile.value
+  if (isDarkMobile.value) {
+    document.documentElement.classList.add('dark')
+    document.documentElement.setAttribute('data-theme', 'dark')
+    localStorage.setItem('petnumy_theme', 'dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+    document.documentElement.removeAttribute('data-theme')
+    localStorage.setItem('petnumy_theme', 'light')
+  }
+}
+
+const mobileLanguages = [
+  { code: 'es', label: 'Español', flag: 'ES' },
+  { code: 'en', label: 'English', flag: 'EN' },
+  { code: 'va', label: 'Valencià', flag: 'VA' }
+]
+const currentMobileLang = computed(() => mobileLanguages.find(l => l.code === locale.value) || mobileLanguages[0])
+function selectMobileLang(code) {
+  setLocale(code)
+  langOpenMobile.value = false
+}
 
 function toggleNotif() {
   notifAbiertas.value   = !notifAbiertas.value
   settingsVisible.value = false
   mobileMenu.value      = false
+  mobileMenuView.value  = 'nav'
+  langOpenMobile.value  = false
 }
 
 function toggleSettings() {
@@ -40,6 +81,22 @@ function toggleMobile() {
   mobileMenu.value      = !mobileMenu.value
   notifAbiertas.value   = false
   settingsVisible.value = false
+  if (mobileMenu.value) {
+    mobileMenuView.value = 'nav'
+    langOpenMobile.value = false
+  }
+}
+
+function abrirSettingsMobile() {
+  mobileMenuView.value  = 'settings'
+  notifAbiertas.value   = false
+  settingsVisible.value = false
+  langOpenMobile.value  = false
+}
+
+function volverMenuMobile() {
+  mobileMenuView.value = 'nav'
+  langOpenMobile.value = false
 }
 
 // Recargar notificaciones al detectar login
@@ -49,6 +106,8 @@ function cerrarTodo() {
   notifAbiertas.value   = false
   settingsVisible.value = false
   mobileMenu.value      = false
+  mobileMenuView.value  = 'nav'
+  langOpenMobile.value  = false
 }
 
 // Click fuera cierra notif y menú móvil.
@@ -57,6 +116,8 @@ function handleClickOutside(e) {
   if (navRef.value && !navRef.value.contains(e.target)) {
     notifAbiertas.value = false
     mobileMenu.value    = false
+    mobileMenuView.value = 'nav'
+    langOpenMobile.value = false
   }
 }
 onMounted(() => {
@@ -65,6 +126,12 @@ onMounted(() => {
   if (isLoggedIn.value) cargarRecordatorios()
 })
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
+
+function logoutMobile() {
+  cerrarTodo()
+  authStore.clearSession()
+  router.push({ name: 'landing' })
+}
 
 function irA(name) {
   cerrarTodo()
@@ -192,20 +259,12 @@ function irA(name) {
               </div>
             </Transition>
 
-            <!--
-              SettingsModal anclado dentro de nav-icons-wrap.
-              position: absolute calculado desde este contenedor.
-            -->
-            <SettingsModal
-              :visible="settingsVisible"
-              @close="settingsVisible = false"
-            />
-
           </div>
         </template>
 
         <!-- Hamburguesa — solo móvil -->
         <button
+          v-if="isLoggedIn"
           class="hamburger"
           :class="{ 'hamburger--open': mobileMenu }"
           @click.stop="toggleMobile"
@@ -219,28 +278,160 @@ function irA(name) {
       </div>
     </div>
 
-    <!-- Menú móvil -->
+    <!-- Menú móvil integrado: navegación + subventana configuración móvil -->
     <Transition name="mobile-menu">
-      <div v-if="mobileMenu" class="mobile-nav">
-        <template v-if="isLoggedIn">
-          <RouterLink :to="{ name: 'home' }"         class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">Home</RouterLink>
-          <RouterLink :to="{ name: 'mis-mascotas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">Mis Mascotas</RouterLink>
-          <RouterLink :to="{ name: 'mis-citas' }"    class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">Mis Citas</RouterLink>
-          <RouterLink :to="{ name: 'clinicas' }"     class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">Veterinarios</RouterLink>
-          <div class="mobile-divider" />
-          <button class="mobile-link mobile-link--settings" @click="cerrarTodo; settingsVisible = true">
-            Configuración
+      <div v-if="mobileMenu" class="mobile-nav" role="dialog" aria-label="Menú de navegación">
+        <div class="mobile-nav-header">
+          <button
+            v-if="mobileMenuView === 'settings'"
+            class="mobile-back-btn"
+            type="button"
+            @click="volverMenuMobile"
+            aria-label="Volver al menú"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
           </button>
-        </template>
-        <template v-else>
-          <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo">Inicio</RouterLink>
-          <RouterLink :to="{ name: 'login' }"   class="mobile-link" @click="cerrarTodo">Iniciar sesión</RouterLink>
-          <RouterLink :to="{ name: 'registro' }" class="mobile-link" @click="cerrarTodo">
-            <div class="mobile-cta">Registrarse</div>
-          </RouterLink>
-        </template>
+
+          <div class="mobile-profile-avatar">
+            <img v-if="fotoPerfil" :src="fotoPerfil" :alt="nombrePerfil" />
+            <span v-else>{{ inicialesPerfil }}</span>
+          </div>
+          <p class="mobile-menu-kicker">Petnumy</p>
+          <h2 class="mobile-menu-title">Hola, {{ nombrePerfil }}</h2>
+          <p class="mobile-menu-subtitle">
+            {{ mobileMenuView === 'settings' ? 'Configura tu experiencia' : '¿Dónde quieres ir?' }}
+          </p>
+        </div>
+
+        <div class="mobile-nav-body">
+          <template v-if="mobileMenuView === 'nav'">
+            <template v-if="isLoggedIn">
+              <p class="mobile-section-label">Navegación</p>
+
+              <RouterLink :to="{ name: 'home' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
+                <span class="mobile-link-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+                </span>
+                <span>Home</span>
+              </RouterLink>
+
+              <RouterLink :to="{ name: 'mis-mascotas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
+                <span class="mobile-link-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="2.2"/><circle cx="9.5" cy="5" r="2.2"/><circle cx="14.5" cy="5" r="2.2"/><circle cx="19" cy="8" r="2.2"/><path d="M7.2 14.8c1.6-3.2 8-3.2 9.6 0 1 2-.5 4.2-2.6 3.5-1.4-.5-3-.5-4.4 0-2.1.7-3.6-1.5-2.6-3.5z"/></svg>
+                </span>
+                <span>Mis Mascotas</span>
+              </RouterLink>
+
+              <RouterLink :to="{ name: 'mis-citas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
+                <span class="mobile-link-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+                </span>
+                <span>Mis Citas</span>
+              </RouterLink>
+
+              <RouterLink :to="{ name: 'clinicas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
+                <span class="mobile-link-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg>
+                </span>
+                <span>Veterinarios</span>
+              </RouterLink>
+
+              <div class="mobile-divider" />
+
+              <button class="mobile-link mobile-link--settings" type="button" @click="abrirSettingsMobile">
+                <span class="mobile-link-icon mobile-link-icon--settings">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                  </svg>
+                </span>
+                <span>Configuración</span>
+                <svg class="mobile-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </template>
+
+            <template v-else>
+              <p class="mobile-section-label">Acceso</p>
+              <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">⌂</span><span>Inicio</span></RouterLink>
+              <RouterLink :to="{ name: 'login' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">↳</span><span>Iniciar sesión</span></RouterLink>
+              <RouterLink :to="{ name: 'registro' }" class="mobile-link mobile-link--settings" @click="cerrarTodo"><span class="mobile-link-icon mobile-link-icon--settings">＋</span><span>Registrarse</span></RouterLink>
+            </template>
+          </template>
+
+          <template v-else>
+            <p class="mobile-section-label">Configuración</p>
+
+            <button class="mobile-link" type="button" @click="irA('perfil')">
+              <span class="mobile-link-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <span>Perfil</span>
+              <svg class="mobile-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+
+            <div class="mobile-link mobile-link--control">
+              <span class="mobile-link-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+              </span>
+              <span>Modo oscuro</span>
+              <button
+                class="mobile-toggle"
+                :class="{ 'mobile-toggle--on': isDarkMobile }"
+                type="button"
+                role="switch"
+                :aria-checked="isDarkMobile"
+                @click.stop="toggleDarkMobile"
+              >
+                <span />
+              </button>
+            </div>
+
+            <div class="mobile-link mobile-link--control mobile-lang-control">
+              <span class="mobile-link-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              </span>
+              <span>Idioma</span>
+              <button class="mobile-lang-pill" type="button" @click.stop="langOpenMobile = !langOpenMobile">
+                {{ currentMobileLang.flag }}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :style="{ transform: langOpenMobile ? 'rotate(180deg)' : 'none' }"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <Transition name="lang-drop">
+                <div v-if="langOpenMobile" class="mobile-lang-dropdown">
+                  <button
+                    v-for="lang in mobileLanguages"
+                    :key="lang.code"
+                    class="mobile-lang-option"
+                    :class="{ 'mobile-lang-option--active': lang.code === locale }"
+                    type="button"
+                    @click.stop="selectMobileLang(lang.code)"
+                  >
+                    <span>{{ lang.flag }}</span>
+                    <strong>{{ lang.label }}</strong>
+                  </button>
+                </div>
+              </Transition>
+            </div>
+
+            <div class="mobile-divider" />
+
+            <button class="mobile-link mobile-link--logout" type="button" @click="logoutMobile">
+              <span class="mobile-link-icon mobile-link-icon--settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              <span>Cerrar sesión</span>
+            </button>
+          </template>
+        </div>
       </div>
     </Transition>
+
+    <SettingsModal
+      :visible="settingsVisible"
+      @close="settingsVisible = false"
+    />
+
 
   </header>
 </template>
@@ -289,7 +480,7 @@ function irA(name) {
 }
 
 /* Acciones */
-.nav-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+.nav-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; margin-left: auto; }
 .nav-auth-ghost { color: rgba(60,46,31,0.65); }
 .nav-auth-ghost:hover { background: rgba(255,255,255,0.45); color: var(--color-text); }
 
@@ -357,44 +548,208 @@ function irA(name) {
 
 /* Hamburguesa */
 .hamburger {
-  display: none; flex-direction: column; justify-content: center;
-  align-items: center; gap: 5px; width: 40px; height: 40px;
-  border-radius: var(--radius-sm); background: rgba(255,255,255,0.5);
-  cursor: pointer; flex-shrink: 0; transition: background var(--transition-fast);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(230,185,145,0.55);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 8px 18px rgba(60,46,31,0.10);
 }
-.hamburger:hover { background: rgba(255,255,255,0.8); }
+.hamburger:hover { background: rgba(255,255,255,0.94); transform: translateY(-1px); }
 .ham-line {
-  display: block; width: 18px; height: 2px; border-radius: 2px;
+  display: block;
+  width: 20px;
+  height: 2px;
+  border-radius: 999px;
   background: var(--color-text);
   transition: transform var(--transition-normal), opacity var(--transition-normal);
   transform-origin: center;
+}
+.hamburger--open {
+  background: rgba(255,255,255,0.96);
+  box-shadow: 0 10px 24px rgba(60,46,31,0.16);
 }
 .hamburger--open .ham-line:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .hamburger--open .ham-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .hamburger--open .ham-line:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* Menú móvil */
+/* Menú móvil — mismo lenguaje visual que SettingsModal */
 .mobile-nav {
-  background: var(--color-surface); border-top: 1px solid var(--color-border);
-  padding: 0.5rem 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.2rem;
-  box-shadow: 0 8px 24px rgba(60,46,31,0.12);
+  position: fixed;
+  top: calc(var(--navbar-height) + 12px);
+  right: 12px;
+  width: min(372px, calc(100vw - 24px));
+  max-height: calc(100dvh - var(--navbar-height) - 24px);
+  background: var(--color-surface);
+  border: 1px solid rgba(230,185,145,0.70);
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 28px 80px rgba(60,46,31,0.26);
+  z-index: 350;
+  overflow: hidden;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+.mobile-nav::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 22px;
+  width: 14px;
+  height: 14px;
+  background: var(--color-navbar);
+  border-left: 1px solid rgba(230,185,145,0.70);
+  border-top: 1px solid rgba(230,185,145,0.70);
+  transform: rotate(45deg);
+}
+.mobile-nav-header {
+  background: var(--color-navbar);
+  padding: 1.35rem 1.25rem 1.45rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.22rem;
+  position: relative;
+  flex: 0 0 auto;
+}
+.mobile-menu-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.55);
+  border: 3.5px solid rgba(255,255,255,0.85);
+  box-shadow: 0 8px 22px rgba(60,46,31,0.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-menu-avatar svg { width: 46px; height: 46px; }
+.mobile-menu-kicker {
+  margin: 0.38rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.74rem;
+  color: rgba(60,46,31,0.62);
+  letter-spacing: 0.04em;
+}
+.mobile-menu-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.32rem;
+  font-weight: 900;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+.mobile-nav-body {
+  padding: 0.85rem 0.95rem 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+}
+.mobile-section-label {
+  margin: 0.25rem 0.45rem 0.05rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
 }
 .mobile-link {
-  display: block; padding: 0.75rem 1rem; border-radius: var(--radius-md);
-  font-family: var(--font-display); font-weight: 600; font-size: 0.95rem;
-  color: var(--color-text-soft);
-  transition: background var(--transition-fast), color var(--transition-fast);
-  text-align: left; width: 100%; background: none; border: none; cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 62px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 22px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--color-text);
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  background: var(--color-surface-alt);
+  border: 1px solid rgba(230,185,145,0.18);
+  cursor: pointer;
+  overflow: hidden;
 }
-.mobile-link:hover { background: var(--color-surface-alt); color: var(--color-text); }
-.mobile-link--active { color: var(--color-primary); font-weight: 700; }
-.mobile-link--settings:hover { background: var(--color-surface-alt); }
-.mobile-divider { height: 1px; background: var(--color-border); margin: 0.35rem 0.5rem; }
+.mobile-link-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+  font-size: 1rem;
+  box-shadow: 0 6px 16px rgba(60,46,31,0.08);
+}
+.mobile-link-icon--settings {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.mobile-link:hover {
+  background: var(--color-surface-warm);
+  color: var(--color-text);
+  transform: translateX(-3px);
+  box-shadow: 0 10px 24px rgba(60,46,31,0.10);
+}
+.mobile-link--active {
+  color: var(--color-primary);
+  background: linear-gradient(135deg, rgba(255,238,231,0.98), rgba(255,250,244,0.96));
+  border-color: rgba(240,130,99,0.35);
+}
+.mobile-link--active .mobile-link-icon {
+  background: var(--color-primary);
+  color: #fff;
+}
+.mobile-link--active::after {
+  content: '';
+  position: absolute;
+  right: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 7px rgba(240,130,99,0.12);
+}
+.mobile-link--settings {
+  background: var(--color-teal-light);
+  border-color: rgba(124,203,194,0.22);
+}
+.mobile-link--settings:hover { background: var(--color-teal-mid); }
+.mobile-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.22rem 0.45rem 0.05rem;
+}
 .mobile-cta {
-  margin: 0.25rem 0; padding: 0.75rem 1rem; border-radius: var(--radius-full);
-  background: var(--color-primary); color: #fff;
-  font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
-  text-align: center; box-shadow: 0 3px 10px rgba(240,130,99,0.35);
+  width: 100%;
+  margin: 0;
+  padding: 0.82rem 1rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.92rem;
+  text-align: center;
+  box-shadow: 0 10px 22px rgba(240,130,99,0.30);
 }
 
 /* Transiciones */
@@ -405,9 +760,18 @@ function irA(name) {
 .dropdown-enter-from, .dropdown-leave-to { opacity: 0; transform: scale(0.96) translateY(-6px); }
 
 .mobile-menu-enter-active, .mobile-menu-leave-active {
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  transition: opacity 260ms ease, transform 320ms cubic-bezier(.22, 1, .36, 1);
 }
-.mobile-menu-enter-from, .mobile-menu-leave-to { opacity: 0; transform: translateY(-10px); }
+.mobile-menu-enter-from,
+.mobile-menu-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.mobile-menu-enter-to,
+.mobile-menu-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
 
 /* Responsive */
 @media (max-width: 900px) {
@@ -415,8 +779,10 @@ function irA(name) {
   .nav-link  { padding: 0.35rem 0.6rem; font-size: 0.82rem; }
 }
 @media (max-width: 768px) {
+  .nav-inner { justify-content: space-between; }
   .nav-links      { display: none; }
   .nav-icons-wrap { display: none; }
+  .nav-actions    { margin-left: auto; }
   .hamburger      { display: flex; }
   .nav-auth-ghost { display: none; }
   .nav-actions .btn-primary { display: none; }
@@ -459,4 +825,156 @@ function irA(name) {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .notif-item-sub { font-size: 0.68rem; color: var(--color-text-muted); margin: 0; }
+
+
+/* ── Ajuste nuevo menú móvil con subventana configuración ───── */
+.mobile-profile-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.58);
+  border: 3.5px solid rgba(255,255,255,0.88);
+  box-shadow: 0 10px 28px rgba(60,46,31,0.16);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--color-text-soft);
+}
+.mobile-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mobile-menu-subtitle {
+  margin: 0.12rem 0 0;
+  color: rgba(60,46,31,0.62);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.mobile-back-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.65);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(60,46,31,0.12);
+}
+.mobile-link-arrow {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+.mobile-link--control {
+  cursor: default;
+}
+.mobile-link--control:hover {
+  transform: none;
+}
+.mobile-toggle {
+  margin-left: auto;
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--color-border);
+  padding: 3px;
+  box-shadow: inset 0 2px 5px rgba(60,46,31,0.12);
+}
+.mobile-toggle span {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(60,46,31,0.2);
+  transition: transform var(--transition-normal);
+}
+.mobile-toggle--on {
+  background: var(--color-teal);
+}
+.mobile-toggle--on span {
+  transform: translateX(22px);
+}
+.mobile-lang-control {
+  overflow: visible;
+  position: relative;
+}
+.mobile-lang-pill {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 999px;
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.78rem;
+}
+.mobile-lang-pill svg {
+  transition: transform var(--transition-fast);
+}
+.mobile-lang-dropdown {
+  position: absolute;
+  right: 0.75rem;
+  top: calc(100% + 6px);
+  width: 170px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  z-index: 20;
+}
+.mobile-lang-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.72rem 0.85rem;
+  color: var(--color-text-soft);
+  background: transparent;
+  font-family: var(--font-display);
+  text-align: left;
+}
+.mobile-lang-option:hover,
+.mobile-lang-option--active {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+.mobile-lang-option span {
+  font-weight: 900;
+  font-size: 0.72rem;
+}
+.mobile-link--logout {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+.mobile-link--logout .mobile-link-icon {
+  background: rgba(255,255,255,0.55);
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  /* En móvil ya no se abre el SettingsModal desde el menú hamburguesa. Si se abre por otra vía, evitamos cortes. */
+  .sm-popover {
+    max-height: calc(100dvh - var(--navbar-height) - 18px);
+    overflow-y: auto;
+  }
+  .mobile-nav {
+    max-height: calc(100dvh - var(--navbar-height) - 18px);
+  }
+}
+
 </style>
