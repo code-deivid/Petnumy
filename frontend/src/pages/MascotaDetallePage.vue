@@ -332,10 +332,7 @@ async function compartir() {
         <div class="card vac-cartilla">
 
           <div class="vac-cartilla-head">
-            <div class="vac-cartilla-av">
-              <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="sm" />
-              <span v-else class="vac-cartilla-av-ini">{{ iniciales }}</span>
-            </div>
+            <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="sm" />
             <div class="vac-cartilla-info">
               <p class="vac-cartilla-nombre">{{ mascota.nombre }}</p>
               <p class="vac-cartilla-sub">
@@ -616,12 +613,12 @@ async function compartir() {
 .md-foto-col { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
 
 .md-foto-ring {
-  width: 155px; height: 155px; border-radius: 50%; overflow: hidden;
-  border: 4px solid var(--color-surface);
-  box-shadow: 0 4px 18px rgba(60,46,31,0.16);
-  background: var(--color-surface-alt);
+  /* Ring sin fondo propio — PetAvatar aporta el color */
+  width: 110px; height: 110px; border-radius: 50%;
+  border: 3px solid var(--color-surface);
+  box-shadow: var(--shadow-md);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  flex-shrink: 0; overflow: hidden;
 }
 .md-foto-img      { width: 100%; height: 100%; object-fit: cover; }
 .md-foto-initials { font-family: var(--font-display); font-weight: 800; font-size: 3rem; color: var(--color-primary-dark); }
@@ -744,7 +741,7 @@ async function compartir() {
     gap: 1.5rem;
     padding: 1.5rem;
   }
-  .md-foto-ring { width: 120px; height: 120px; }
+  .md-foto-ring { width: 95px; height: 95px; }
   .md-datos-grid { grid-template-columns: 1fr 1fr; }
   .md-vac-thead  { display: none; }
   .md-vac-row    { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 0.4rem; padding: 0.85rem 1rem; }
@@ -756,7 +753,7 @@ async function compartir() {
   .md-datos-grid { grid-template-columns: 1fr; }
   .md-hero-btns  { flex-direction: column; }
   .md-hero-btns .btn { width: 100%; }
-  .md-foto-ring  { width: 100px; height: 100px; }
+  .md-foto-ring  { width: 85px; height: 85px; }
 }
 
 /* ══ CARTILLA DE VACUNAS PREMIUM ════════════════════════════ */
@@ -773,8 +770,8 @@ async function compartir() {
   flex-wrap: wrap;
 }
 .vac-cartilla-av {
-  width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
-  background: var(--color-primary-light); flex-shrink: 0;
+  /* Sin fondo — PetAvatar provee el color */
+  width: auto; height: auto; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
 .vac-cartilla-av-img  { width: 100%; height: 100%; object-fit: cover; }

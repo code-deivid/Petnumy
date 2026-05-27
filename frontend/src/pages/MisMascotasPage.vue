@@ -153,7 +153,7 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
                   v-for="(m, i) in mascotas.slice(0,4)"
                   :key="m.id"
                   class="mm-fam-av"
-                  :style="{ background: colorAv(i), marginLeft: i > 0 ? '-8px' : '0', zIndex: 10 - i }"
+                  :style="{ marginLeft: i > 0 ? '-8px' : '0', zIndex: 10 - i }"
                 >
                   <PetAvatar :foto="m.foto" :nombre="m.nombre" :genero="m.genero" tipo="mascota" size="sm" />
                 </div>
@@ -213,7 +213,7 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
               <!-- Foto -->
               <div class="mm-card-foto-wrap">
                 <div class="mm-card-foto">
-                  <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="md" />
+                  <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="lg" />
                 </div>
               </div>
 
@@ -357,10 +357,10 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
 .mm-fam-body { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.4rem; white-space: nowrap; }
 .mm-fam-avatars { display: flex; align-items: center; }
 .mm-fam-av {
-  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-weight: 800; font-size: 0.78rem; color: #fff;
+  /* Solo ring de separación — el fondo lo da PetAvatar */
+  border-radius: 50%; flex-shrink: 0;
   border: 2px solid var(--color-surface); position: relative;
+  display: flex; align-items: center; justify-content: center;
 }
 .mm-fam-av-img  { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .mm-fam-av--more { background: var(--color-surface-alt); color: var(--color-text-muted); font-size: 0.65rem; }
@@ -433,7 +433,7 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
 
 /* Foto */
 .mm-card-foto-wrap { padding: 1.4rem 1.4rem 0; display: flex; justify-content: center; }
-.mm-card-foto { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; box-shadow: 0 3px 10px rgba(60,46,31,0.14); flex-shrink: 0; }
+.mm-card-foto { width: 80px; height: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 .mm-card-foto-img { width: 100%; height: 100%; object-fit: cover; }
 .mm-card-av {
   width: 100%; height: 100%;

@@ -464,9 +464,8 @@ function fmtFecha(iso) {
 .vets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
 .vet-card { transition: transform var(--transition-normal), box-shadow var(--transition-normal); }
 .vet-avatar {
-  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--color-teal-light), var(--color-primary-light));
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  /* Solo contenedor — PetAvatar provee el color */
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
 }
 .vet-nombre { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text); margin: 0; }
 .vet-esp {
@@ -594,11 +593,7 @@ function fmtFecha(iso) {
 }
 .mascota-item:hover     { border-color: var(--color-teal); background: var(--color-teal-light); }
 .mascota-item--sel      { border-color: var(--color-teal); background: var(--color-teal-light); }
-.mascota-avatar {
-  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
-  background: linear-gradient(135deg, var(--color-teal-light), var(--color-primary-light));
-  display: flex; align-items: center; justify-content: center;
-}
+/* .mascota-avatar — reemplazado por PetAvatar */
 .mascota-inicial { font-family: var(--font-display); font-weight: 800; font-size: 1rem; color: var(--color-primary); }
 .mascota-info { flex: 1; min-width: 0; }
 .mascota-nombre { font-family: var(--font-display); font-weight: 700; font-size: 0.875rem; color: var(--color-text); margin: 0; }

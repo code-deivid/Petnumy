@@ -273,16 +273,15 @@ watch(() => props.visible, (v) => {
 
 /* Avatar */
 .sm-avatar {
-  width: 80px;
-  height: 80px;
+  /* Ring decorativo blanco alrededor del PetAvatar — sin fondo propio */
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  border: 3.5px solid rgba(255, 255, 255, 0.8);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 3px 12px rgba(60, 46, 31, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 3px 12px rgba(60, 46, 31, 0.15);
+  flex-shrink: 0;
 }
 
 .sm-avatar-img {
