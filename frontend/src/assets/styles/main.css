@@ -161,48 +161,17 @@ strong { color: var(--color-text); font-weight: 700; }
   }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   DARK MODE
-   Se activa con: document.documentElement.setAttribute('data-theme','dark')
-   Usa los mismos acentos coral/teal — solo cambian fondos y textos.
-   Fondo oscuro cálido (no negro puro) para mantener el estilo cozy.
-   ══════════════════════════════════════════════════════════════ */
-[data-theme="dark"] {
-  /* Fondos cálidos oscuros */
-  --color-bg:            #1E1A16;   /* marrón muy oscuro cálido */
-  --color-surface:       #2A2420;   /* card oscura */
-  --color-surface-alt:   #332D28;   /* input oscuro */
-  --color-surface-warm:  #3D3530;   /* hover oscuro */
-  --color-surface-mint:  #1E2B22;   /* mint oscuro */
-  --color-navbar:        #3D3020;   /* navbar oscura marrón cálido */
-  --color-navbar-border: #4A3A28;
-
-  /* Texto */
-  --color-text:          #F0E8DC;   /* beige claro para texto principal */
-  --color-text-soft:     #C4B09A;   /* beige medio */
-  --color-text-muted:    #8A7060;   /* muted oscuro */
-
-  /* Bordes */
-  --color-border:        #3D3530;
-  --color-border-focus:  #7CCBC2;
-
-  /* Los acentos coral y teal se mantienen idénticos */
-  /* --color-primary:    #F08263  ← sin cambio */
-  /* --color-teal:       #7CCBC2  ← sin cambio */
-}
-
-/* Olas más visibles en dark para que se noten sobre el fondo oscuro */
-[data-theme="dark"] body {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237CCBC2' stroke-width='1.8' stroke-opacity='0.12'/%3E%3C/svg%3E");
-}
+/* (bloque [data-theme=dark] fusionado con html.dark abajo) */
 
 
 /* ══════════════════════════════════════════════════════════════
-   DARK MODE — clase .dark en <html>
-   Sobreescribe las variables CSS. Los colores se mantienen cálidos
-   y los acentos coral/teal se conservan iguales.
+   DARK MODE — se activa con html.dark O html[data-theme="dark"]
+   Ambos mecanismos activan exactamente el mismo CSS.
+   Fondo oscuro cálido chocolate — no negro puro.
+   Acentos coral (#F08263) y teal (#7CCBC2) sin cambios.
    ══════════════════════════════════════════════════════════════ */
-html.dark {
+html.dark,
+html[data-theme="dark"] {
   /* Superficies oscuras cálidas */
   --color-bg:            #1E1A16;   /* marrón muy oscuro */
   --color-surface:       #2A2420;   /* card oscura */
@@ -228,10 +197,69 @@ html.dark {
   --shadow-lg:   0 8px 32px rgba(0,0,0,0.40);
   --shadow-xl:   0 16px 48px rgba(0,0,0,0.50);
   --shadow-card: 0 2px 12px rgba(0,0,0,0.28);
+
+  /* Fondos específicos para cards de género (menos saturados en dark) */
+  --card-bg-macho:       #1E2A38;
+  --card-bg-macho-borde: #2A3D54;
+  --card-bg-hembra:      #381E2A;
+  --card-bg-hembra-borde:#542A3D;
+}
+
+/* ── Dark mode: correcciones de elementos hardcodeados ──────── */
+html.dark .card-bg--macho,
+html[data-theme="dark"] .card-bg--macho {
+  background-color: #1E2A38 !important;
+  border-color: #2A3D54 !important;
+}
+html.dark .card-bg--hembra,
+html[data-theme="dark"] .card-bg--hembra {
+  background-color: #381E2A !important;
+  border-color: #542A3D !important;
+}
+
+/* Tags sobre cards de género en dark */
+html.dark .mm-tag--macho,
+html[data-theme="dark"] .mm-tag--macho {
+  background: rgba(42, 61, 84, 0.9);
+  color: #7BAFD4;
+}
+html.dark .mm-tag--hembra,
+html[data-theme="dark"] .mm-tag--hembra {
+  background: rgba(84, 42, 61, 0.9);
+  color: #D47BA8;
+}
+
+/* Botones de editar/borrar en cards de mascota */
+html.dark .mm-btn--edit,
+html[data-theme="dark"] .mm-btn--edit {
+  background: rgba(255,255,255,0.10);
+  color: var(--color-teal);
+}
+html.dark .mm-btn--del,
+html[data-theme="dark"] .mm-btn--del {
+  background: rgba(255,255,255,0.10);
+  color: var(--color-text-muted);
+}
+
+/* Input nativo date/time — el chrome del navegador siempre queda oscuro si el sistema lo es */
+html.dark input[type="date"],
+html.dark input[type="time"],
+html.dark input[type="datetime-local"],
+html[data-theme="dark"] input[type="date"],
+html[data-theme="dark"] input[type="time"],
+html[data-theme="dark"] input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+/* Links footer que pueden quedar con color incorrecto */
+html.dark a,
+html[data-theme="dark"] a {
+  color: inherit;
 }
 
 /* Olas más sutiles en dark */
-html.dark body {
+html.dark body,
+html[data-theme="dark"] body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237CCBC2' stroke-width='1.5' stroke-opacity='0.08'/%3E%3C/svg%3E");
 }
 
@@ -796,4 +824,181 @@ button {
   .auth-card,
   .login-card { border-radius: var(--radius-lg); }
   .dp-calendar { left: 0.5rem !important; width: calc(100vw - 1rem) !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE — CORRECCIONES GLOBALES ADICIONALES
+   Aplica a cualquier elemento que use colores hardcodeados
+   que no responden automáticamente a las variables CSS.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Leaflet mapa en dark ────────────────────────────────────── */
+html.dark .leaflet-tile-pane,
+html[data-theme="dark"] .leaflet-tile-pane {
+  filter: saturate(0.4) brightness(0.55) sepia(0.25);
+}
+html.dark .leaflet-container,
+html[data-theme="dark"] .leaflet-container {
+  background: var(--color-surface-alt);
+}
+
+/* ── Scrollbars en dark ──────────────────────────────────────── */
+html.dark *,
+html[data-theme="dark"] * {
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* ── Popup de Leaflet en dark ────────────────────────────────── */
+html.dark .leaflet-popup-content-wrapper,
+html[data-theme="dark"] .leaflet-popup-content-wrapper {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+html.dark .leaflet-popup-tip,
+html[data-theme="dark"] .leaflet-popup-tip {
+  background: var(--color-surface);
+}
+
+/* ── Input focus ring en dark ────────────────────────────────── */
+html.dark .input:focus,
+html[data-theme="dark"] .input:focus {
+  background: var(--color-surface);
+}
+
+/* ── Msg success/error en dark ───────────────────────────────── */
+html.dark .msg-success,
+html[data-theme="dark"] .msg-success {
+  background: rgba(124,203,194,0.12);
+  color: #7CCBC2;
+  border-color: rgba(124,203,194,0.25);
+}
+html.dark .msg-error,
+html[data-theme="dark"] .msg-error {
+  background: rgba(217,95,95,0.12);
+  color: #E88080;
+  border-color: rgba(217,95,95,0.25);
+}
+
+/* ── Modales overlay en dark ─────────────────────────────────── */
+html.dark .cita-overlay,
+html.dark .reset-overlay,
+html[data-theme="dark"] .cita-overlay,
+html[data-theme="dark"] .reset-overlay {
+  background: rgba(10,6,4,0.65);
+}
+
+/* ── Backdrop filter en dark (más opaco) ─────────────────────── */
+html.dark .mobile-nav,
+html[data-theme="dark"] .mobile-nav {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+/* ── Badge de estado en cards de cita ────────────────────────── */
+html.dark .mc-card--proxima,
+html[data-theme="dark"] .mc-card--proxima {
+  border-left-color: var(--color-primary);
+}
+
+/* ── Fecha col en dark ───────────────────────────────────────── */
+html.dark .mc-fecha,
+html[data-theme="dark"] .mc-fecha {
+  background: rgba(240,130,99,0.15);
+}
+html.dark .mc-fecha--muted,
+html[data-theme="dark"] .mc-fecha--muted {
+  background: var(--color-surface-alt);
+}
+
+/* ── Stepper en dark ─────────────────────────────────────────── */
+html.dark .stepper-dot,
+html[data-theme="dark"] .stepper-dot {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+/* ── Header de modal en dark ─────────────────────────────────── */
+html.dark .cita-header,
+html.dark .modal-header,
+html[data-theme="dark"] .cita-header,
+html[data-theme="dark"] .modal-header {
+  background: var(--color-navbar);
+  border-bottom-color: var(--color-border);
+}
+html.dark .cita-footer,
+html.dark .modal-footer,
+html[data-theme="dark"] .cita-footer,
+html[data-theme="dark"] .modal-footer {
+  border-top-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+/* ── Resumen de cita en dark ─────────────────────────────────── */
+html.dark .cita-resumen,
+html[data-theme="dark"] .cita-resumen {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+}
+
+/* ── Chips de filtro en dark (ClinicasPage) ──────────────────── */
+html.dark .cl-chip,
+html[data-theme="dark"] .cl-chip {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-soft);
+}
+html.dark .cl-topbar,
+html[data-theme="dark"] .cl-topbar {
+  background: var(--color-surface);
+  border-bottom-color: var(--color-border);
+}
+html.dark .cl-lista-col,
+html[data-theme="dark"] .cl-lista-col {
+  background: var(--color-bg);
+}
+
+/* ── Cards vacunas en dark ───────────────────────────────────── */
+html.dark .vac-item,
+html[data-theme="dark"] .vac-item {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+html.dark .vac-cartilla,
+html[data-theme="dark"] .vac-cartilla {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+/* ── DatePicker calendar en dark ─────────────────────────────── */
+html.dark .dp-calendar,
+html[data-theme="dark"] .dp-calendar {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+html.dark .dp-trigger,
+html[data-theme="dark"] .dp-trigger {
+  background: var(--color-surface-alt);
+  border-color: transparent;
+  color: var(--color-text);
+}
+
+/* ── Footer en dark ──────────────────────────────────────────── */
+html.dark .app-footer,
+html[data-theme="dark"] .app-footer {
+  background: var(--color-surface);
+  border-top-color: var(--color-border);
+}
+
+/* ── Landing page en dark ────────────────────────────────────── */
+html.dark .hero-section,
+html[data-theme="dark"] .hero-section {
+  background: var(--color-surface);
+}
+
+/* ── Skeleton loading en dark ────────────────────────────────── */
+html.dark .cl-ske,
+html[data-theme="dark"] .cl-ske {
+  background: var(--color-surface-alt);
 }

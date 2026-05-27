@@ -6,6 +6,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import PetAvatar from '@/components/ui/PetAvatar.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -250,10 +251,7 @@ function fmtFecha(iso) {
         <div v-else class="vets-grid">
           <div v-for="vet in veterinarios" :key="vet.id" class="card card-animate vet-card">
             <div class="card-body" style="display:flex;align-items:center;gap:0.85rem">
-              <div class="vet-avatar">
-                <img v-if="vet.foto" :src="vet.foto" :alt="vet.nombre" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>
-                <span v-else style="font-size:1.5rem">🩺</span>
-              </div>
+              <PetAvatar :foto="vet.foto" :nombre="(vet.nombre || '') + ' ' + (vet.apellidos || '')" tipo="usuario" size="sm" />
               <div>
                 <p class="vet-nombre">{{ vet.nombre }} {{ vet.apellidos }}</p>
                 <span v-if="vet.especialidad" class="vet-esp">{{ vet.especialidad }}</span>
@@ -347,10 +345,7 @@ function fmtFecha(iso) {
                     class="mascota-item"
                     :class="{ 'mascota-item--sel': formReserva.mascota?.id === m.id }"
                     @click="formReserva.mascota = m">
-                    <div class="mascota-avatar">
-                      <img v-if="m.foto" :src="m.foto" :alt="m.nombre" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>
-                      <span v-else class="mascota-inicial">{{ (m.nombre||'?')[0].toUpperCase() }}</span>
-                    </div>
+                    <PetAvatar :foto="m.foto" :nombre="m.nombre" :genero="m.genero" tipo="mascota" size="sm" />
                     <div class="mascota-info">
                       <p class="mascota-nombre">{{ m.nombre }}</p>
                       <p class="mascota-raza">{{ m.raza?.nombre || '' }}</p>

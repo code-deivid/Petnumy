@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/i18n/index.js'
 import { useAuthStore } from '@/stores/auth.store.js'
 import SettingsModal from '@/components/layout/SettingsModal.vue'
+import PetAvatar from '@/components/ui/PetAvatar.vue'
 import { useRecordatorios } from '@/composables/useRecordatorios.js'
 
 const router    = useRouter()
@@ -301,10 +302,7 @@ function irA(name) {
             </svg>
           </button>
 
-          <div class="mobile-profile-avatar">
-            <img v-if="fotoPerfil" :src="fotoPerfil" :alt="nombrePerfil" />
-            <span v-else>{{ inicialesPerfil }}</span>
-          </div>
+          <PetAvatar :foto="fotoPerfil" :nombre="nombrePerfil" tipo="usuario" size="lg" />
           <p class="mobile-menu-kicker">Petnumy</p>
           <h2 class="mobile-menu-title">Hola, {{ nombrePerfil }}</h2>
           <p class="mobile-menu-subtitle">

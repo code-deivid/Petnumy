@@ -16,6 +16,7 @@ import './assets/styles/animations.css'
 const savedTheme = localStorage.getItem('petnumy_theme')
 if (savedTheme === 'dark') {
   document.documentElement.classList.add('dark')
+  document.documentElement.setAttribute('data-theme', 'dark')
 }
 
 // ── Restaurar idioma ──────────────────────────────────────────

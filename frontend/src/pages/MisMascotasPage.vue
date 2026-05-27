@@ -1,6 +1,7 @@
 <!-- src/pages/MisMascotasPage.vue -->
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import PetAvatar from '@/components/ui/PetAvatar.vue'
 import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 
@@ -154,8 +155,7 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
                   class="mm-fam-av"
                   :style="{ background: colorAv(i), marginLeft: i > 0 ? '-8px' : '0', zIndex: 10 - i }"
                 >
-                  <img v-if="m.foto" :src="m.foto" :alt="m.nombre" class="mm-fam-av-img"/>
-                  <span v-else>{{ iniciales(m.nombre) }}</span>
+                  <PetAvatar :foto="m.foto" :nombre="m.nombre" :genero="m.genero" tipo="mascota" size="sm" />
                 </div>
                 <div v-if="mascotas.length > 4" class="mm-fam-av mm-fam-av--more">+{{ mascotas.length - 4 }}</div>
               </div>
@@ -213,8 +213,7 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
               <!-- Foto -->
               <div class="mm-card-foto-wrap">
                 <div class="mm-card-foto">
-                  <img v-if="mascota.foto" :src="mascota.foto" :alt="mascota.nombre" class="mm-card-foto-img"/>
-                  <div v-else class="mm-card-av" :style="{ background: colorAv(idx) }">{{ iniciales(mascota.nombre) }}</div>
+                  <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="md" />
                 </div>
               </div>
 

@@ -219,12 +219,12 @@ function volver() { router.back() }
               <div class="nm-foto-circle">
                 <img v-if="fotoPreview" :src="fotoPreview" alt="Foto mascota" class="nm-foto-img" />
                 <div v-else class="nm-foto-placeholder">
-                  <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
-                    <ellipse cx="14" cy="24" rx="6"   ry="8"   fill="#D4C4B0"/>
-                    <ellipse cx="46" cy="24" rx="6"   ry="8"   fill="#D4C4B0"/>
-                    <ellipse cx="24" cy="14" rx="5.5" ry="7.5" fill="#D4C4B0"/>
-                    <ellipse cx="36" cy="14" rx="5.5" ry="7.5" fill="#D4C4B0"/>
-                    <path d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z" fill="#D4C4B0"/>
+                  <svg width="44" height="44" viewBox="0 0 60 60" fill="none">
+                    <ellipse cx="14" cy="24" rx="6"   ry="8"   fill="var(--color-primary-mid)" opacity="0.7"/>
+                    <ellipse cx="46" cy="24" rx="6"   ry="8"   fill="var(--color-primary-mid)" opacity="0.7"/>
+                    <ellipse cx="24" cy="14" rx="5.5" ry="7.5" fill="var(--color-primary-mid)" opacity="0.7"/>
+                    <ellipse cx="36" cy="14" rx="5.5" ry="7.5" fill="var(--color-primary-mid)" opacity="0.7"/>
+                    <path d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z" fill="var(--color-primary-mid)" opacity="0.7"/>
                   </svg>
                 </div>
                 <div class="nm-foto-btn">
@@ -443,7 +443,10 @@ function volver() { router.back() }
 }
 .nm-foto-area:hover .nm-foto-circle { border-color: var(--color-teal); }
 .nm-foto-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.nm-foto-placeholder { opacity: 0.5; }
+.nm-foto-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+}
 .nm-foto-btn {
   position: absolute; bottom: 8px; right: 8px;
   width: 28px; height: 28px; border-radius: 50%;

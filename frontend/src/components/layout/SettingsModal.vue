@@ -2,6 +2,7 @@
 <!-- Panel de configuración: perfil, dark mode, idioma, logout -->
 <!-- Diseño basado exactamente en la imagen de referencia adjunta -->
 <script setup>
+import PetAvatar from '@/components/ui/PetAvatar.vue'
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -32,9 +33,11 @@ function toggleDark() {
   isDark.value = !isDark.value
   if (isDark.value) {
     document.documentElement.classList.add('dark')
+    document.documentElement.setAttribute('data-theme', 'dark')
     localStorage.setItem('petnumy_theme', 'dark')
   } else {
     document.documentElement.classList.remove('dark')
+    document.documentElement.removeAttribute('data-theme')
     localStorage.setItem('petnumy_theme', 'light')
   }
 }
@@ -104,10 +107,7 @@ watch(() => props.visible, (v) => {
             </button>
 
             <!-- Avatar circular -->
-            <div class="sm-avatar">
-              <img v-if="fotoUsuario" :src="fotoUsuario" :alt="nombreUsuario" class="sm-avatar-img" />
-              <span v-else class="sm-avatar-initials">{{ iniciales }}</span>
-            </div>
+            <PetAvatar :foto="fotoUsuario" :nombre="nombreUsuario" tipo="usuario" size="xl" />
 
             <!-- Saludo -->
             <p class="sm-greeting">

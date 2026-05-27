@@ -1,6 +1,7 @@
 <!-- src/pages/MascotaDetallePage.vue -->
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import PetAvatar from '@/components/ui/PetAvatar.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 import { getVacunaInfo, estadoConfig } from '@/data/vacunasInfo.js'
@@ -203,8 +204,7 @@ async function compartir() {
           <!-- Columna foto -->
           <div class="md-foto-col">
             <div class="md-foto-ring">
-              <img v-if="mascota.foto" :src="mascota.foto" :alt="mascota.nombre" class="md-foto-img"/>
-              <span v-else class="md-foto-initials">{{ iniciales }}</span>
+              <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="xl" />
             </div>
             <!-- Género badge sobre la foto -->
             <div
@@ -333,7 +333,7 @@ async function compartir() {
 
           <div class="vac-cartilla-head">
             <div class="vac-cartilla-av">
-              <img v-if="mascota.foto" :src="mascota.foto" :alt="mascota.nombre" class="vac-cartilla-av-img"/>
+              <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="sm" />
               <span v-else class="vac-cartilla-av-ini">{{ iniciales }}</span>
             </div>
             <div class="vac-cartilla-info">
