@@ -6,6 +6,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 const props = defineProps({
   modelValue:  { type: String, default: '' },  // YYYY-MM-DD
   placeholder: { type: String, default: 'Fecha de nacimiento' },
+  minDate:     { type: String, default: '' },   // YYYY-MM-DD — deshabilita días anteriores
   maxDate:     { type: String, default: '' }
 })
 const emit = defineEmits(['update:modelValue'])
@@ -86,9 +87,9 @@ function irMesSiguiente() {
 
 function estaDeshabilitado(dia) {
   if (!dia) return true
-  if (props.maxDate) {
-    return new Date(vistaAño.value, vistaM.value, dia) > new Date(props.maxDate)
-  }
+  const fecha = new Date(vistaAño.value, vistaM.value, dia)
+  if (props.minDate && fecha < new Date(props.minDate)) return true
+  if (props.maxDate && fecha > new Date(props.maxDate)) return true
   return false
 }
 function esSeleccionado(dia) {

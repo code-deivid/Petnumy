@@ -12,7 +12,8 @@ import { requireAuth } from '../middleware/auth.middleware.js'
 import {
   getCitas,
   createCita,
-  cancelarCita
+  cancelarCita,
+  createCitaDirecta
 } from '../controllers/citas.controller.js'
 
 const router = Router()
@@ -21,6 +22,7 @@ router.use(requireAuth)
 
 router.get('/',                  getCitas)
 router.post('/',                 createCita)
+router.post('/directa',          createCitaDirecta)   // cita sin veterinario/servicio concreto
 router.patch('/:id/cancelar',    cancelarCita)
 
 export default router

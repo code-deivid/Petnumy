@@ -114,10 +114,11 @@ function cerrarTodo() {
 // SettingsModal tiene su propio manejo de click fuera.
 function handleClickOutside(e) {
   if (navRef.value && !navRef.value.contains(e.target)) {
-    notifAbiertas.value = false
-    mobileMenu.value    = false
-    mobileMenuView.value = 'nav'
-    langOpenMobile.value = false
+    notifAbiertas.value   = false
+    settingsVisible.value = false
+    mobileMenu.value      = false
+    mobileMenuView.value  = 'nav'
+    langOpenMobile.value  = false
   }
 }
 onMounted(() => {
@@ -258,6 +259,12 @@ function irA(name) {
                 </div>
               </div>
             </Transition>
+
+            <!-- Settings popover — anclado al nav-icons-wrap (position:relative) -->
+            <SettingsModal
+              :visible="settingsVisible"
+              @close="settingsVisible = false"
+            />
 
           </div>
         </template>
@@ -426,11 +433,6 @@ function irA(name) {
         </div>
       </div>
     </Transition>
-
-    <SettingsModal
-      :visible="settingsVisible"
-      @close="settingsVisible = false"
-    />
 
 
   </header>

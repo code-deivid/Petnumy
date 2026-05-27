@@ -82,11 +82,8 @@ function onKeydown(e) {
 watch(() => props.visible, (v) => {
   if (v) {
     document.addEventListener('keydown', onKeydown)
-    // Bloquear scroll del body
-    document.body.style.overflow = 'hidden'
   } else {
     document.removeEventListener('keydown', onKeydown)
-    document.body.style.overflow = ''
     langOpen.value = false
   }
 })

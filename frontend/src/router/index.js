@@ -3,18 +3,20 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store.js'
 
 // ── Páginas ────────────────────────────────────────────────────
-const LandingPage       = () => import('@/pages/LandingPage.vue')
-const HomePage          = () => import('@/pages/HomePage.vue')
-const LoginPage         = () => import('@/pages/LoginPage.vue')
-const RegistroPage      = () => import('@/pages/RegistroPage.vue')
-const ClinicasPage      = () => import('@/pages/ClinicasPage.vue')
+const LandingPage        = () => import('@/pages/LandingPage.vue')
+const HomePage           = () => import('@/pages/HomePage.vue')
+const LoginPage          = () => import('@/pages/LoginPage.vue')
+const RegistroPage       = () => import('@/pages/RegistroPage.vue')
+const AuthCallbackPage   = () => import('@/pages/AuthCallbackPage.vue')
+const ResetPasswordPage  = () => import('@/pages/ResetPasswordPage.vue')
+const ClinicasPage       = () => import('@/pages/ClinicasPage.vue')
 const ClinicaDetallePage = () => import('@/pages/ClinicaDetallePage.vue')
-const MisMascotasPage   = () => import('@/pages/MisMascotasPage.vue')
+const MisMascotasPage    = () => import('@/pages/MisMascotasPage.vue')
 const MascotaDetallePage = () => import('@/pages/MascotaDetallePage.vue')
-const NuevaMascotaPage  = () => import('@/pages/NuevaMascotaPage.vue')
-const MisCitasPage      = () => import('@/pages/MisCitasPage.vue')
-const NuevaCitaPage     = () => import('@/pages/NuevaCitaPage.vue')
-const PerfilPage        = () => import('@/pages/PerfilPage.vue')
+const NuevaMascotaPage   = () => import('@/pages/NuevaMascotaPage.vue')
+const MisCitasPage       = () => import('@/pages/MisCitasPage.vue')
+const NuevaCitaPage      = () => import('@/pages/NuevaCitaPage.vue')
+const PerfilPage         = () => import('@/pages/PerfilPage.vue')
 
 const routes = [
   // ── Pública: landing de bienvenida ──────────────────────────
@@ -23,10 +25,9 @@ const routes = [
     name: 'landing',
     component: LandingPage,
     meta: { requiresAuth: false, redirectIfAuth: true }
-    // Si ya hay sesión → redirige a /mis-mascotas
   },
 
-  // ── Rutas de auth ────────────────────────────────────────────
+  // ── Auth ─────────────────────────────────────────────────────
   {
     path: '/login',
     name: 'login',
@@ -38,6 +39,20 @@ const routes = [
     name: 'registro',
     component: RegistroPage,
     meta: { requiresAuth: false, redirectIfAuth: true }
+  },
+  // Callback de Google OAuth — siempre pública, no redirigir si hay auth
+  {
+    path: '/auth/callback',
+    name: 'auth-callback',
+    component: AuthCallbackPage,
+    meta: { requiresAuth: false, redirectIfAuth: false }
+  },
+  // Reset de contraseña — siempre pública
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: ResetPasswordPage,
+    meta: { requiresAuth: false, redirectIfAuth: false }
   },
 
   // ── Rutas privadas ───────────────────────────────────────────
@@ -89,7 +104,6 @@ const routes = [
     component: NuevaCitaPage,
     meta: { requiresAuth: true }
   },
-
   {
     path: '/perfil',
     name: 'perfil',
@@ -120,6 +134,7 @@ router.beforeEach((to) => {
   }
 
   // Landing/login/registro con sesión activa → mis mascotas
+  // (solo si la ruta tiene redirectIfAuth: true — callback y reset NO)
   if (to.meta.redirectIfAuth && authStore.isLoggedIn) {
     return { name: 'mis-mascotas' }
   }

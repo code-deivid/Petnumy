@@ -212,3 +212,94 @@ export async function cancelarCita(req, res) {
     cita: data
   })
 }
+
+// ------------------------------------------------------------
+//  POST /api/citas/directa
+//  Cita directa desde el listado de clínicas.
+//  No requiere veterinario ni servicio concreto — solo
+//  mascota, clínica, motivo (texto libre) y fecha_hora.
+// ------------------------------------------------------------
+export async function createCitaDirecta(req, res) {
+  const userId = req.user.id
+  const { id_mascota, id_clinica, motivo, fecha_hora } = req.body
+
+  // 1. Validar campos obligatorios
+  if (!id_mascota)  return res.status(400).json({ error: 'Datos inválidos', message: '"id_mascota" es obligatorio' })
+  if (!id_clinica)  return res.status(400).json({ error: 'Datos inválidos', message: '"id_clinica" es obligatorio' })
+  if (!motivo)      return res.status(400).json({ error: 'Datos inválidos', message: '"motivo" es obligatorio' })
+  if (!fecha_hora)  return res.status(400).json({ error: 'Datos inválidos', message: '"fecha_hora" es obligatorio' })
+
+  const fecha = new Date(fecha_hora)
+  if (isNaN(fecha.getTime())) {
+    return res.status(400).json({ error: 'Datos inválidos', message: '"fecha_hora" no es una fecha válida' })
+  }
+  if (fecha <= new Date()) {
+    return res.status(400).json({ error: 'Datos inválidos', message: '"fecha_hora" debe ser una fecha futura' })
+  }
+
+  // 2. Verificar que la mascota pertenece al usuario
+  const { data: mascota, error: mascotaError } = await supabaseAdmin
+    .from('mascota')
+    .select('id, nombre')
+    .eq('id', id_mascota)
+    .eq('user_id', userId)
+    .single()
+
+  if (mascotaError || !mascota) {
+    return res.status(400).json({
+      error: 'Mascota no válida',
+      message: 'La mascota no existe o no te pertenece'
+    })
+  }
+
+  // 3. Verificar que la clínica existe
+  const { data: clinica, error: clinicaError } = await supabaseAdmin
+    .from('clinica')
+    .select('id, nombre')
+    .eq('id', id_clinica)
+    .eq('activa', true)
+    .single()
+
+  if (clinicaError || !clinica) {
+    return res.status(400).json({
+      error: 'Clínica no válida',
+      message: 'La clínica no existe o no está disponible'
+    })
+  }
+
+  // 4. Crear la cita directa — sin veterinario ni servicio específico
+  const { data, error } = await supabaseAdmin
+    .from('cita')
+    .insert({
+      id_usuario:     userId,
+      id_mascota,
+      id_clinica,
+      motivo:         motivo.trim(),
+      fecha_hora,
+      estado:         'pendiente',
+      id_veterinario: null,
+      id_servicio:    null
+    })
+    .select(`
+      id,
+      fecha_hora,
+      estado,
+      motivo,
+      created_at,
+      mascota  ( id, nombre ),
+      clinica  ( id, nombre, ciudad )
+    `)
+    .single()
+
+  if (error) {
+    return res.status(500).json({
+      error: 'Error creando cita',
+      message: error.message
+    })
+  }
+
+  return res.status(201).json({
+    message: 'Cita reservada correctamente. Está pendiente de confirmación.',
+    cita: data
+  })
+}
