@@ -501,7 +501,7 @@ const consejoHoy = computed(() => {
             :disabled="confirmModal.eliminando"
             @click="cancelarEliminar"
           >
-            Cancelar
+            {{ t('common.cancel') }}
           </button>
           <button
             class="btn btn-eliminar"
@@ -513,7 +513,7 @@ const consejoHoy = computed(() => {
               class="spinner"
               style="width: 14px; height: 14px; border-width: 2px"
             />
-            <span v-else>Eliminar mascota</span>
+            <span v-else>{{ t('common.delete') }}</span>
           </button>
         </div>
       </div>

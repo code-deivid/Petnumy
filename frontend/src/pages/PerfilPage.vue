@@ -139,14 +139,14 @@ async function guardar() {
                 <img
                   v-if="fotoPreview"
                   :src="fotoPreview"
-                  alt="Foto de perfil"
+                  :alt="t('profile.photo')"
                   class="pf-avatar-img"
                 />
                 <span v-else class="pf-avatar-initials">{{ iniciales }}</span>
               </div>
 
               <!-- Botón cambiar foto -->
-              <label class="pf-avatar-change" for="foto-perfil" title="Cambiar foto">
+              <label class="pf-avatar-change" for="foto-perfil" :title="t('profile.changePhoto')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
                   <circle cx="12" cy="13" r="4"/>
@@ -197,7 +197,7 @@ async function guardar() {
                   type="text"
                   class="input"
                   :class="{ 'input-error': errorMsg && !form.nombre }"
-                  placeholder="María"
+                  :placeholder="t('profile.namePlaceholder')"
                 />
               </div>
               <div class="input-group">
@@ -206,7 +206,7 @@ async function guardar() {
                   v-model="form.apellidos"
                   type="text"
                   class="input"
-                  placeholder="García"
+                  :placeholder="t('profile.lastNamePlaceholder')"
                 />
               </div>
             </div>
@@ -252,7 +252,7 @@ async function guardar() {
                   v-model="form.ciudad"
                   type="text"
                   class="input"
-                  placeholder="Valencia"
+                  :placeholder="t('profile.cityPlaceholder')"
                 />
               </div>
             </div>

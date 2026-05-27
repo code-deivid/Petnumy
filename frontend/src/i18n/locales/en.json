@@ -114,8 +114,18 @@
       "mismatch": "Passwords don't match.",
       "success": "Password updated successfully. Redirecting to login…",
       "expired": "The link is invalid or has expired.",
-      "backToLogin": "← Back to login"
-    }
+      "backToLogin": "← Back to login",
+      "save": "Save password"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "minPassword": "Minimum 6 characters",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "email": "Email",
+    "password": "Password"
   },
   "home": {
     "helloUser": "Hello, {name}!",
@@ -185,7 +195,8 @@
     "viewProfile": "View profile →",
     "lessThanOneMonth": "Less than 1 month",
     "backToPets": "← My pets",
-    "pet": "your pet"
+    "pet": "your pet",
+    "breeds": "Breeds"
   },
   "petDetail": {
     "birthdate": "Date of birth",
@@ -274,7 +285,13 @@
     "errorDateRequired": "Enter the date when the vaccine was administered",
     "errorSave": "Error saving vaccine",
     "forPet": "Vaccines for {species}",
-    "noAvailable": "No vaccines available for this species."
+    "noAvailable": "No vaccines available for this species.",
+    "adminDate": "Date administered",
+    "nextDose": "Next dose",
+    "statusPendingPlural": "PENDING",
+    "statusLatePlural": "OVERDUE",
+    "administeredDate": "Administered date",
+    "nextDoseOptional": "Next dose optional"
   },
   "appointments": {
     "title": "My Appointments",
@@ -330,7 +347,8 @@
       "urgencia": "Emergency",
       "desparasitacion": "Deworming",
       "otro": "Other reason"
-    }
+    },
+    "createError": "Could not create the appointment. Please try again."
   },
   "clinics": {
     "title": "Vets",
@@ -381,7 +399,13 @@
     "saveChanges": "Save changes",
     "saving": "Saving…",
     "successMsg": "Profile updated successfully!",
-    "errorMsg": "Could not update profile. Please try again."
+    "errorMsg": "Could not update profile. Please try again.",
+    "userFallback": "User",
+    "photo": "Profile photo",
+    "changePhoto": "Change photo",
+    "namePlaceholder": "Mary",
+    "lastNamePlaceholder": "Smith",
+    "cityPlaceholder": "Valencia"
   },
   "footer": {
     "tagline": "Your pet's health, all in one place.",
@@ -396,8 +420,8 @@
     "madeWith": "Made with love for pets and their owners"
   },
   "landing": {
-    "title": "Their health,\nyour peace of mind.",
-    "desc": "Caring for your pet, easier than ever. Vaccines, appointments, history and tips — all in one cozy place.",
+    "title": "Your health,<br />your peace of mind.",
+    "desc": "Caring for your pet, easier than ever. Vaccines, appointments, records and tips — all in one cozy place.",
     "start": "Start today",
     "startDesc": "Create your free account and manage your pets' health.",
     "createFree": "Create free account",
@@ -410,6 +434,106 @@
     "feature2Title": "Nearby clinics",
     "feature2Desc": "Find vet clinics and meet the professionals who will take care of your pet.",
     "feature3Title": "Appointments & vaccines",
-    "feature3Desc": "Book appointments and keep the vaccination calendar always up to date effortlessly."
+    "feature3Desc": "Book appointments and keep the vaccination calendar always up to date effortlessly.",
+    "brand": "Petnumy",
+    "clinics": "Clinics",
+    "ctaTitle": "Start today",
+    "ctaDesc": "Create your free account and manage your pets' health.",
+    "createAccount": "Create free account",
+    "alreadyAccount": "I already have an account",
+    "featurePetsTitle": "Your pets",
+    "featurePetsDesc": "Register your companions and keep a complete track of their health and vaccines.",
+    "featureClinicsTitle": "Nearby clinics",
+    "featureClinicsDesc": "Find vet clinics and meet the professionals who will care for your pet.",
+    "featureAppointmentsTitle": "Appointments and vaccines",
+    "featureAppointmentsDesc": "Book appointments and keep the vaccination calendar up to date effortlessly."
+  },
+  "clinicDetail": {
+    "vetsTitle": "Vets",
+    "noVets": "This clinic has no registered vets yet.",
+    "book": "Book appointment",
+    "notFound": "Clinic not found"
+  },
+  "reminders": {
+    "title": "Reminders",
+    "none": "No active reminders",
+    "next": "Next",
+    "notice": "Notice",
+    "noticeOn": "Reminder on",
+    "reminder": "Reminder",
+    "needNextDose": "Add a next dose to create a reminder.",
+    "before": "before",
+    "quantityError": "The amount must be between 1 and 200.",
+    "saveError": "Could not save",
+    "remove": "Remove reminder",
+    "save": "Save reminder",
+    "options": {
+      "none": "None",
+      "oneDay": "1 day before",
+      "twoDays": "2 days before",
+      "oneWeek": "1 week before",
+      "twoWeeks": "2 weeks before",
+      "oneMonth": "1 month before",
+      "threeMonths": "3 months before",
+      "sixMonths": "6 months before",
+      "custom": "Custom…"
+    },
+    "units": {
+      "minute": "minute(s)",
+      "hour": "hour(s)",
+      "day": "day(s)",
+      "week": "week(s)",
+      "month": "month(s)"
+    }
+  },
+  "mobile": {
+    "hello": "Hello, {name}",
+    "experience": "Configure your experience",
+    "where": "Where do you want to go?",
+    "navigation": "Navigation",
+    "access": "Access",
+    "settings": "Settings",
+    "menu": "Menu"
+  },
+  "services": {
+    "urgencias": "Emergency",
+    "cirugia": "Surgery",
+    "hospitalizacion": "Hospitalisation",
+    "vacunas": "Vaccines",
+    "exoticos": "Exotic pets",
+    "peluqueria": "Grooming",
+    "abierto24h": "Open 24H"
+  },
+  "datePicker": {
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "days": [
+      "M",
+      "T",
+      "W",
+      "T",
+      "F",
+      "S",
+      "S"
+    ],
+    "clear": "Clear",
+    "today": "Today"
+  },
+  "crop": {
+    "title": "Adjust photo",
+    "subtitle": "Drag to center · Scroll to zoom",
+    "usePhoto": "Use photo"
   }
 }

@@ -2,16 +2,47 @@
 <!-- Selector de raza searchable custom — estilo Petnumy premium -->
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
   razas:      { type: Array,  default: () => [] },
   disabled:   { type: Boolean, default: false },
-  placeholder:{ type: String, default: 'Selecciona una raza' },
+  placeholder:{ type: String, default: '' },
   hasError:   { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue'])
+const { t, locale } = useI18n()
+
+function nombreRaza(raza = {}) {
+  const nombre = raza.nombre || raza.raza || ''
+  if (locale.value === 'es') return nombre
+  const key = String(nombre).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const mapEn = {
+    'afgano': 'Afghan Hound',
+    'akita japones': 'Japanese Akita',
+    'schnauzer estandar': 'Standard Schnauzer',
+    'galgo espanol': 'Spanish Greyhound',
+    'pastor aleman': 'German Shepherd',
+    'perro de agua espanol': 'Spanish Water Dog',
+    'podenco ibicenco': 'Ibizan Hound',
+    'bichon maltes': 'Maltese',
+    'bulldog frances': 'French Bulldog'
+  }
+  const mapVa = {
+    'afgano': 'Afganés',
+    'akita japones': 'Akita japonés',
+    'schnauzer estandar': 'Schnauzer estàndard',
+    'galgo espanol': 'Galg espanyol',
+    'pastor aleman': 'Pastor alemany',
+    'perro de agua espanol': 'Gos d’aigua espanyol',
+    'podenco ibicenco': 'Podenc eivissenc',
+    'bichon maltes': 'Bichon maltés',
+    'bulldog frances': 'Bulldog francés'
+  }
+  return (locale.value === 'en' ? mapEn[key] : mapVa[key]) || nombre
+}
 
 const abierto    = ref(false)
 const busqueda   = ref('')
@@ -29,7 +60,7 @@ const seleccionada = computed(() =>
 const razasFiltradas = computed(() => {
   const q = busqueda.value.trim().toLowerCase()
   if (!q) return props.razas
-  return props.razas.filter(r => r.nombre.toLowerCase().includes(q))
+  return props.razas.filter(r => `${r.nombre || ''} ${nombreRaza(r)}`.toLowerCase().includes(q))
 })
 
 function abrir() {
@@ -109,7 +140,7 @@ watch(busqueda, () => { highlighted.value = -1 })
       role="combobox"
       :aria-expanded="abierto"
     >
-      <span v-if="seleccionada" class="rs-selected">{{ seleccionada.nombre }}</span>
+      <span v-if="seleccionada" class="rs-selected">{{ nombreRaza(seleccionada) }}</span>
       <span v-else class="rs-placeholder">{{ placeholder }}</span>
 
       <div class="rs-icons">
@@ -120,7 +151,7 @@ watch(busqueda, () => { highlighted.value = -1 })
           type="button"
           @click.stop="limpiar"
           tabindex="-1"
-          aria-label="Limpiar"
+          :aria-label="t('common.delete')"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -152,7 +183,7 @@ watch(busqueda, () => { highlighted.value = -1 })
             v-model="busqueda"
             type="text"
             class="rs-search-input"
-            placeholder="Buscar raza..."
+            :placeholder="placeholder || t('pets.searchBreed')"
             @keydown="onKeydown"
           />
         </div>
@@ -160,7 +191,7 @@ watch(busqueda, () => { highlighted.value = -1 })
         <!-- Lista -->
         <div class="rs-list" ref="listRef">
           <div v-if="razasFiltradas.length === 0" class="rs-empty">
-            Sin resultados para "{{ busqueda }}"
+            {{ t("common.noResults") }}: "{{ busqueda }}"
           </div>
           <button
             v-for="(raza, i) in razasFiltradas"
@@ -174,7 +205,7 @@ watch(busqueda, () => { highlighted.value = -1 })
             @click="seleccionar(raza)"
             @mouseenter="highlighted = i"
           >
-            <span class="raza-option-name">{{ raza.nombre }}</span>
+            <span class="raza-option-name">{{ nombreRaza(raza) }}</span>
             <!-- Checkmark si está seleccionada -->
             <svg v-if="raza.id === modelValue" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"/>
@@ -184,7 +215,7 @@ watch(busqueda, () => { highlighted.value = -1 })
 
         <!-- Contador -->
         <div v-if="razasFiltradas.length > 0" class="rs-footer">
-          {{ razasFiltradas.length }} raza{{ razasFiltradas.length !== 1 ? 's' : '' }}
+          {{ razasFiltradas.length }} {{ razasFiltradas.length === 1 ? t('pets.breed').toLowerCase() : t('pets.breeds').toLowerCase() }}
         </div>
 
       </div>

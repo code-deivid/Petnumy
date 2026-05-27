@@ -275,7 +275,7 @@ const hoy = new Date().toISOString().split('T')[0]
 
             <!-- Estado -->
             <div class="input-group">
-              <label class="label">Estado *</label>
+              <label class="label">{{ t("vaccines.status") }} *</label>
               <div class="mav-estado-btns">
                 <button type="button"
                   v-for="e in [
@@ -293,21 +293,21 @@ const hoy = new Date().toISOString().split('T')[0]
             <!-- Fecha administrada — DatePicker custom (Teleport, no se corta) -->
             <div class="input-group">
               <label class="label">
-                Fecha administrada{{ form.estado === 'puesta' ? ' *' : '' }}
+                {{ t('vaccines.adminDate') }}{{ form.estado === 'puesta' ? ' *' : '' }}
               </label>
               <DatePicker
                 v-model="form.fecha_aplicacion"
-                placeholder="Selecciona fecha"
+                :placeholder="t('vaccines.administeredDate')"
                 :max-date="hoy"
               />
             </div>
 
             <!-- Próxima dosis — DatePicker custom -->
             <div class="input-group">
-              <label class="label">Próxima dosis</label>
+              <label class="label">{{ t("vaccines.nextDose") }}</label>
               <DatePicker
                 v-model="form.proxima_aplicacion"
-                placeholder="Selecciona fecha (opcional)"
+                :placeholder="t('vaccines.nextDoseOptional')"
               />
               <!-- Sugerencia automática -->
               <Transition name="fade">
@@ -328,7 +328,7 @@ const hoy = new Date().toISOString().split('T')[0]
             <button type="button" class="btn btn-ghost"
               @click="paso === 1 ? $emit('close') : volver()"
             >
-              {{ paso === 1 ? 'Cancelar' : (modoEdicion ? 'Cancelar' : '← Volver') }}
+              {{ paso === 1 ? t('common.cancel') : (modoEdicion ? t('common.cancel') : t('common.previous')) }}
             </button>
             <button type="button" v-if="paso === 2"
               class="btn btn-teal"

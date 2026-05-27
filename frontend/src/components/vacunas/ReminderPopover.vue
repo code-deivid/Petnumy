@@ -2,6 +2,7 @@
 <!-- Teleport al body → nunca queda cortado por overflow del padre -->
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRecordatorios } from '@/composables/useRecordatorios.js'
 
 const props = defineProps({
@@ -12,6 +13,7 @@ const props = defineProps({
   triggerEl:        { default: null }   // elemento DOM del botón campana
 })
 const emit = defineEmits(['close'])
+const { t, locale } = useI18n()
 
 const { getDeVacuna, guardar, eliminar } = useRecordatorios()
 
@@ -113,6 +115,26 @@ const OPCIONES = [
   { id: 'custom',    label: 'Personalizado…',   cantidad: null, unidad: null },
 ]
 
+function opcionLabel(op) {
+  const map = {
+    'none': 'reminders.options.none',
+    '1-dia': 'reminders.options.oneDay',
+    '2-dias': 'reminders.options.twoDays',
+    '1-semana': 'reminders.options.oneWeek',
+    '2-semanas': 'reminders.options.twoWeeks',
+    '1-mes': 'reminders.options.oneMonth',
+    '3-meses': 'reminders.options.threeMonths',
+    '6-meses': 'reminders.options.sixMonths',
+    'custom': 'reminders.options.custom'
+  }
+  return map[op.id] ? t(map[op.id]) : op.label
+}
+
+function unidadLabel(u) {
+  const map = { minuto: 'reminders.units.minute', hora: 'reminders.units.hour', dia: 'reminders.units.day', semana: 'reminders.units.week', mes: 'reminders.units.month' }
+  return map[u.val] ? t(map[u.val]) : u.label
+}
+
 const UNIDADES = [
   { val: 'minuto', label: 'minuto(s)' },
   { val: 'hora',   label: 'hora(s)'   },
@@ -142,7 +164,7 @@ const fechaAviso = computed(() => {
     case 'semana': d.setDate(d.getDate()        - cantidad * 7); break
     case 'mes':    d.setMonth(d.getMonth()      - cantidad); break
   }
-  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+  return d.toLocaleDateString(locale.value === 'en' ? 'en-GB' : locale.value === 'va' ? 'ca-ES' : 'es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
 })
 
 function elegir(op) {
@@ -162,7 +184,7 @@ async function confirmar() {
     return
   }
   if (!props.proximaAplicacion) {
-    errorMsg.value = 'Añade una próxima dosis para crear un recordatorio.'
+    errorMsg.value = t('reminders.needNextDose')
     return
   }
   let cantidad, unidad
@@ -170,7 +192,7 @@ async function confirmar() {
     cantidad = Number(customCantidad.value)
     unidad   = customUnidad.value
     if (!cantidad || cantidad < 1 || cantidad > 200) {
-      errorMsg.value = 'La cantidad debe estar entre 1 y 200.'
+      errorMsg.value = t('reminders.quantityError')
       return
     }
   } else {
@@ -185,7 +207,7 @@ async function confirmar() {
     proxima_aplicacion: props.proximaAplicacion
   })
   guardando.value = false
-  if (!ok) { errorMsg.value = data.message || 'Error al guardar'; return }
+  if (!ok) { errorMsg.value = data.message || t('reminders.saveError'); return }
   emit('close')
 }
 </script>
@@ -209,7 +231,7 @@ async function confirmar() {
             </svg>
           </div>
           <div class="rp-title-wrap">
-            <p class="rp-title">Recordatorio</p>
+            <p class="rp-title">{{ t("reminders.reminder") }}</p>
             <p class="rp-sub">{{ nombreVacuna }}</p>
           </div>
           <button type="button" class="rp-close" @click="$emit('close')">
@@ -222,7 +244,7 @@ async function confirmar() {
         <!-- Sin próxima dosis -->
         <div v-if="!proximaAplicacion" class="rp-no-fecha">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <p>Añade una próxima dosis para crear un recordatorio.</p>
+          <p>{{ t("reminders.needNextDose") }}</p>
         </div>
 
         <template v-else>
@@ -235,7 +257,7 @@ async function confirmar() {
               :class="{ 'rp-opcion--on': opcionId === op.id }"
               @click="elegir(op)"
             >
-              <span>{{ op.label }}</span>
+              <span>{{ opcionLabel(op) }}</span>
               <svg v-if="opcionId === op.id" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
@@ -252,9 +274,9 @@ async function confirmar() {
                   class="input rp-num"
                 />
                 <select v-model="customUnidad" class="input rp-unit">
-                  <option v-for="u in UNIDADES" :key="u.val" :value="u.val">{{ u.label }}</option>
+                  <option v-for="u in UNIDADES" :key="u.val" :value="u.val">{{ unidadLabel(u) }}</option>
                 </select>
-                <span class="rp-suffix">antes</span>
+                <span class="rp-suffix">{{ t("reminders.before") }}</span>
               </div>
             </div>
           </Transition>
@@ -263,7 +285,7 @@ async function confirmar() {
           <Transition name="fade">
             <div v-if="fechaAviso" class="rp-preview">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>Aviso el <strong>{{ fechaAviso }}</strong></span>
+              <span>{{ t('reminders.noticeOn') }} <strong>{{ fechaAviso }}</strong></span>
             </div>
           </Transition>
 
@@ -273,8 +295,8 @@ async function confirmar() {
           <!-- Botón -->
           <button type="button" class="btn btn-teal rp-btn" :disabled="guardando" @click="confirmar">
             <span v-if="guardando" class="spinner" style="width:12px;height:12px;border-width:2px"/>
-            <span v-else-if="opcionId === 'none'">Quitar recordatorio</span>
-            <span v-else>Guardar recordatorio</span>
+            <span v-else-if="opcionId === 'none'">{{ t("reminders.remove") }}</span>
+            <span v-else>{{ t("reminders.save") }}</span>
           </button>
         </template>
 

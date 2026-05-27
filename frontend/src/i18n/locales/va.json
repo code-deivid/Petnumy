@@ -114,8 +114,18 @@
       "mismatch": "Les contrasenyes no coincideixen.",
       "success": "Contrasenya actualitzada correctament. Redirigint a l'inici de sessió…",
       "expired": "L'enllaç no és vàlid o ha caducat.",
-      "backToLogin": "← Tornar a l'inici de sessió"
-    }
+      "backToLogin": "← Tornar a l'inici de sessió",
+      "save": "Guardar contrasenya"
+    },
+    "validation": {
+      "nameRequired": "El nom és obligatori",
+      "emailRequired": "El correu és obligatori",
+      "passwordRequired": "La contrasenya és obligatòria",
+      "minPassword": "Mínim 6 caràcters",
+      "passwordMismatch": "Les contrasenyes no coincideixen"
+    },
+    "email": "Correu electrònic",
+    "password": "Contrasenya"
   },
   "home": {
     "helloUser": "Hola, {name}!",
@@ -185,7 +195,8 @@
     "viewProfile": "Veure fitxa →",
     "lessThanOneMonth": "Menys d’1 mes",
     "backToPets": "← Les meues mascotes",
-    "pet": "la teua mascota"
+    "pet": "la teua mascota",
+    "breeds": "Races"
   },
   "petDetail": {
     "birthdate": "Data de naixement",
@@ -274,7 +285,13 @@
     "errorDateRequired": "Indica la data en què es va administrar la vacuna",
     "errorSave": "Error en guardar la vacuna",
     "forPet": "Vacunes per a {species}",
-    "noAvailable": "No hi ha vacunes disponibles per a aquesta espècie."
+    "noAvailable": "No hi ha vacunes disponibles per a aquesta espècie.",
+    "adminDate": "Data administrada",
+    "nextDose": "Pròxima dosi",
+    "statusPendingPlural": "PENDENTS",
+    "statusLatePlural": "ENDARRERIDES",
+    "administeredDate": "Data administrada",
+    "nextDoseOptional": "Pròxima dosi opcional"
   },
   "appointments": {
     "title": "Les meues Cites",
@@ -330,7 +347,8 @@
       "urgencia": "Urgència",
       "desparasitacion": "Desparasitació",
       "otro": "Altre motiu"
-    }
+    },
+    "createError": "No s’ha pogut crear la cita. Intenta-ho de nou."
   },
   "clinics": {
     "title": "Veterinaris",
@@ -381,7 +399,13 @@
     "saveChanges": "Guardar canvis",
     "saving": "Guardant…",
     "successMsg": "Perfil actualitzat correctament!",
-    "errorMsg": "No s'ha pogut actualitzar el perfil. Intenta-ho de nou."
+    "errorMsg": "No s'ha pogut actualitzar el perfil. Intenta-ho de nou.",
+    "userFallback": "Usuari",
+    "photo": "Foto de perfil",
+    "changePhoto": "Canviar foto",
+    "namePlaceholder": "Maria",
+    "lastNamePlaceholder": "Garcia",
+    "cityPlaceholder": "València"
   },
   "footer": {
     "tagline": "La salut de la teua mascota, en un sol lloc.",
@@ -396,7 +420,7 @@
     "madeWith": "Fet amb estima per i per a mascotes"
   },
   "landing": {
-    "title": "La seua salut,\nla teua tranquil·litat.",
+    "title": "La seua salut,<br />la teua tranquil·litat.",
     "desc": "Cuidar de la teua mascota, més fàcil que mai. Vacunes, cites, historial i consells — tot en un sol lloc acollidor.",
     "start": "Comença hui",
     "startDesc": "Crea el teu compte gratis i gestiona la salut de les teues mascotes.",
@@ -410,6 +434,106 @@
     "feature2Title": "Clíniques properes",
     "feature2Desc": "Troba clíniques veterinàries i coneix els professionals que cuidaran la teua mascota.",
     "feature3Title": "Cites i vacunes",
-    "feature3Desc": "Reserva cites i mantén el calendari de vacunació sempre al dia sense esforç."
+    "feature3Desc": "Reserva cites i mantén el calendari de vacunació sempre al dia sense esforç.",
+    "brand": "Petnumy",
+    "clinics": "Clíniques",
+    "ctaTitle": "Comença hui",
+    "ctaDesc": "Crea el teu compte gratis i gestiona la salut de les teues mascotes.",
+    "createAccount": "Crear compte gratis",
+    "alreadyAccount": "Ja tinc compte",
+    "featurePetsTitle": "Les teues mascotes",
+    "featurePetsDesc": "Registra els teus companys i porta un seguiment complet de la seua salut i vacunes.",
+    "featureClinicsTitle": "Clíniques properes",
+    "featureClinicsDesc": "Troba clíniques veterinàries i coneix els professionals que cuidaran la teua mascota.",
+    "featureAppointmentsTitle": "Cites i vacunes",
+    "featureAppointmentsDesc": "Reserva cites i mantén el calendari de vacunació sempre al dia sense esforç."
+  },
+  "clinicDetail": {
+    "vetsTitle": "Veterinaris",
+    "noVets": "Aquesta clínica encara no té veterinaris registrats.",
+    "book": "Reservar cita",
+    "notFound": "No s’ha trobat la clínica"
+  },
+  "reminders": {
+    "title": "Recordatoris",
+    "none": "Sense recordatoris actius",
+    "next": "Pròxima",
+    "notice": "Avís",
+    "noticeOn": "Avís el",
+    "reminder": "Recordatori",
+    "needNextDose": "Afig una pròxima dosi per crear un recordatori.",
+    "before": "abans",
+    "quantityError": "La quantitat ha d’estar entre 1 i 200.",
+    "saveError": "Error en guardar",
+    "remove": "Llevar recordatori",
+    "save": "Guardar recordatori",
+    "options": {
+      "none": "Cap",
+      "oneDay": "1 dia abans",
+      "twoDays": "2 dies abans",
+      "oneWeek": "1 setmana abans",
+      "twoWeeks": "2 setmanes abans",
+      "oneMonth": "1 mes abans",
+      "threeMonths": "3 mesos abans",
+      "sixMonths": "6 mesos abans",
+      "custom": "Personalitzat…"
+    },
+    "units": {
+      "minute": "minut(s)",
+      "hour": "hora(es)",
+      "day": "dia(es)",
+      "week": "setmana(es)",
+      "month": "mes(os)"
+    }
+  },
+  "mobile": {
+    "hello": "Hola, {name}",
+    "experience": "Configura la teua experiència",
+    "where": "On vols anar?",
+    "navigation": "Navegació",
+    "access": "Accés",
+    "settings": "Configuració",
+    "menu": "Menú"
+  },
+  "services": {
+    "urgencias": "Urgències",
+    "cirugia": "Cirurgia",
+    "hospitalizacion": "Hospitalització",
+    "vacunas": "Vacunes",
+    "exoticos": "Exòtics",
+    "peluqueria": "Perruqueria",
+    "abierto24h": "Obert 24H"
+  },
+  "datePicker": {
+    "months": [
+      "Gener",
+      "Febrer",
+      "Març",
+      "Abril",
+      "Maig",
+      "Juny",
+      "Juliol",
+      "Agost",
+      "Setembre",
+      "Octubre",
+      "Novembre",
+      "Desembre"
+    ],
+    "days": [
+      "Dl",
+      "Dt",
+      "Dc",
+      "Dj",
+      "Dv",
+      "Ds",
+      "Dg"
+    ],
+    "clear": "Esborrar",
+    "today": "Hui"
+  },
+  "crop": {
+    "title": "Ajusta la foto",
+    "subtitle": "Arrossega per centrar · Roda per fer zoom",
+    "usePhoto": "Usar foto"
   }
 }

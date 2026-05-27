@@ -114,8 +114,18 @@
       "mismatch": "Las contraseñas no coinciden.",
       "success": "Contraseña actualizada correctamente. Redirigiendo al login…",
       "expired": "El enlace no es válido o ha expirado.",
-      "backToLogin": "← Volver al login"
-    }
+      "backToLogin": "← Volver al login",
+      "save": "Guardar contraseña"
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio",
+      "emailRequired": "El email es obligatorio",
+      "passwordRequired": "La contraseña es obligatoria",
+      "minPassword": "Mínimo 6 caracteres",
+      "passwordMismatch": "Las contraseñas no coinciden"
+    },
+    "email": "Correo electrónico",
+    "password": "Contraseña"
   },
   "home": {
     "helloUser": "¡Hola, {name}!",
@@ -185,7 +195,8 @@
     "viewProfile": "Ver ficha →",
     "lessThanOneMonth": "Menos de 1 mes",
     "backToPets": "← Mis mascotas",
-    "pet": "tu mascota"
+    "pet": "tu mascota",
+    "breeds": "Razas"
   },
   "petDetail": {
     "birthdate": "Fecha de nacimiento",
@@ -274,7 +285,13 @@
     "errorDateRequired": "Indica la fecha en que se administró la vacuna",
     "errorSave": "Error al guardar la vacuna",
     "forPet": "Vacunas para {species}",
-    "noAvailable": "No hay vacunas disponibles para esta especie."
+    "noAvailable": "No hay vacunas disponibles para esta especie.",
+    "adminDate": "Fecha administrada",
+    "nextDose": "Próxima dosis",
+    "statusPendingPlural": "PENDIENTES",
+    "statusLatePlural": "ATRASADAS",
+    "administeredDate": "Fecha administrada",
+    "nextDoseOptional": "Próxima dosis opcional"
   },
   "appointments": {
     "title": "Mis Citas",
@@ -330,7 +347,8 @@
       "urgencia": "Urgencia",
       "desparasitacion": "Desparasitación",
       "otro": "Otro motivo"
-    }
+    },
+    "createError": "No se pudo crear la cita. Inténtalo de nuevo."
   },
   "clinics": {
     "title": "Veterinarios",
@@ -381,7 +399,13 @@
     "saveChanges": "Guardar cambios",
     "saving": "Guardando…",
     "successMsg": "¡Perfil actualizado correctamente!",
-    "errorMsg": "No se pudo actualizar el perfil. Inténtalo de nuevo."
+    "errorMsg": "No se pudo actualizar el perfil. Inténtalo de nuevo.",
+    "userFallback": "Usuario",
+    "photo": "Foto de perfil",
+    "changePhoto": "Cambiar foto",
+    "namePlaceholder": "María",
+    "lastNamePlaceholder": "García",
+    "cityPlaceholder": "Valencia"
   },
   "footer": {
     "tagline": "La salud de tu mascota, en un solo lugar.",
@@ -396,7 +420,7 @@
     "madeWith": "Hecho con cariño por y para mascotas"
   },
   "landing": {
-    "title": "Su salud,\ntu tranquilidad.",
+    "title": "Su salud,<br />tu tranquilidad.",
     "desc": "Cuidar de tu mascota, más fácil que nunca. Vacunas, citas, historial y consejos — todo en un solo lugar acogedor.",
     "start": "Empieza hoy",
     "startDesc": "Crea tu cuenta gratis y gestiona la salud de tus mascotas.",
@@ -410,6 +434,106 @@
     "feature2Title": "Clínicas cercanas",
     "feature2Desc": "Encuentra clínicas veterinarias y conoce a los profesionales que cuidarán a tu mascota.",
     "feature3Title": "Citas y vacunas",
-    "feature3Desc": "Reserva citas y mantén el calendario de vacunación siempre al día sin esfuerzo."
+    "feature3Desc": "Reserva citas y mantén el calendario de vacunación siempre al día sin esfuerzo.",
+    "brand": "Petnumy",
+    "clinics": "Clínicas",
+    "ctaTitle": "Empieza hoy",
+    "ctaDesc": "Crea tu cuenta gratis y gestiona la salud de tus mascotas.",
+    "createAccount": "Crear cuenta gratis",
+    "alreadyAccount": "Ya tengo cuenta",
+    "featurePetsTitle": "Tus mascotas",
+    "featurePetsDesc": "Registra a tus compañeros y lleva un seguimiento completo de su salud y vacunas.",
+    "featureClinicsTitle": "Clínicas cercanas",
+    "featureClinicsDesc": "Encuentra clínicas veterinarias y conoce a los profesionales que cuidarán a tu mascota.",
+    "featureAppointmentsTitle": "Citas y vacunas",
+    "featureAppointmentsDesc": "Reserva citas y mantén el calendario de vacunación siempre al día sin esfuerzo."
+  },
+  "clinicDetail": {
+    "vetsTitle": "Veterinarios",
+    "noVets": "Esta clínica no tiene veterinarios registrados aún.",
+    "book": "Reservar cita",
+    "notFound": "No se encontró la clínica"
+  },
+  "reminders": {
+    "title": "Recordatorios",
+    "none": "Sin recordatorios activos",
+    "next": "Próxima",
+    "notice": "Aviso",
+    "noticeOn": "Aviso el",
+    "reminder": "Recordatorio",
+    "needNextDose": "Añade una próxima dosis para crear un recordatorio.",
+    "before": "antes",
+    "quantityError": "La cantidad debe estar entre 1 y 200.",
+    "saveError": "Error al guardar",
+    "remove": "Quitar recordatorio",
+    "save": "Guardar recordatorio",
+    "options": {
+      "none": "Ninguno",
+      "oneDay": "1 día antes",
+      "twoDays": "2 días antes",
+      "oneWeek": "1 semana antes",
+      "twoWeeks": "2 semanas antes",
+      "oneMonth": "1 mes antes",
+      "threeMonths": "3 meses antes",
+      "sixMonths": "6 meses antes",
+      "custom": "Personalizado…"
+    },
+    "units": {
+      "minute": "minuto(s)",
+      "hour": "hora(s)",
+      "day": "día(s)",
+      "week": "semana(s)",
+      "month": "mes(es)"
+    }
+  },
+  "mobile": {
+    "hello": "Hola, {name}",
+    "experience": "Configura tu experiencia",
+    "where": "¿Dónde quieres ir?",
+    "navigation": "Navegación",
+    "access": "Acceso",
+    "settings": "Configuración",
+    "menu": "Menú"
+  },
+  "services": {
+    "urgencias": "Urgencias",
+    "cirugia": "Cirugía",
+    "hospitalizacion": "Hospitalización",
+    "vacunas": "Vacunas",
+    "exoticos": "Exóticos",
+    "peluqueria": "Peluquería",
+    "abierto24h": "Abierto 24H"
+  },
+  "datePicker": {
+    "months": [
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Septiembre",
+      "Octubre",
+      "Noviembre",
+      "Diciembre"
+    ],
+    "days": [
+      "L",
+      "M",
+      "X",
+      "J",
+      "V",
+      "S",
+      "D"
+    ],
+    "clear": "Borrar",
+    "today": "Hoy"
+  },
+  "crop": {
+    "title": "Ajusta la foto",
+    "subtitle": "Arrastra para centrar · Rueda para hacer zoom",
+    "usePhoto": "Usar foto"
   }
 }

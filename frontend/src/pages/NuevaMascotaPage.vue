@@ -13,6 +13,13 @@ const route            = useRoute()
 const { get, post, patch } = useApi()
 const { t } = useI18n()
 
+function especieLabel(especie = '') {
+  const v = String(especie).toLowerCase()
+  if (v.includes('perro')) return t('common.dog')
+  if (v.includes('gato')) return t('common.cat')
+  return especie
+}
+
 const modoEdicion = computed(() => !!route.query.editar)
 const mascotaId   = computed(() => route.query.editar || null)
 
@@ -145,10 +152,10 @@ function onCropCancel() {
 
 // ── Validación ────────────────────────────────────────────────
 function validar() {
-  if (!form.value.nombre.trim()) return 'El nombre de la mascota es obligatorio'
+  if (!form.value.nombre.trim()) return t('pets.name') + ' ' + t('common.required')
   if (!form.value.id_especie)    return 'La especie es obligatoria'
   if (!form.value.id_raza)       return 'La raza es obligatoria'
-  if (!form.value.genero)        return 'Selecciona el género de la mascota'
+  if (!form.value.genero)        return t('pets.gender') + ' ' + t('common.required')
   if (esMestizo.value) {
     if (!form.value.id_raza2)                          return 'Selecciona la segunda raza'
     if (form.value.id_raza === form.value.id_raza2)    return 'Las dos razas no pueden ser iguales'
@@ -186,7 +193,7 @@ async function guardar() {
   guardando.value = false
 
   if (!ok) {
-    formError.value = data.message || 'Error al guardar la mascota'
+    formError.value = data.message || t('common.error')
     return
   }
 
@@ -201,7 +208,7 @@ function volver() { router.back() }
 
     <div class="nm-head">
       <button class="btn btn-ghost btn-sm back-btn" @click="volver">
-        ← Volver
+        {{ t('common.back') }}
       </button>
       <h1>{{ modoEdicion ? t('pets.editPet') : t('pets.newPet') }}</h1>
     </div>
@@ -219,7 +226,7 @@ function volver() { router.back() }
           <div class="nm-foto-col">
             <label class="nm-foto-area" for="foto-file">
               <div class="nm-foto-circle">
-                <img v-if="fotoPreview" :src="fotoPreview" alt="Foto mascota" class="nm-foto-img" />
+                <img v-if="fotoPreview" :src="fotoPreview" :alt="t('pets.pet')" class="nm-foto-img" />
                 <div v-else class="nm-foto-placeholder">
                   <svg width="44" height="44" viewBox="0 0 60 60" fill="none">
                     <ellipse cx="14" cy="24" rx="6"   ry="8"   fill="var(--color-primary-mid)" opacity="0.7"/>
@@ -236,7 +243,7 @@ function volver() { router.back() }
                 </div>
               </div>
               <span class="nm-foto-label">
-                {{ fotoPreview ? 'Cambiar foto' : 'Subir foto' }}
+                {{ fotoPreview ? t('pets.changePhoto') : t('pets.uploadPhoto') }}
               </span>
             </label>
             <input id="foto-file" type="file" accept="image/*" class="hidden-input" @change="handleFotoInput" />
@@ -272,7 +279,7 @@ function volver() { router.back() }
                   type="button"
                   :class="['pill-btn', { 'pill-btn--on': form.id_especie === esp.id }]"
                   @click="form.id_especie = esp.id; onEspecieChange()"
-                >{{ esp.especie }}</button>
+                >{{ especieLabel(esp.especie) }}</button>
               </div>
             </div>
 
@@ -290,7 +297,7 @@ function volver() { router.back() }
             <!-- Razas -->
             <div v-if="form.id_especie" class="form-row">
               <div class="input-group">
-                <label class="label">{{ esMestizo ? 'Raza principal *' : 'Raza *' }}</label>
+                <label class="label">{{ esMestizo ? t('pets.mainBreed') + ' *' : t('pets.breed') + ' *' }}</label>
                 <RazaSelect
                   v-model="form.id_raza"
                   :razas="razasFiltradas"
@@ -332,7 +339,7 @@ function volver() { router.back() }
               <!-- Género — solo Macho / Hembra, obligatorio -->
               <div class="input-group">
                 <label class="label">
-                  Género *
+                  {{ t('pets.gender') }} *
                   <span v-if="formError && !form.genero" class="label-error">{{ t("pets.genderRequired") }}</span>
                 </label>
                 <div class="pill-group">
@@ -347,7 +354,7 @@ function volver() { router.back() }
                       Fallback: texto si Iconify no está disponible.
                     -->
                     <iconify-icon icon="mdi:gender-male" width="14" height="14" style="vertical-align:middle;margin-right:3px" />
-                    Macho
+                    {{ t('pets.male') }}
                   </button>
                   <button
                     type="button"
@@ -355,7 +362,7 @@ function volver() { router.back() }
                     @click="form.genero = 'hembra'"
                   >
                     <iconify-icon icon="mdi:gender-female" width="14" height="14" style="vertical-align:middle;margin-right:3px" />
-                    Hembra
+                    {{ t('pets.female') }}
                   </button>
                 </div>
               </div>
@@ -365,11 +372,11 @@ function volver() { router.back() }
             <div class="form-row">
               <div class="input-group">
                 <label class="label">{{ t("pets.weight") }}</label>
-                <input v-model="form.peso" type="number" min="0" step="0.1" placeholder="10" class="input" />
+                <input v-model="form.peso" type="number" min="0" step="0.1" :placeholder="t('pets.weightPlaceholder')" class="input" />
               </div>
               <div class="input-group">
                 <label class="label">{{ t("pets.microchip") }}</label>
-                <input v-model="form.microchip" type="text" placeholder="2346656453" class="input" />
+                <input v-model="form.microchip" type="text" :placeholder="t('pets.microchipPlaceholder')" class="input" />
               </div>
             </div>
 
@@ -378,7 +385,7 @@ function volver() { router.back() }
               <button class="btn btn-primary" type="button" @click="volver">{{ t("common.back") }}</button>
               <button class="btn btn-teal" type="button" :disabled="guardando" @click="guardar">
                 <span v-if="guardando" class="spinner" style="width:15px;height:15px;border-width:2px"/>
-                <span v-else>{{ modoEdicion ? 'Guardar cambios' : 'Registrar' }}</span>
+                <span v-else>{{ modoEdicion ? t('pets.saveChanges') : t('pets.register') }}</span>
               </button>
             </div>
 

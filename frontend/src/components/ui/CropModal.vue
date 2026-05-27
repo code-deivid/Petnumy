@@ -2,6 +2,7 @@
 <!-- Modal de recorte circular con Canvas API nativo — sin librerías -->
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   imageSrc: { type: String, default: '' },
@@ -9,6 +10,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['confirm', 'cancel'])
+const { t } = useI18n()
 
 const canvasRef  = ref(null)
 const wrapRef    = ref(null)
@@ -177,8 +179,8 @@ onBeforeUnmount(() => {
 
         <!-- Header -->
         <div class="crop-header">
-          <h3 class="crop-title">Ajusta la foto</h3>
-          <p class="crop-subtitle">Arrastra para centrar · Rueda para hacer zoom</p>
+          <h3 class="crop-title">{{ t("crop.title") }}</h3>
+          <p class="crop-subtitle">{{ t("crop.subtitle") }}</p>
         </div>
 
         <!-- Canvas circular -->
@@ -207,8 +209,8 @@ onBeforeUnmount(() => {
 
         <!-- Botones -->
         <div class="crop-actions">
-          <button type="button" class="btn btn-ghost" @click="$emit('cancel')">Cancelar</button>
-          <button type="button" class="btn btn-teal"  @click="confirmar">Usar foto</button>
+          <button type="button" class="btn btn-ghost" @click="$emit('cancel')">{{ t('common.cancel') }}</button>
+          <button type="button" class="btn btn-teal"  @click="confirmar">{{ t("crop.usePhoto") }}</button>
         </div>
 
       </div>

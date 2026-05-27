@@ -2,10 +2,12 @@
 <!-- Vista para crear nueva contraseña tras clicar el link del email -->
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase.js'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const password        = ref('')
 const passwordConfirm = ref('')
@@ -57,14 +59,14 @@ async function handleReset() {
         </svg>
       </div>
 
-      <h1 class="rp-title">Nueva contraseña</h1>
-      <p class="rp-sub">Elige una contraseña segura para tu cuenta.</p>
+      <h1 class="rp-title">{{ t("auth.newPassword.title") }}</h1>
+      <p class="rp-sub">{{ t("auth.newPassword.subtitle") }}</p>
 
       <!-- Link inválido o expirado -->
       <div v-if="!tokenOk" class="msg msg-error">
         El enlace no es válido o ha expirado.
         <RouterLink :to="{ name: 'login' }" style="color:var(--color-primary);font-weight:700;margin-left:0.3rem">
-          Volver al login
+          {{ t('auth.newPassword.backToLogin') }}
         </RouterLink>
       </div>
 
@@ -79,7 +81,7 @@ async function handleReset() {
 
         <div class="rp-form">
           <div class="input-group">
-            <label class="label" for="rp-pass">Nueva contraseña</label>
+            <label class="label" for="rp-pass">{{ t("auth.newPassword.password") }}</label>
             <div class="input-wrapper">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
@@ -89,14 +91,14 @@ async function handleReset() {
                 v-model="password"
                 type="password"
                 class="input"
-                placeholder="Mínimo 6 caracteres"
+                :placeholder="t('auth.newPassword.passwordPlaceholder')"
                 @keyup.enter="handleReset"
               />
             </div>
           </div>
 
           <div class="input-group">
-            <label class="label" for="rp-pass2">Confirmar contraseña</label>
+            <label class="label" for="rp-pass2">{{ t("auth.newPassword.confirm") }}</label>
             <div class="input-wrapper">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
@@ -106,7 +108,7 @@ async function handleReset() {
                 v-model="passwordConfirm"
                 type="password"
                 class="input"
-                placeholder="Repite la contraseña"
+                :placeholder="t('auth.newPassword.confirmPlaceholder')"
                 @keyup.enter="handleReset"
               />
             </div>
@@ -120,12 +122,12 @@ async function handleReset() {
             style="margin-top:0.5rem"
           >
             <span v-if="loading" class="spinner" style="width:16px;height:16px;border-width:2px"/>
-            <span v-else>Guardar contraseña</span>
+            <span v-else>{{ t("auth.newPassword.save") }}</span>
           </button>
 
           <p class="rp-back">
             <RouterLink :to="{ name: 'login' }" style="color:var(--color-primary);font-weight:700">
-              ← Volver al login
+              {{ t('auth.newPassword.backToLogin') }}
             </RouterLink>
           </p>
         </div>

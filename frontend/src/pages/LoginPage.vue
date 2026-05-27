@@ -15,12 +15,12 @@ const password  = ref('')
 const formError = ref(null)
 
 const successMessage = computed(() =>
-  route.query.registered === 'true' ? '¡Cuenta creada! Ya puedes iniciar sesión.' : null
+  route.query.registered === 'true' ? t('auth.register.success') : null
 )
 
 function validate() {
-  if (!email.value.trim())    return 'El email es obligatorio'
-  if (!password.value.trim()) return 'La contraseña es obligatoria'
+  if (!email.value.trim())    return t('auth.validation.emailRequired')
+  if (!password.value.trim()) return t('auth.validation.passwordRequired')
   return null
 }
 async function handleSubmit() {
@@ -101,7 +101,7 @@ async function enviarReset() {
         <span class="left-brand-name">Petnumy</span>
       </div>
       <div class="left-content">
-        <h1 class="left-title">Su salud,<br>tu tranquilidad.</h1>
+        <h1 class="left-title" v-html="t('landing.title')"></h1>
         <p class="left-desc">
           Cuidar de tu mascota, más fácil que nunca. Vacunas,
           citas, historial y consejos — todo en un solo lugar acogedor.
@@ -109,15 +109,15 @@ async function enviarReset() {
         <div class="left-stats">
           <div class="stat">
             <span class="stat-value">12k</span>
-            <span class="stat-label">Familias</span>
+            <span class="stat-label">{{ t("landing.families") }}</span>
           </div>
           <div class="stat">
             <span class="stat-value">380+</span>
-            <span class="stat-label">Clínicas</span>
+            <span class="stat-label">{{ t("landing.clinics") }}</span>
           </div>
           <div class="stat">
             <span class="stat-value">4.9</span>
-            <span class="stat-label">Valoración</span>
+            <span class="stat-label">{{ t("landing.rating") }}</span>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@ async function enviarReset() {
 
         <!-- Cabecera -->
         <div class="form-head">
-          <h2 class="form-title">Iniciar Sesión</h2>
+          <h2 class="form-title">{{ t("auth.login.title") }}</h2>
           <p class="form-subtitle">{{ t("auth.login.subtitle") }}</p>
         </div>
 
@@ -145,7 +145,7 @@ async function enviarReset() {
         <div class="auth-form">
 
           <div class="input-group">
-            <label class="label" for="login-email">Correo Electrónico</label>
+            <label class="label" for="login-email">{{ t("auth.email") }}</label>
             <div class="input-wrapper">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -165,7 +165,7 @@ async function enviarReset() {
           </div>
 
           <div class="input-group">
-            <label class="label" for="login-password">Contraseña</label>
+            <label class="label" for="login-password">{{ t("auth.password") }}</label>
             <div class="input-wrapper">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -270,7 +270,7 @@ async function enviarReset() {
                 <div v-if="resetError" class="msg msg-error" style="margin-bottom:1rem">{{ resetError }}</div>
 
                 <div class="input-group">
-                  <label class="label" for="reset-email">Correo Electrónico</label>
+                  <label class="label" for="reset-email">{{ t("auth.email") }}</label>
                   <div class="input-wrapper">
                     <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -292,7 +292,7 @@ async function enviarReset() {
             <!-- Footer -->
             <div class="modal-footer" style="padding:1rem 1.5rem;display:flex;justify-content:flex-end;gap:0.75rem">
               <button type="button" class="btn btn-ghost btn-sm" @click="cerrarReset">
-                {{ resetOk ? 'Cerrar' : 'Cancelar' }}
+                {{ resetOk ? t('common.close') : t('common.cancel') }}
               </button>
               <button
                 v-if="!resetOk"

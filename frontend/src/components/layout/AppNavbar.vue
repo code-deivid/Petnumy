@@ -31,7 +31,7 @@ const langOpenMobile  = ref(false)
 const navRef          = ref(null)
 
 const usuarioActual = computed(() => authStore.usuario || {})
-const nombrePerfil = computed(() => authStore.nombreUsuario || 'Usuario')
+const nombrePerfil = computed(() => authStore.nombreUsuario || t('profile.userFallback'))
 const fotoPerfil = computed(() => usuarioActual.value?.foto || null)
 const inicialesPerfil = computed(() => {
   const n = usuarioActual.value?.nombre || ''
@@ -195,7 +195,7 @@ function irA(name) {
               class="nav-icon-btn"
               :class="{ 'nav-icon-btn--active': notifAbiertas }"
               @click.stop="toggleNotif"
-              aria-label="Notificaciones"
+              :aria-label="t('reminders.title')"
             >
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -210,7 +210,7 @@ function irA(name) {
               class="nav-icon-btn"
               :class="{ 'nav-icon-btn--active': settingsVisible }"
               @click.stop="toggleSettings"
-              aria-label="Configuración"
+              :aria-label="t('settings.title')"
             >
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/>
@@ -222,7 +222,7 @@ function irA(name) {
             <Transition name="dropdown">
               <div v-if="notifAbiertas" class="nav-dropdown notif-panel">
                 <div class="notif-header">
-                  <p class="dp-label" style="padding:0;margin:0">Recordatorios</p>
+                  <p class="dp-label" style="padding:0;margin:0">{{ t("reminders.title") }}</p>
                   <span v-if="hasNotifications" class="notif-count">{{ notifications.length }}</span>
                 </div>
                 <!-- Lista de recordatorios -->
@@ -243,10 +243,10 @@ function irA(name) {
                         {{ rec.vacuna_mascota?.vacuna?.nombre }}
                       </p>
                       <p class="notif-item-sub">
-                        Próxima: {{ rec.vacuna_mascota?.proxima_aplicacion
-                          ? new Date(rec.vacuna_mascota.proxima_aplicacion).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})
+                        {{ t('reminders.next') }}: {{ rec.vacuna_mascota?.proxima_aplicacion
+                          ? new Date(rec.vacuna_mascota.proxima_aplicacion).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'va' ? 'ca-ES' : 'es-ES',{day:'2-digit',month:'short'})
                           : '—' }}
-                        · Aviso: {{ new Date(rec.fecha_recordatorio).toLocaleDateString('es-ES',{day:'2-digit',month:'short'}) }}
+                        · {{ t('reminders.notice') }}: {{ new Date(rec.fecha_recordatorio).toLocaleDateString(locale === 'en' ? 'en-GB' : locale === 'va' ? 'ca-ES' : 'es-ES',{day:'2-digit',month:'short'}) }}
                       </p>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ function irA(name) {
                     <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                     <path d="M13.73 21a2 2 0 01-3.46 0"/>
                   </svg>
-                  <span>Sin recordatorios activos</span>
+                  <span>{{ t("reminders.none") }}</span>
                 </div>
               </div>
             </Transition>
@@ -276,7 +276,7 @@ function irA(name) {
           class="hamburger"
           :class="{ 'hamburger--open': mobileMenu }"
           @click.stop="toggleMobile"
-          aria-label="Menú"
+          :aria-label="t('mobile.menu')"
         >
           <span class="ham-line" />
           <span class="ham-line" />
@@ -295,7 +295,7 @@ function irA(name) {
             class="mobile-back-btn"
             type="button"
             @click="volverMenuMobile"
-            aria-label="Volver al menú"
+            :aria-label="t('common.back')"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
               <path d="M15 18l-6-6 6-6"/>
@@ -304,16 +304,16 @@ function irA(name) {
 
           <PetAvatar :foto="fotoPerfil" :nombre="nombrePerfil" tipo="usuario" size="lg" />
           <p class="mobile-menu-kicker">Petnumy</p>
-          <h2 class="mobile-menu-title">Hola, {{ nombrePerfil }}</h2>
+          <h2 class="mobile-menu-title">{{ t("mobile.hello", { name: nombrePerfil }) }}</h2>
           <p class="mobile-menu-subtitle">
-            {{ mobileMenuView === 'settings' ? 'Configura tu experiencia' : '¿Dónde quieres ir?' }}
+            {{ mobileMenuView === 'settings' ? t('mobile.experience') : t('mobile.where') }}
           </p>
         </div>
 
         <div class="mobile-nav-body">
           <template v-if="mobileMenuView === 'nav'">
             <template v-if="isLoggedIn">
-              <p class="mobile-section-label">Navegación</p>
+              <p class="mobile-section-label">{{ t("mobile.navigation") }}</p>
 
               <RouterLink :to="{ name: 'home' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
@@ -352,27 +352,27 @@ function irA(name) {
                     <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
                   </svg>
                 </span>
-                <span>Configuración</span>
+                <span>{{ t("settings.title") }}</span>
                 <svg class="mobile-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
               </button>
             </template>
 
             <template v-else>
-              <p class="mobile-section-label">Acceso</p>
-              <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">⌂</span><span>Inicio</span></RouterLink>
-              <RouterLink :to="{ name: 'login' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">↳</span><span>Iniciar sesión</span></RouterLink>
+              <p class="mobile-section-label">{{ t("mobile.access") }}</p>
+              <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">⌂</span><span>{{ t("nav.home") }}</span></RouterLink>
+              <RouterLink :to="{ name: 'login' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">↳</span><span>{{ t("nav.enter") }}</span></RouterLink>
               <RouterLink :to="{ name: 'registro' }" class="mobile-link mobile-link--settings" @click="cerrarTodo"><span class="mobile-link-icon mobile-link-icon--settings">＋</span><span>{{ t("nav.register") }}</span></RouterLink>
             </template>
           </template>
 
           <template v-else>
-            <p class="mobile-section-label">Configuración</p>
+            <p class="mobile-section-label">{{ t("settings.title") }}</p>
 
             <button class="mobile-link" type="button" @click="irA('perfil')">
               <span class="mobile-link-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </span>
-              <span>Perfil</span>
+              <span>{{ t("settings.profile") }}</span>
               <svg class="mobile-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
 
@@ -380,7 +380,7 @@ function irA(name) {
               <span class="mobile-link-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
               </span>
-              <span>Modo oscuro</span>
+              <span>{{ t("settings.darkMode") }}</span>
               <button
                 class="mobile-toggle"
                 :class="{ 'mobile-toggle--on': isDarkMobile }"
@@ -397,7 +397,7 @@ function irA(name) {
               <span class="mobile-link-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
               </span>
-              <span>Idioma</span>
+              <span>{{ t("settings.language") }}</span>
               <button class="mobile-lang-pill" type="button" @click.stop="langOpenMobile = !langOpenMobile">
                 {{ currentMobileLang.flag }}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :style="{ transform: langOpenMobile ? 'rotate(180deg)' : 'none' }"><polyline points="6 9 12 15 18 9"/></svg>
@@ -425,7 +425,7 @@ function irA(name) {
               <span class="mobile-link-icon mobile-link-icon--settings">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </span>
-              <span>Cerrar sesión</span>
+              <span>{{ t("settings.logout") }}</span>
             </button>
           </template>
         </div>

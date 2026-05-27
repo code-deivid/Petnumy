@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
           <p class="cl-empty-title">{{ t("clinics.noResults") }}</p>
           <p>{{ t("clinics.noResultsDesc") }}</p>
           <button type="button" class="btn btn-outline btn-sm" style="margin-top:1rem" @click="resetFiltros">
-            Quitar filtros
+            {{ t("clinics.clearFilters") }}
           </button>
         </div>
 

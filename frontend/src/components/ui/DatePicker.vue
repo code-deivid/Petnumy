@@ -2,6 +2,9 @@
 <!-- Usa Teleport + position:fixed para nunca quedar cortado -->
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t, locale } = useI18n()
 
 const props = defineProps({
   modelValue:  { type: String, default: '' },  // YYYY-MM-DD
@@ -43,9 +46,8 @@ const vistaAño2 = ref(hoy.getFullYear())
 const vistaM   = ref(hoy.getMonth())
 const modoPicker = ref('dias')
 
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-const DIAS  = ['L','M','X','J','V','S','D']
+const MESES = computed(() => t('datePicker.months'))
+const DIAS  = computed(() => t('datePicker.days'))
 
 const seleccionada = computed(() => {
   if (!props.modelValue) return null
@@ -55,7 +57,7 @@ const seleccionada = computed(() => {
 
 const etiqueta = computed(() => {
   if (!seleccionada.value) return ''
-  return seleccionada.value.toLocaleDateString('es-ES', {
+  return seleccionada.value.toLocaleDateString(locale.value === 'en' ? 'en-GB' : locale.value === 'va' ? 'ca-ES' : 'es-ES', {
     day: 'numeric', month: 'long', year: 'numeric'
   })
 })

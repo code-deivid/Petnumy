@@ -1,7 +1,8 @@
 <!-- src/pages/LandingPage.vue -->
 <!-- Página pública de bienvenida. Visible SOLO cuando no hay sesión. -->
 <script setup>
-// Sin lógica — es puramente presentacional
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <template>
@@ -12,27 +13,24 @@
         <!-- Columna izquierda: texto -->
         <div class="hero-text">
           <div class="hero-brand">
-            <span>Petnumy</span>
+            <span>{{ t("landing.brand") }}</span>
           </div>
 
-          <h1 class="hero-title">Su salud,<br />tu tranquilidad.</h1>
-          <p class="hero-desc">
-            Cuidar de tu mascota, más fácil que nunca. Vacunas, citas, historial
-            y consejos — todo en un solo lugar acogedor.
-          </p>
+          <h1 class="hero-title" v-html="t('landing.title')"></h1>
+          <p class="hero-desc">{{ t("landing.desc") }}</p>
 
           <div class="hero-stats">
             <div class="hero-stat">
               <span class="stat-val">12k</span>
-              <span class="stat-lbl">Familias</span>
+              <span class="stat-lbl">{{ t("landing.families") }}</span>
             </div>
             <div class="hero-stat">
               <span class="stat-val">380+</span>
-              <span class="stat-lbl">Clínicas</span>
+              <span class="stat-lbl">{{ t("landing.clinics") }}</span>
             </div>
             <div class="hero-stat">
               <span class="stat-val">4.9</span>
-              <span class="stat-lbl">Valoración</span>
+              <span class="stat-lbl">{{ t("landing.rating") }}</span>
             </div>
           </div>
         </div>
@@ -41,22 +39,20 @@
         <div class="hero-cta-col">
           <div class="hero-cta-card card">
             <div class="card-body">
-              <h2 class="cta-title">Empieza hoy</h2>
-              <p class="cta-desc">
-                Crea tu cuenta gratis y gestiona la salud de tus mascotas.
-              </p>
+              <h2 class="cta-title">{{ t("landing.ctaTitle") }}</h2>
+              <p class="cta-desc">{{ t("landing.ctaDesc") }}</p>
               <div class="cta-btns">
                 <RouterLink
                   :to="{ name: 'registro' }"
                   class="btn btn-primary btn-block btn-lg"
                 >
-                  Crear cuenta gratis
+                  {{ t("landing.createAccount") }}
                 </RouterLink>
                 <RouterLink
                   :to="{ name: 'login' }"
                   class="btn btn-outline btn-block btn-lg"
                 >
-                  Ya tengo cuenta
+                  {{ t("landing.alreadyAccount") }}
                 </RouterLink>
               </div>
             </div>
@@ -86,11 +82,8 @@
                 />
               </svg>
             </div>
-            <h3>Tus mascotas</h3>
-            <p>
-              Registra a tus compañeros y lleva un seguimiento completo de su
-              salud y vacunas.
-            </p>
+            <h3>{{ t("landing.featurePetsTitle") }}</h3>
+            <p>{{ t("landing.featurePetsDesc") }}</p>
           </div>
         </div>
 
@@ -111,11 +104,8 @@
                 <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
             </div>
-            <h3>Clínicas cercanas</h3>
-            <p>
-              Encuentra clínicas veterinarias y conoce a los profesionales que
-              cuidarán a tu mascota.
-            </p>
+            <h3>{{ t("landing.featureClinicsTitle") }}</h3>
+            <p>{{ t("landing.featureClinicsDesc") }}</p>
           </div>
         </div>
 
@@ -138,11 +128,8 @@
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
             </div>
-            <h3>Citas y vacunas</h3>
-            <p>
-              Reserva citas y mantén el calendario de vacunación siempre al día
-              sin esfuerzo.
-            </p>
+            <h3>{{ t("landing.featureAppointmentsTitle") }}</h3>
+            <p>{{ t("landing.featureAppointmentsDesc") }}</p>
           </div>
         </div>
       </div>

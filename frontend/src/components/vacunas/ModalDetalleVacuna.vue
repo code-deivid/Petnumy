@@ -15,6 +15,12 @@ const dateLocale = computed(() => locale.value === 'en' ? 'en-US' : (locale.valu
 
 const info = computed(() => getVacunaInfo(props.vacuna?.vacuna?.nombre, locale.value))
 const cfg  = computed(() => estadoConfig[props.vacuna?.estado] || estadoConfig.pendiente)
+function estadoLabel(estado = '') {
+  if (estado === 'puesta') return t('vaccines.statusDone')
+  if (estado === 'pendiente') return t('vaccines.statusPending')
+  if (estado === 'retrasada') return t('vaccines.statusLate')
+  return estado || ''
+}
 
 function fmt(iso) {
   if (!iso) return '—'
@@ -48,11 +54,11 @@ watch(() => props.visible, v => {
               <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
             <div class="mdv-header-text">
-              <h3 class="mdv-title">{{ vacuna?.vacuna?.nombre || t('petDetail.colVaccine') }}</h3>
+              <h3 class="mdv-title">{{ info?.enfermedad || vacuna?.vacuna?.nombre || t('petDetail.colVaccine') }}</h3>
               <span
                 class="mdv-badge"
                 :style="{ background: cfg.bg, color: cfg.color }"
-              >{{ cfg.label }}</span>
+              >{{ estadoLabel(vacuna?.estado) }}</span>
             </div>
             <button type="button" class="mdv-close" @click="$emit('close')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
@@ -100,7 +106,7 @@ watch(() => props.visible, v => {
               </div>
 
               <!-- {{ t('petDetail.description') }} del backend (más detallada que el catálogo local) -->
-              <div v-if="vacuna?.vacuna?.descripcion" class="mdv-section">
+              <div v-if="locale === 'es' && vacuna?.vacuna?.descripcion" class="mdv-section">
                 <p class="mdv-section-label">{{ t('petDetail.fullDescription') }}</p>
                 <p class="mdv-section-text">{{ vacuna.vacuna.descripcion }}</p>
               </div>

@@ -18,6 +18,32 @@ const { get, patch, remove } = useApi()
 
 const dateLocale = computed(() => locale.value === 'en' ? 'en-US' : (locale.value === 'va' ? 'ca-ES' : 'es-ES'))
 
+function traducirEspecie(valor = '') {
+  const v = String(valor).toLowerCase()
+  if (v.includes('perro') || v.includes('dog') || v.includes('gos')) return t('common.dog')
+  if (v.includes('gato') || v.includes('cat') || v.includes('gat')) return t('common.cat')
+  return valor || ''
+}
+
+function traducirGenero(valor = '') {
+  const v = String(valor).toLowerCase()
+  if (v === 'macho' || v === 'male' || v === 'mascle') return t('common.male')
+  if (v === 'hembra' || v === 'female' || v === 'femella') return t('common.female')
+  return valor || ''
+}
+
+function traducirEstado(valor = '') {
+  const v = String(valor).toLowerCase()
+  if (v === 'puesta' || v === 'completada') return t('vaccines.statusDone')
+  if (v === 'pendiente') return t('vaccines.statusPending')
+  if (v === 'retrasada') return t('vaccines.statusLate')
+  return valor || ''
+}
+
+function vacunaInfoDisplay(vac) {
+  return getVacunaInfo(vac?.vacuna?.nombre, locale.value) || {}
+}
+
 const { getDeVacuna, cargar: cargarRecordatorios } = useRecordatorios()
 
 // Estado del popover de recordatorio (un único popover, referenciado por vacuna)
@@ -399,14 +425,14 @@ async function compartir() {
             <!-- Icono + nombre -->
             <div class="vac-col-nombre" @click="abrirDetalle(vac)">
               <div class="vac-row-icon" :class="`vac-row-icon--${vac.estado}`">
-                <span v-if="getVacunaInfo(vac.vacuna?.nombre)?.icon" class="vac-icon-emoji">
-                  {{ getVacunaInfo(vac.vacuna?.nombre).icon }}
+                <span v-if="vacunaInfoDisplay(vac).icon" class="vac-icon-emoji">
+                  {{ vacunaInfoDisplay(vac).icon }}
                 </span>
                 <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
               </div>
               <div class="vac-nombre-wrap">
-                <span class="vac-nombre">{{ vac.vacuna?.nombre || '—' }}</span>
-                <span class="vac-desc">{{ getVacunaInfo(vac.vacuna?.nombre)?.descripcionCorta || vac.vacuna?.descripcion || '' }}</span>
+                <span class="vac-nombre">{{ vacunaInfoDisplay(vac).enfermedad || vac.vacuna?.nombre || '—' }}</span>
+                <span class="vac-desc">{{ vacunaInfoDisplay(vac).descripcionCorta || vac.vacuna?.descripcion || '' }}</span>
               </div>
             </div>
 
@@ -424,7 +450,7 @@ async function compartir() {
                   background: estadoConfig[vac.estado]?.bg    || '#F7F2EA',
                   color:      estadoConfig[vac.estado]?.color || '#9B8A75'
                 }"
-              >{{ estadoConfig[vac.estado]?.label || vac.estado }}</span>
+              >{{ traducirEstado(vac.estado) }}</span>
             </div>
 
             <!-- Días restantes -->
