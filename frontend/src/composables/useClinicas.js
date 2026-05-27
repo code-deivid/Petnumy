@@ -77,6 +77,10 @@ export const SERVICIOS_META = {
   hospitalizacion: { label: 'Hospitalización', icon: '🏥', color: '#3A5FA0', bg: '#E8F0FC' },
 }
 
+// Solo estos servicios se exponen como filtros principales en la pantalla de clínicas.
+// El resto se siguen mostrando como badges informativos en las tarjetas.
+export const SERVICIOS_FILTRO_KEYS = ['urgencias', 'peluqueria']
+
 // ── Composable principal ──────────────────────────────────────
 export function useClinicas() {
   const { get } = useApi()

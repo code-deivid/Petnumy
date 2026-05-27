@@ -4,7 +4,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { t, locale } = useI18n()
+const { t, tm, rt, locale } = useI18n()
 
 const props = defineProps({
   modelValue:  { type: String, default: '' },  // YYYY-MM-DD
@@ -46,8 +46,26 @@ const vistaAño2 = ref(hoy.getFullYear())
 const vistaM   = ref(hoy.getMonth())
 const modoPicker = ref('dias')
 
-const MESES = computed(() => t('datePicker.months'))
-const DIAS  = computed(() => t('datePicker.days'))
+const FALLBACK_MONTHS = {
+  es: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+  en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+  va: ['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre']
+}
+const FALLBACK_DAYS = {
+  es: ['L','M','X','J','V','S','D'],
+  en: ['M','T','W','T','F','S','S'],
+  va: ['Dl','Dt','Dc','Dj','Dv','Ds','Dg']
+}
+function normalizarArrayI18n(key, fallback) {
+  const raw = tm(key)
+  if (Array.isArray(raw) && raw.length) {
+    return raw.map(item => typeof item === 'string' ? item : rt(item))
+  }
+  return fallback
+}
+const localeKey = computed(() => locale.value?.startsWith('en') ? 'en' : locale.value?.startsWith('va') ? 'va' : 'es')
+const MESES = computed(() => normalizarArrayI18n('datePicker.months', FALLBACK_MONTHS[localeKey.value]))
+const DIAS  = computed(() => normalizarArrayI18n('datePicker.days', FALLBACK_DAYS[localeKey.value]))
 
 const seleccionada = computed(() => {
   if (!props.modelValue) return null

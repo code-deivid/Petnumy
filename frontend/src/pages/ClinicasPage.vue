@@ -4,7 +4,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useClinicas, SERVICIOS_META } from '@/composables/useClinicas.js'
+import { useClinicas, SERVICIOS_META, SERVICIOS_FILTRO_KEYS } from '@/composables/useClinicas.js'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -273,23 +273,15 @@ onBeforeUnmount(() => {
       <!-- Fila 2: chips de filtro -->
       <div class="cl-filtros-row">
         <button type="button"
-          class="cl-chip"
-          :class="{ 'cl-chip--on': filtros.abierto24h }"
-          @click="filtros.abierto24h = !filtros.abierto24h"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          {{ t("clinics.filterOpen24h") }}
-        </button>
-        <button type="button"
-          v-for="(meta, key) in SERVICIOS_META" :key="key"
+          v-for="key in SERVICIOS_FILTRO_KEYS" :key="key"
           class="cl-chip"
           :class="{ 'cl-chip--on': filtros.servicios.includes(key) }"
           @click="toggleServicio(key)"
         >
-          <span>{{ meta.icon }}</span> {{ t(`clinics.services.${key}`) }}
+          <span>{{ SERVICIOS_META[key]?.icon }}</span> {{ t(`clinics.services.${key}`) }}
         </button>
         <button type="button"
-          v-if="filtros.servicios.length > 0 || filtros.abierto24h"
+          v-if="filtros.servicios.length > 0"
           class="cl-chip cl-chip--reset"
           @click="resetFiltros"
         >{{ t("clinics.clearFilters") }}</button>

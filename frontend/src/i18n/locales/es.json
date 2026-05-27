@@ -20,7 +20,7 @@
   "common": {
     "save": "Guardar",
     "cancel": "Cancelar",
-    "back": "← Volver",
+    "back": "Volver",
     "backToList": "Volver al listado",
     "loading": "Cargando…",
     "retry": "Reintentar",
