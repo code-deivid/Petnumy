@@ -1,24 +1,28 @@
 <!-- src/pages/MisCitasPage.vue -->
+<!-- Historial de citas reservadas. NO crea citas — solo las muestra. -->
+<!-- Las citas se crean desde Veterinarios → detalle de clínica → Reservar -->
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 
-const router      = useRouter()
-const { get, patch } = useApi()
+const router          = useRouter()
+const { get, patch }  = useApi()
 
-const citas    = ref([])
-const loading  = ref(false)
-const error    = ref(null)
+const citas   = ref([])
+const loading = ref(false)
+const error   = ref(null)
 
-// Separar próximas e historial
-const proximas  = computed(() =>
-  citas.value.filter(c => ['pendiente', 'confirmada'].includes(c.estado))
+// ── Separar por estado ────────────────────────────────────────
+const proximas = computed(() =>
+  citas.value
+    .filter(c => ['pendiente', 'confirmada'].includes(c.estado))
     .sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora))
 )
 const historial = computed(() =>
-  citas.value.filter(c => ['completada', 'cancelada'].includes(c.estado))
+  citas.value
+    .filter(c => ['completada', 'cancelada'].includes(c.estado))
     .sort((a, b) => new Date(b.fecha_hora) - new Date(a.fecha_hora))
 )
 
@@ -28,19 +32,28 @@ async function cargarCitas() {
   const { ok, data } = await get('/api/citas')
   loading.value = false
   if (!ok) { error.value = data.message || 'Error al cargar las citas'; return }
-  citas.value = data.citas
+  citas.value = data.citas || []
 }
 
-async function cancelar(cita) {
-  if (!confirm(`¿Cancelar la cita del ${formatFecha(cita.fecha_hora)}?`)) return
+// ── Cancelar cita ─────────────────────────────────────────────
+const cancelando = ref(null) // id de la cita que se está cancelando
+const confirmCancelar = ref(null) // id para confirmar
+
+function pedirCancelar(cita) {
+  confirmCancelar.value = cita.id
+}
+
+async function ejecutarCancelar(cita) {
+  cancelando.value = cita.id
+  confirmCancelar.value = null
   const { ok, data } = await patch(`/api/citas/${cita.id}/cancelar`, {})
-  if (!ok) { alert(data.message || 'No se pudo cancelar'); return }
-  // Actualizar en local sin recargar
+  cancelando.value = null
+  if (!ok) { alert(data.message || 'No se pudo cancelar la cita'); return }
   const idx = citas.value.findIndex(c => c.id === cita.id)
-  if (idx !== -1) citas.value[idx] = data.cita
+  if (idx !== -1) citas.value[idx] = { ...citas.value[idx], ...data.cita }
 }
 
-// Utilidades de formato
+// ── Helpers ───────────────────────────────────────────────────
 function formatFecha(iso) {
   return new Date(iso).toLocaleDateString('es-ES', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -49,18 +62,36 @@ function formatFecha(iso) {
 function formatHora(iso) {
   return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
 }
+function getDia(iso)  { return new Date(iso).getDate() }
+function getMes(iso)  { return new Date(iso).toLocaleDateString('es-ES', { month: 'short' }).toUpperCase() }
 
-const badgeClass = {
-  pendiente:  'badge-orange',
-  confirmada: 'badge-teal',
-  completada: 'badge-green',
-  cancelada:  'badge-red'
+// Devuelve el nombre de la clínica — funciona tanto para citas directas
+// (tienen c.clinica) como para citas con veterinario (tienen c.veterinario.clinica)
+function getNombreClinica(cita) {
+  if (cita.clinica?.nombre)                  return cita.clinica.nombre
+  if (cita.veterinario?.clinica?.nombre)     return cita.veterinario.clinica.nombre
+  return null
 }
-const badgeLabel = {
-  pendiente:  'Pendiente',
-  confirmada: 'Confirmada',
-  completada: 'Completada',
-  cancelada:  'Cancelada'
+
+// Devuelve el motivo / servicio como texto visible
+function getDescripcion(cita) {
+  if (cita.motivo)           return cita.motivo
+  if (cita.servicio?.nombre) return cita.servicio.nombre
+  return 'Consulta veterinaria'
+}
+
+// Devuelve el veterinario si lo hay
+function getNombreVet(cita) {
+  if (!cita.veterinario) return null
+  const { nombre, apellidos } = cita.veterinario
+  return [nombre, apellidos].filter(Boolean).join(' ')
+}
+
+const BADGE_COLOR = {
+  pendiente:  { bg: '#FFF3E0', color: '#E65100', label: 'Pendiente'  },
+  confirmada: { bg: '#E0F1EE', color: '#4AADA5', label: 'Confirmada' },
+  completada: { bg: '#E8F0FC', color: '#3A5FA0', label: 'Completada' },
+  cancelada:  { bg: '#FDEAEA', color: '#D95F5F', label: 'Cancelada'  },
 }
 
 onMounted(cargarCitas)
@@ -69,84 +100,115 @@ onMounted(cargarCitas)
 <template>
   <div class="page-container page-section">
 
-    <!-- Cabecera -->
-    <div class="page-head flex items-start justify-between">
+    <!-- ── Cabecera ─────────────────────────────────────────── -->
+    <div class="mc-head">
       <div>
-        <h1>Mis citas</h1>
-        <p>Consulta y gestiona tus reservas veterinarias</p>
+        <h1 class="mc-titulo">Mis citas</h1>
+        <p class="mc-sub">Historial de tus reservas veterinarias</p>
       </div>
-      <button class="btn btn-primary" @click="router.push({ name: 'nueva-cita' })">
-        + Nueva cita
-      </button>
     </div>
 
-    <!-- Cargando -->
-    <div v-if="loading" class="loading-center">
+    <!-- ── Cargando ─────────────────────────────────────────── -->
+    <div v-if="loading" style="display:flex;justify-content:center;padding:4rem 0">
       <div class="spinner" />
     </div>
 
-    <!-- Error -->
-    <div v-else-if="error" class="empty-state">
-      <p>{{ error }}</p>
-      <button class="btn btn-outline" style="margin-top:1rem" @click="cargarCitas">Reintentar</button>
+    <!-- ── Error ────────────────────────────────────────────── -->
+    <div v-else-if="error" class="msg msg-error" style="margin-top:1rem">
+      {{ error }}
+      <button type="button" class="btn btn-outline btn-sm" style="margin-left:1rem" @click="cargarCitas">
+        Reintentar
+      </button>
     </div>
 
     <template v-else>
 
-      <!-- Sin citas -->
-      <div v-if="citas.length === 0" class="empty-state card">
-        <div class="card-body flex flex-col items-center gap-4">
-          <div class="empty-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <div>
-            <p class="empty-title">No tienes citas todavía</p>
-            <p>Reserva una cita con tu veterinario de confianza</p>
-          </div>
-          <button class="btn btn-primary" @click="router.push({ name: 'nueva-cita' })">
-            Reservar primera cita
-          </button>
+      <!-- ── Sin citas ─────────────────────────────────────── -->
+      <div v-if="citas.length === 0" class="mc-empty card">
+        <div class="mc-empty-icon">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
         </div>
+        <h3 class="mc-empty-titulo">No tienes citas reservadas todavía</h3>
+        <p class="mc-empty-desc">
+          Cuando reserves una cita desde una clínica veterinaria, aparecerá aquí.
+        </p>
+        <button type="button" class="btn btn-teal" @click="router.push({ name: 'clinicas' })">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          Ver veterinarios
+        </button>
       </div>
 
       <template v-else>
 
-        <!-- Próximas citas -->
-        <section v-if="proximas.length > 0" class="citas-section">
-          <h2 class="section-title">Próximas</h2>
-          <div class="citas-list">
+        <!-- ── Próximas citas ──────────────────────────────── -->
+        <section v-if="proximas.length > 0" class="mc-section">
+          <h2 class="mc-section-label">Próximas</h2>
+          <div class="mc-lista">
             <div
               v-for="cita in proximas"
               :key="cita.id"
-              class="card card-animate cita-card cita-card--proxima"
+              class="mc-card card card-animate mc-card--proxima"
             >
-              <div class="cita-card-inner">
+              <div class="mc-card-inner">
 
-                <!-- Fecha destacada -->
-                <div class="cita-fecha-col">
-                  <span class="cita-dia">{{ new Date(cita.fecha_hora).getDate() }}</span>
-                  <span class="cita-mes">{{ new Date(cita.fecha_hora).toLocaleDateString('es-ES', { month: 'short' }).toUpperCase() }}</span>
-                  <span class="cita-hora">{{ formatHora(cita.fecha_hora) }}</span>
+                <!-- Fecha -->
+                <div class="mc-fecha">
+                  <span class="mc-dia">{{ getDia(cita.fecha_hora) }}</span>
+                  <span class="mc-mes">{{ getMes(cita.fecha_hora) }}</span>
+                  <span class="mc-hora">{{ formatHora(cita.fecha_hora) }}</span>
                 </div>
 
-                <!-- Información -->
-                <div class="cita-info">
-                  <div class="flex items-center gap-2" style="flex-wrap:wrap">
-                    <span class="cita-mascota">{{ cita.mascota?.nombre }}</span>
-                    <span :class="['badge', badgeClass[cita.estado]]">{{ badgeLabel[cita.estado] }}</span>
+                <!-- Info -->
+                <div class="mc-info">
+                  <div class="mc-info-row1">
+                    <span class="mc-mascota">{{ cita.mascota?.nombre || '—' }}</span>
+                    <span
+                      class="mc-badge"
+                      :style="{ background: BADGE_COLOR[cita.estado]?.bg, color: BADGE_COLOR[cita.estado]?.color }"
+                    >{{ BADGE_COLOR[cita.estado]?.label }}</span>
                   </div>
-                  <p class="cita-servicio">{{ cita.servicio?.nombre }}</p>
-                  <p class="cita-vet">
-                    Dr. {{ cita.veterinario?.nombre }} {{ cita.veterinario?.apellidos }}
-                    <span v-if="cita.veterinario?.clinica?.nombre"> · {{ cita.veterinario.clinica.nombre }}</span>
+                  <p class="mc-descripcion">{{ getDescripcion(cita) }}</p>
+                  <p v-if="getNombreClinica(cita)" class="mc-clinica">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ getNombreClinica(cita) }}
+                    <template v-if="getNombreVet(cita)">
+                      · Dr. {{ getNombreVet(cita) }}
+                    </template>
                   </p>
-                  <p v-if="cita.notas_usuario" class="cita-nota">"{{ cita.notas_usuario }}"</p>
                 </div>
 
-                <!-- Acción -->
-                <div class="cita-actions">
-                  <button class="btn btn-ghost btn-sm cita-cancel-btn" @click="cancelar(cita)">
-                    Cancelar
+                <!-- Cancelar -->
+                <div class="mc-accion">
+                  <template v-if="confirmCancelar === cita.id">
+                    <div class="mc-confirm">
+                      <p class="mc-confirm-txt">¿Cancelar esta cita?</p>
+                      <div style="display:flex;gap:0.4rem">
+                        <button type="button" class="btn btn-ghost btn-sm" @click="confirmCancelar = null">No</button>
+                        <button type="button" class="btn btn-sm mc-btn-cancelar-confirm" @click="ejecutarCancelar(cita)">
+                          <span v-if="cancelando === cita.id" class="spinner" style="width:12px;height:12px;border-width:2px"/>
+                          <span v-else>Sí, cancelar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </template>
+                  <button
+                    v-else
+                    type="button"
+                    class="mc-btn-cancelar"
+                    :disabled="cancelando === cita.id"
+                    @click="pedirCancelar(cita)"
+                  >
+                    <span v-if="cancelando === cita.id" class="spinner" style="width:12px;height:12px;border-width:2px"/>
+                    <span v-else>Cancelar</span>
                   </button>
                 </div>
 
@@ -155,32 +217,40 @@ onMounted(cargarCitas)
           </div>
         </section>
 
-        <!-- Historial -->
-        <section v-if="historial.length > 0" class="citas-section">
-          <h2 class="section-title">Historial</h2>
-          <div class="citas-list">
+        <!-- ── Historial ──────────────────────────────────── -->
+        <section v-if="historial.length > 0" class="mc-section">
+          <h2 class="mc-section-label">Historial</h2>
+          <div class="mc-lista">
             <div
               v-for="cita in historial"
               :key="cita.id"
-              class="card card-animate cita-card cita-card--historial"
+              class="mc-card card mc-card--historial"
             >
-              <div class="cita-card-inner">
+              <div class="mc-card-inner">
 
-                <div class="cita-fecha-col cita-fecha-col--muted">
-                  <span class="cita-dia">{{ new Date(cita.fecha_hora).getDate() }}</span>
-                  <span class="cita-mes">{{ new Date(cita.fecha_hora).toLocaleDateString('es-ES', { month: 'short' }).toUpperCase() }}</span>
-                  <span class="cita-hora">{{ formatHora(cita.fecha_hora) }}</span>
+                <div class="mc-fecha mc-fecha--muted">
+                  <span class="mc-dia">{{ getDia(cita.fecha_hora) }}</span>
+                  <span class="mc-mes">{{ getMes(cita.fecha_hora) }}</span>
+                  <span class="mc-hora">{{ formatHora(cita.fecha_hora) }}</span>
                 </div>
 
-                <div class="cita-info">
-                  <div class="flex items-center gap-2" style="flex-wrap:wrap">
-                    <span class="cita-mascota">{{ cita.mascota?.nombre }}</span>
-                    <span :class="['badge', badgeClass[cita.estado]]">{{ badgeLabel[cita.estado] }}</span>
+                <div class="mc-info">
+                  <div class="mc-info-row1">
+                    <span class="mc-mascota">{{ cita.mascota?.nombre || '—' }}</span>
+                    <span
+                      class="mc-badge"
+                      :style="{ background: BADGE_COLOR[cita.estado]?.bg, color: BADGE_COLOR[cita.estado]?.color }"
+                    >{{ BADGE_COLOR[cita.estado]?.label }}</span>
                   </div>
-                  <p class="cita-servicio">{{ cita.servicio?.nombre }}</p>
-                  <p class="cita-vet">
-                    Dr. {{ cita.veterinario?.nombre }} {{ cita.veterinario?.apellidos }}
-                    <span v-if="cita.veterinario?.clinica?.nombre"> · {{ cita.veterinario.clinica.nombre }}</span>
+                  <p class="mc-descripcion">{{ getDescripcion(cita) }}</p>
+                  <p v-if="getNombreClinica(cita)" class="mc-clinica">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ getNombreClinica(cita) }}
+                    <template v-if="getNombreVet(cita)">
+                      · Dr. {{ getNombreVet(cita) }}
+                    </template>
                   </p>
                 </div>
 
@@ -196,75 +266,121 @@ onMounted(cargarCitas)
 </template>
 
 <style scoped>
-.page-head { margin-bottom: 2rem; gap: 1rem; align-items: flex-start; }
-.page-head p { margin: 0.25rem 0 0; font-size: 0.9rem; }
+/* ── Cabecera ────────────────────────────────────────────────── */
+.mc-head { margin-bottom: 1.75rem; }
+.mc-titulo {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(1.5rem, 4vw, 2rem); color: var(--color-text); margin: 0;
+}
+.mc-sub { margin: 0.25rem 0 0; font-size: 0.875rem; color: var(--color-text-muted); }
 
-.loading-center { display: flex; justify-content: center; padding: 4rem 0; }
-
-/* Empty state */
-.empty-state .card-body { text-align: center; padding: 3rem 2rem; }
-.empty-icon {
+/* ── Estado vacío ────────────────────────────────────────────── */
+.mc-empty {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1rem; text-align: center;
+  padding: 3.5rem 2rem;
+}
+.mc-empty-icon {
   width: 72px; height: 72px; border-radius: 50%;
   background: var(--color-surface-alt);
   display: flex; align-items: center; justify-content: center;
   color: var(--color-text-muted);
 }
-.empty-title { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--color-text); margin-bottom: 0.25rem; }
+.mc-empty-titulo {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 1.05rem; color: var(--color-text); margin: 0;
+}
+.mc-empty-desc {
+  font-size: 0.875rem; color: var(--color-text-muted);
+  max-width: 340px; line-height: 1.5; margin: 0;
+}
+.mc-empty .btn {
+  display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 0.5rem;
+}
 
-/* Secciones */
-.citas-section { margin-bottom: 2.5rem; }
-.section-title { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--color-text-muted); margin-bottom: 1rem; }
+/* ── Secciones ───────────────────────────────────────────────── */
+.mc-section { margin-bottom: 2.25rem; }
+.mc-section-label {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--color-text-muted); margin: 0 0 0.75rem;
+}
+.mc-lista { display: flex; flex-direction: column; gap: 0.65rem; }
 
-/* Lista */
-.citas-list { display: flex; flex-direction: column; gap: 0.75rem; }
+/* ── Card de cita ────────────────────────────────────────────── */
+.mc-card {
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+.mc-card--proxima { border-left: 3px solid var(--color-primary); }
+.mc-card--historial { opacity: 0.72; }
+.mc-card--historial:hover { opacity: 1; }
 
-/* Card cita */
-.cita-card { transition: transform var(--transition-normal), box-shadow var(--transition-normal); }
-.cita-card--proxima { border-left: 3.5px solid var(--color-primary); }
-.cita-card--historial { opacity: 0.75; }
-.cita-card--historial:hover { opacity: 1; }
-
-.cita-card-inner {
-  display: flex; align-items: center; gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
+.mc-card-inner {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1.1rem 1.25rem;
 }
 
 /* Columna fecha */
-.cita-fecha-col {
+.mc-fecha {
   display: flex; flex-direction: column; align-items: center;
-  min-width: 52px; flex-shrink: 0;
-  background: var(--color-primary-light);
-  border-radius: var(--radius-md);
-  padding: 0.6rem 0.5rem;
+  min-width: 50px; flex-shrink: 0;
+  background: var(--color-primary-light); border-radius: var(--radius-md);
+  padding: 0.5rem 0.4rem;
 }
-.cita-fecha-col--muted { background: var(--color-surface-alt); }
+.mc-fecha--muted { background: var(--color-surface-alt); }
 
-.cita-dia  { font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; line-height: 1; color: var(--color-primary); }
-.cita-mes  { font-family: var(--font-display); font-weight: 700; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
-.cita-hora { font-family: var(--font-display); font-weight: 600; font-size: 0.75rem; color: var(--color-text-soft); margin-top: 0.2rem; }
-.cita-fecha-col--muted .cita-dia { color: var(--color-text-muted); }
+.mc-dia  { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; line-height: 1; color: var(--color-primary); }
+.mc-mes  { font-family: var(--font-display); font-weight: 700; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
+.mc-hora { font-family: var(--font-display); font-weight: 600; font-size: 0.7rem; color: var(--color-text-soft); margin-top: 0.15rem; }
+.mc-fecha--muted .mc-dia { color: var(--color-text-muted); }
 
-/* Info cita */
-.cita-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
-.cita-mascota { font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--color-text); }
-.cita-servicio { font-size: 0.875rem; color: var(--color-text-soft); margin: 0; }
-.cita-vet { font-size: 0.8rem; color: var(--color-text-muted); margin: 0; }
-.cita-nota { font-size: 0.8rem; color: var(--color-text-muted); font-style: italic; margin: 0.15rem 0 0; }
+/* Info */
+.mc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+.mc-info-row1 { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.mc-mascota {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 0.95rem; color: var(--color-text);
+}
+.mc-badge {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.62rem;
+  letter-spacing: 0.3px; padding: 0.15rem 0.55rem; border-radius: var(--radius-full);
+}
+.mc-descripcion { font-size: 0.83rem; color: var(--color-text-soft); margin: 0; }
+.mc-clinica {
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.75rem; color: var(--color-text-muted); margin: 0;
+}
+.mc-clinica svg { flex-shrink: 0; }
 
 /* Acción cancelar */
-.cita-actions { flex-shrink: 0; }
-.cita-cancel-btn { color: var(--color-danger); opacity: 0.7; }
-.cita-cancel-btn:hover { opacity: 1; background: var(--color-danger-light); color: var(--color-danger); }
+.mc-accion { flex-shrink: 0; display: flex; align-items: flex-start; }
+.mc-btn-cancelar {
+  font-family: var(--font-display); font-weight: 600; font-size: 0.75rem;
+  color: var(--color-danger); background: none; border: 1px solid transparent;
+  border-radius: var(--radius-full); padding: 0.35rem 0.75rem; cursor: pointer;
+  opacity: 0.7; transition: all var(--transition-fast);
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.mc-btn-cancelar:hover:not(:disabled) {
+  opacity: 1; background: var(--color-danger-light);
+  border-color: var(--color-danger);
+}
+.mc-btn-cancelar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.mc-confirm { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; }
+.mc-confirm-txt { font-size: 0.72rem; color: var(--color-text-muted); white-space: nowrap; margin: 0; }
+.mc-btn-cancelar-confirm {
+  background: var(--color-danger); color: #fff;
+  font-family: var(--font-display); font-weight: 700;
+  border-radius: var(--radius-full); border: none;
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.mc-btn-cancelar-confirm:hover { background: #c44; }
 
 /* Responsive */
 @media (max-width: 540px) {
-  .page-head { flex-direction: column; }
-  .page-head .btn { width: 100%; justify-content: center; }
-  .cita-card-inner { gap: 0.9rem; padding: 1rem; }
-  .cita-actions { display: none; }
-  .cita-card--proxima::after {
-    content: 'Toca para cancelar';
-    display: none;
-  }
+  .mc-card-inner { padding: 0.9rem 1rem; gap: 0.75rem; }
+  .mc-accion { display: none; }
+  .mc-card--proxima { cursor: pointer; }
 }
 </style>

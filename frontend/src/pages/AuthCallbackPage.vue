@@ -25,8 +25,8 @@ onMounted(async () => {
   // El store espera el formato { usuario, session: { access_token, refresh_token } }
   // Con OAuth, el usuario en public.usuario puede no existir aún.
   // Intentamos obtenerlo de nuestra API.
-  authStore.accessToken.value  = session.access_token
-  authStore.refreshToken.value = session.refresh_token
+  authStore.accessToken  = session.access_token
+  authStore.refreshToken = session.refresh_token
 
   // Persistir manualmente por si setSession no aplica directamente
   localStorage.setItem('petnumy_token',   session.access_token)
