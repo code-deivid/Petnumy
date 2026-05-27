@@ -1,6 +1,7 @@
 <!-- src/components/vacunas/ModalAddVacuna.vue -->
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useApi } from '@/composables/useApi.js'
 import { getVacunaInfo } from '@/data/vacunasInfo.js'
 import DatePicker from '@/components/ui/DatePicker.vue'
@@ -15,6 +16,8 @@ const props = defineProps({
 const emit = defineEmits(['close', 'added'])
 
 const { get, post, patch } = useApi()
+const { t, locale } = useI18n()
+const dateLocale = computed(() => locale.value === 'en' ? 'en-US' : (locale.value === 'va' ? 'ca-ES' : 'es-ES'))
 
 // ── Estado ─────────────────────────────────────────────────────
 const catalogo      = ref([])
@@ -35,7 +38,7 @@ const modoEdicion = computed(() => !!props.vacunaEditar)
 // ── Info enriquecida de la vacuna seleccionada ──────────────────
 const infoVacuna = computed(() =>
   vacunaSeleccionada.value
-    ? getVacunaInfo(vacunaSeleccionada.value.nombre)
+    ? getVacunaInfo(vacunaSeleccionada.value.nombre, locale.value)
     : null
 )
 
@@ -66,7 +69,7 @@ const proximaAutoSugerida = computed(() => {
 const proximaAutoTexto = computed(() => {
   if (!proximaAutoSugerida.value) return null
   return new Date(proximaAutoSugerida.value + 'T12:00:00')
-    .toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    .toLocaleDateString(dateLocale.value, { day: 'numeric', month: 'long', year: 'numeric' })
 })
 
 // ── Especie ─────────────────────────────────────────────────────
@@ -74,7 +77,7 @@ const idEspecie = computed(() => props.mascota?.raza?.especie?.id || null)
 
 // Catálogo enriquecido
 const catalogoEnriquecido = computed(() =>
-  catalogo.value.map(v => ({ ...v, info: getVacunaInfo(v.nombre) }))
+  catalogo.value.map(v => ({ ...v, info: getVacunaInfo(v.nombre, locale.value) }))
 )
 
 // ── Cargar catálogo ─────────────────────────────────────────────
@@ -98,13 +101,13 @@ watch(() => props.visible, (v) => {
     cargarCatalogo().then(() => {
       const encontrada = catalogo.value.find(c => c.id === ve.vacuna?.id)
       if (encontrada) {
-        vacunaSeleccionada.value = { ...encontrada, info: getVacunaInfo(encontrada.nombre) }
+        vacunaSeleccionada.value = { ...encontrada, info: getVacunaInfo(encontrada.nombre, locale.value) }
       } else {
         // Crear objeto mínimo con los datos del registro
         vacunaSeleccionada.value = {
           id:     ve.vacuna?.id,
           nombre: ve.vacuna?.nombre || '',
-          info:   getVacunaInfo(ve.vacuna?.nombre)
+          info:   getVacunaInfo(ve.vacuna?.nombre, locale.value)
         }
       }
       form.value.estado             = ve.estado             || 'puesta'
@@ -144,7 +147,7 @@ async function guardar() {
   errorMsg.value = null
 
   if (form.value.estado === 'puesta' && !form.value.fecha_aplicacion) {
-    errorMsg.value = 'Indica la fecha en que se administró la vacuna'
+    errorMsg.value = t('vaccines.errorDateRequired')
     return
   }
 
@@ -180,7 +183,7 @@ async function guardar() {
   guardando.value = false
 
   if (!ok) {
-    errorMsg.value = data.message || 'Error al guardar la vacuna'
+    errorMsg.value = data.message || t('vaccines.errorSave')
     return
   }
 
@@ -206,10 +209,10 @@ const hoy = new Date().toISOString().split('T')[0]
                 </svg>
               </div>
               <div>
-                <h3 class="mav-title">{{ modoEdicion ? 'Editar Vacuna' : 'Añadir Vacuna' }}</h3>
+                <h3 class="mav-title">{{ modoEdicion ? t('vaccines.editTitle') : t('vaccines.addTitle') }}</h3>
                 <p class="mav-sub">
                   {{ paso === 1
-                    ? `Vacunas para ${mascota?.raza?.especie?.especie || 'tu mascota'}`
+                    ? t('vaccines.forPet', { species: mascota?.raza?.especie?.especie || t('pets.pet') })
                     : (vacunaSeleccionada?.nombre || '') }}
                 </p>
               </div>
@@ -227,7 +230,7 @@ const hoy = new Date().toISOString().split('T')[0]
               <div class="mav-ske" v-for="i in 5" :key="i" />
             </div>
             <div v-else-if="catalogo.length === 0" class="mav-empty">
-              <p>No hay vacunas disponibles para esta especie.</p>
+              <p>{{ t('vaccines.noAvailable') }}</p>
             </div>
             <div v-else class="mav-grid">
               <button type="button"
@@ -333,7 +336,7 @@ const hoy = new Date().toISOString().split('T')[0]
               @click="guardar"
             >
               <span v-if="guardando" class="spinner" style="width:14px;height:14px;border-width:2px"/>
-              <span v-else>{{ modoEdicion ? 'Guardar cambios' : 'Guardar vacuna' }}</span>
+              <span v-else>{{ modoEdicion ? t('pets.saveChanges') : t('vaccines.save') }}</span>
             </button>
           </div>
 

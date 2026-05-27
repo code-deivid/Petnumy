@@ -3,9 +3,11 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useClinicas, SERVICIOS_META } from '@/composables/useClinicas.js'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const {
   clinicasFiltradas,
@@ -27,11 +29,11 @@ async function handleBusqueda() {
 const vistaMovil = ref('lista')   // 'lista' | 'mapa'
 
 // ── Ordenación en UI ──────────────────────────────────────────
-const OPCIONES_ORDEN = [
-  { val: 'relevancia', label: 'Relevancia' },
-  { val: 'distancia',  label: 'Distancia'  },
-  { val: 'valoracion', label: 'Valoración' },
-]
+const OPCIONES_ORDEN = computed(() => [
+  { val: 'relevancia', label: t('clinics.orderRelevance') },
+  { val: 'distancia',  label: t('clinics.orderDistance')  },
+  { val: 'valoracion', label: t('clinics.orderRating')    },
+])
 
 // ── Formatear distancia ───────────────────────────────────────
 function fmtDistancia(km) {
@@ -207,8 +209,8 @@ onBeforeUnmount(() => {
 
       <!-- Fila 1: búsqueda + título + ordenación -->
       <div class="cl-topbar-row1">
-        <h1 class="cl-titulo">Clínicas Disponibles
-          <span v-if="!cargando" class="cl-titulo-count">({{ clinicasFiltradas.length }} encontradas)</span>
+        <h1 class="cl-titulo">{{ t("clinics.availableTitle") }}
+          <span v-if="!cargando" class="cl-titulo-count">({{ t("clinics.foundCount", { n: clinicasFiltradas.length }) }})</span>
         </h1>
 
         <!-- Búsqueda manual -->
@@ -218,7 +220,7 @@ onBeforeUnmount(() => {
             :class="{ 'cl-gps-btn--active': ubicacion }"
             :disabled="buscandoUbicacion"
             @click="usarUbicacionReal"
-            title="Usar mi ubicación"
+            :title="t('clinics.useMyLocation')"
           >
             <svg v-if="!buscandoUbicacion" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
@@ -235,7 +237,7 @@ onBeforeUnmount(() => {
               v-model="inputBusqueda"
               type="text"
               class="cl-search-input"
-              placeholder="Zona, código postal…"
+              :placeholder="t('clinics.searchPlaceholder')"
               @keyup.enter="handleBusqueda"
             />
             <button v-if="inputBusqueda" type="button" class="cl-search-clear" @click="inputBusqueda = ''; limpiarUbicacion()">✕</button>
@@ -255,7 +257,7 @@ onBeforeUnmount(() => {
 
         <!-- Ordenar por -->
         <div class="cl-orden-wrap">
-          <span class="cl-orden-label">Ordenar por:</span>
+          <span class="cl-orden-label">{{ t("clinics.orderBy") }}</span>
           <div class="cl-orden-btns">
             <button type="button"
               v-for="op in OPCIONES_ORDEN" :key="op.val"
@@ -276,7 +278,7 @@ onBeforeUnmount(() => {
           @click="filtros.abierto24h = !filtros.abierto24h"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Abierto 24H
+          {{ t("clinics.filterOpen24h") }}
         </button>
         <button type="button"
           v-for="(meta, key) in SERVICIOS_META" :key="key"
@@ -284,13 +286,13 @@ onBeforeUnmount(() => {
           :class="{ 'cl-chip--on': filtros.servicios.includes(key) }"
           @click="toggleServicio(key)"
         >
-          <span>{{ meta.icon }}</span> {{ meta.label }}
+          <span>{{ meta.icon }}</span> {{ t(`clinics.services.${key}`) }}
         </button>
         <button type="button"
           v-if="filtros.servicios.length > 0 || filtros.abierto24h"
           class="cl-chip cl-chip--reset"
           @click="resetFiltros"
-        >✕ Limpiar</button>
+        >{{ t("clinics.clearFilters") }}</button>
       </div>
 
       <!-- Error ubicación -->
@@ -319,14 +321,14 @@ onBeforeUnmount(() => {
         <!-- Error -->
         <div v-else-if="error" class="cl-empty">
           <p>{{ error }}</p>
-          <button type="button" class="btn btn-outline" style="margin-top:1rem" @click="cargar">Reintentar</button>
+          <button type="button" class="btn btn-outline" style="margin-top:1rem" @click="cargar">{{ t("common.retry") }}</button>
         </div>
 
         <!-- Sin resultados -->
         <div v-else-if="clinicasFiltradas.length === 0" class="cl-empty">
           <div class="cl-empty-icon">🏥</div>
-          <p class="cl-empty-title">Sin resultados</p>
-          <p>Prueba con otros filtros o zona.</p>
+          <p class="cl-empty-title">{{ t("clinics.noResults") }}</p>
+          <p>{{ t("clinics.noResultsDesc") }}</p>
           <button type="button" class="btn btn-outline btn-sm" style="margin-top:1rem" @click="resetFiltros">
             Quitar filtros
           </button>
@@ -394,14 +396,14 @@ onBeforeUnmount(() => {
                     :key="s"
                     class="cl-chip-mini"
                     :style="{ background: SERVICIOS_META[s]?.bg || '#F7F2EA', color: SERVICIOS_META[s]?.color || '#9B8A75' }"
-                  >{{ SERVICIOS_META[s]?.label?.toUpperCase() || s.toUpperCase() }}</span>
+                  >{{ t(`clinics.services.${s}`).toUpperCase() }}</span>
                 </div>
                 <button
                   type="button"
                   class="cl-reservar-btn"
                   @click.stop="router.push({ name: 'clinica-detalle', params: { id: c.id } })"
                 >
-                  RESERVAR
+                  {{ t("clinics.book").toUpperCase() }}
                 </button>
               </div>
 
@@ -409,7 +411,7 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Footer listado -->
-          <p class="cl-lista-footer">¿No encuentras lo que buscas? Sigue explorando el mapa.</p>
+          <p class="cl-lista-footer">{{ t("clinics.mapHint") }}</p>
         </div>
       </div>
 
@@ -419,11 +421,11 @@ onBeforeUnmount(() => {
     <div class="cl-toggle-movil">
       <button type="button" class="cl-vtoggle" :class="{ 'cl-vtoggle--on': vistaMovil === 'lista' }" @click="vistaMovil = 'lista'">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>
-        Lista
+        {{ t("clinics.toggleList") }}
       </button>
       <button type="button" class="cl-vtoggle" :class="{ 'cl-vtoggle--on': vistaMovil === 'mapa' }" @click="vistaMovil = 'mapa'">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
-        Mapa
+        {{ t("clinics.toggleMap") }}
       </button>
     </div>
 

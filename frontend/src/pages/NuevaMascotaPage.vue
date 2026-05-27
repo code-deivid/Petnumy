@@ -2,6 +2,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useApi } from '@/composables/useApi.js'
 import RazaSelect from '@/components/ui/RazaSelect.vue'
 import DatePicker from '@/components/ui/DatePicker.vue'
@@ -10,6 +11,7 @@ import CropModal  from '@/components/ui/CropModal.vue'
 const router           = useRouter()
 const route            = useRoute()
 const { get, post, patch } = useApi()
+const { t } = useI18n()
 
 const modoEdicion = computed(() => !!route.query.editar)
 const mascotaId   = computed(() => route.query.editar || null)
@@ -201,7 +203,7 @@ function volver() { router.back() }
       <button class="btn btn-ghost btn-sm back-btn" @click="volver">
         ← Volver
       </button>
-      <h1>{{ modoEdicion ? 'Editar mascota' : 'Añadir una nueva Mascota' }}</h1>
+      <h1>{{ modoEdicion ? t('pets.editPet') : t('pets.newPet') }}</h1>
     </div>
 
     <div v-if="cargando" class="loading-center">
@@ -249,11 +251,11 @@ function volver() { router.back() }
 
             <!-- Nombre -->
             <div class="input-group">
-              <label class="label">Nombre *</label>
+              <label class="label">{{ t("pets.name") }} *</label>
               <input
                 v-model="form.nombre"
                 type="text"
-                placeholder="Ej: Mochi, Canela..."
+                :placeholder="t('pets.namePlaceholder')"
                 class="input"
                 :class="{ 'input-error': formError && !form.nombre }"
               />
@@ -261,8 +263,8 @@ function volver() { router.back() }
 
             <!-- Especie -->
             <div class="input-group">
-              <label class="label">Especie *</label>
-              <div v-if="especies.length === 0" class="text-muted-sm">No hay especies disponibles</div>
+              <label class="label">{{ t("pets.species") }} *</label>
+              <div v-if="especies.length === 0" class="text-muted-sm">{{ t("pets.speciesEmpty") }}</div>
               <div v-else class="pill-group">
                 <button
                   v-for="esp in especies"
@@ -277,8 +279,8 @@ function volver() { router.back() }
             <!-- Toggle mestizo — pill compacta -->
             <div v-if="form.id_especie" class="mestizo-pill" @click="toggleMestizo">
               <div class="mestizo-pill-text">
-                <span class="mestizo-pill-label">Mestizo</span>
-                <span class="mestizo-pill-sub">Mezcla de dos razas</span>
+                <span class="mestizo-pill-label">{{ t("pets.mixed") }}</span>
+                <span class="mestizo-pill-sub">{{ t("pets.mixedDesc") }}</span>
               </div>
               <div class="mini-toggle" :class="{ 'mini-toggle--on': esMestizo }">
                 <div class="mini-toggle-thumb" />
@@ -294,19 +296,19 @@ function volver() { router.back() }
                   :razas="razasFiltradas"
                   :has-error="!!(formError && !form.id_raza)"
                   :disabled="!form.id_especie"
-                  placeholder="Busca una raza..."
+                  :placeholder="t('pets.searchBreed')"
                 />
               </div>
 
               <Transition name="slide-up">
                 <div v-if="esMestizo" class="input-group">
-                  <label class="label">Segunda raza *</label>
+                  <label class="label">{{ t("pets.secondBreed") }} *</label>
                   <RazaSelect
                     v-model="form.id_raza2"
                     :razas="razasParaSegunda"
                     :has-error="!!(formError && esMestizo && !form.id_raza2)"
                     :disabled="!form.id_raza"
-                    placeholder="Segunda raza..."
+                    :placeholder="t('pets.searchSecondBreed')"
                   />
                 </div>
               </Transition>
@@ -315,14 +317,14 @@ function volver() { router.back() }
             <!-- Fecha nacimiento + Género -->
             <div class="form-row">
               <div class="input-group">
-                <label class="label">Fecha de nacimiento</label>
+                <label class="label">{{ t("pets.birthdate") }}</label>
                 <!--
                   DatePicker usa position:fixed calculado,
                   no se corta aunque haya overflow:hidden en padres.
                 -->
                 <DatePicker
                   v-model="form.nacimiento"
-                  placeholder="Selecciona fecha"
+                  :placeholder="t('pets.birthdatePlaceholder')"
                   :max-date="new Date().toISOString().split('T')[0]"
                 />
               </div>
@@ -331,7 +333,7 @@ function volver() { router.back() }
               <div class="input-group">
                 <label class="label">
                   Género *
-                  <span v-if="formError && !form.genero" class="label-error">— Selecciona uno</span>
+                  <span v-if="formError && !form.genero" class="label-error">{{ t("pets.genderRequired") }}</span>
                 </label>
                 <div class="pill-group">
                   <button
@@ -362,18 +364,18 @@ function volver() { router.back() }
             <!-- Peso + Microchip -->
             <div class="form-row">
               <div class="input-group">
-                <label class="label">Peso (kg)</label>
+                <label class="label">{{ t("pets.weight") }}</label>
                 <input v-model="form.peso" type="number" min="0" step="0.1" placeholder="10" class="input" />
               </div>
               <div class="input-group">
-                <label class="label">Microchip</label>
+                <label class="label">{{ t("pets.microchip") }}</label>
                 <input v-model="form.microchip" type="text" placeholder="2346656453" class="input" />
               </div>
             </div>
 
             <!-- Acciones -->
             <div class="nm-actions">
-              <button class="btn btn-primary" type="button" @click="volver">Volver</button>
+              <button class="btn btn-primary" type="button" @click="volver">{{ t("common.back") }}</button>
               <button class="btn btn-teal" type="button" :disabled="guardando" @click="guardar">
                 <span v-if="guardando" class="spinner" style="width:15px;height:15px;border-width:2px"/>
                 <span v-else>{{ modoEdicion ? 'Guardar cambios' : 'Registrar' }}</span>
@@ -387,9 +389,9 @@ function volver() { router.back() }
       <!-- Consejo del día -->
       <div class="card card-mint consejo">
         <div class="card-body">
-          <p class="consejo-titulo">Consejo del día</p>
+          <p class="consejo-titulo">{{ t("pets.tip") }}</p>
           <p class="consejo-texto">
-            <em>Mantén al día las vacunas y revisiones veterinarias para asegurar una vida larga y saludable.</em>
+            <em>{{ t("pets.tipText") }}</em>
           </p>
         </div>
       </div>

@@ -2,10 +2,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth.js'
 import { supabase } from '@/lib/supabase.js'
 
 const route = useRoute()
+const { t } = useI18n()
 const { login, loading, error } = useAuth()
 
 const email     = ref('')
@@ -44,9 +46,9 @@ async function handleGoogle() {
     // Traducir el error de Supabase a español
     const msg = err.message?.toLowerCase() || ''
     if (msg.includes('not enabled') || msg.includes('unsupported provider') || msg.includes('provider is not enabled')) {
-      googleError.value = 'El inicio de sesión con Google todavía no está configurado.'
+      googleError.value = t('auth.login.googleNotConfigured')
     } else {
-      googleError.value = 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.'
+      googleError.value = t('auth.login.googleError')
     }
     loadingGoogle.value = false
   }
@@ -73,7 +75,7 @@ function cerrarReset() {
 async function enviarReset() {
   resetError.value = null
   if (!resetEmail.value.trim()) {
-    resetError.value = 'Introduce tu correo electrónico.'
+    resetError.value = t('auth.reset.emailRequired')
     return
   }
   resetLoading.value = true
@@ -128,7 +130,7 @@ async function enviarReset() {
         <!-- Cabecera -->
         <div class="form-head">
           <h2 class="form-title">Iniciar Sesión</h2>
-          <p class="form-subtitle">Su salud, tu tranquilidad</p>
+          <p class="form-subtitle">{{ t("auth.login.subtitle") }}</p>
         </div>
 
         <!-- Mensajes -->
@@ -153,7 +155,7 @@ async function enviarReset() {
                 id="login-email"
                 v-model="email"
                 type="email"
-                placeholder="ej: tucorreo@gmail.com"
+                :placeholder="t('auth.login.emailPlaceholder')"
                 class="input"
                 :class="{ 'input-error': formError && !email }"
                 autocomplete="email"
@@ -186,7 +188,7 @@ async function enviarReset() {
           <!-- Enlace olvidé contraseña -->
           <div class="forgot-row">
             <button type="button" class="forgot-link" @click="abrirReset">
-              ¿Olvidaste tu contraseña?
+              {{ t("auth.login.forgotPassword") }}
             </button>
           </div>
 
@@ -197,13 +199,13 @@ async function enviarReset() {
             @click="handleSubmit"
           >
             <span v-if="loading" class="spinner" style="width:16px;height:16px;border-width:2px"/>
-            <span v-else>Inicia Sesión</span>
+            <span v-else>{{ t("auth.login.submit") }}</span>
           </button>
 
         </div>
 
         <!-- Separador -->
-        <div class="divider-label">O inicia sesión con</div>
+        <div class="divider-label">{{ t("auth.login.orWith") }}</div>
 
         <!-- Botón Google -->
         <button type="button" class="btn-social" :disabled="loadingGoogle" @click="handleGoogle">
@@ -221,8 +223,8 @@ async function enviarReset() {
 
         <!-- Footer -->
         <p class="auth-footer">
-          ¿Aún no tienes cuenta?
-          <RouterLink :to="{ name: 'registro' }" class="auth-footer-link">Regístrate</RouterLink>
+          {{ t("auth.login.noAccount") }}
+          <RouterLink :to="{ name: 'registro' }" class="auth-footer-link">{{ t("auth.login.registerLink") }}</RouterLink>
         </p>
 
       </div>
@@ -241,7 +243,7 @@ async function enviarReset() {
                   <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
                 </svg>
                 <span style="font-family:var(--font-display);font-weight:700;font-size:0.95rem">
-                  Recuperar contraseña
+                  {{ t("auth.reset.title") }}
                 </span>
               </div>
               <button type="button" class="modal-close-btn" @click="cerrarReset">
@@ -256,13 +258,13 @@ async function enviarReset() {
 
               <!-- Éxito -->
               <div v-if="resetOk" class="msg msg-success" style="margin-bottom:0">
-                ✅ Te hemos enviado un correo con el enlace para restablecer tu contraseña. Revisa tu bandeja de entrada (y el spam).
+                ✅ {{ t("auth.reset.successMsg") }}
               </div>
 
               <!-- Formulario -->
               <template v-else>
                 <p style="color:var(--color-text-soft);font-size:0.875rem;margin-bottom:1.25rem;line-height:1.6">
-                  Introduce el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.
+                  {{ t("auth.reset.desc") }}
                 </p>
 
                 <div v-if="resetError" class="msg msg-error" style="margin-bottom:1rem">{{ resetError }}</div>
@@ -279,7 +281,7 @@ async function enviarReset() {
                       v-model="resetEmail"
                       type="email"
                       class="input"
-                      placeholder="tu@correo.com"
+                      :placeholder="t('auth.reset.email')"
                       @keyup.enter="enviarReset"
                     />
                   </div>
@@ -300,7 +302,7 @@ async function enviarReset() {
                 @click="enviarReset"
               >
                 <span v-if="resetLoading" class="spinner" style="width:13px;height:13px;border-width:2px"/>
-                <span v-else>Enviar enlace</span>
+                <span v-else>{{ t("auth.reset.send") }}</span>
               </button>
             </div>
 

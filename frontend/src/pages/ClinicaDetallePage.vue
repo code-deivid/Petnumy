@@ -6,11 +6,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 import DatePicker from '@/components/ui/DatePicker.vue'
+import { useI18n } from 'vue-i18n'
 import PetAvatar from '@/components/ui/PetAvatar.vue'
 
 const route  = useRoute()
 const router = useRouter()
 const { get, post } = useApi()
+const { t } = useI18n()
 
 // ── Datos de la clínica ───────────────────────────────────────
 const clinica      = ref(null)
@@ -66,15 +68,15 @@ const mascotas          = ref([])
 const cargandoMascotas  = ref(false)
 
 // Motivos predefinidos
-const MOTIVOS = [
-  { id: 'revision',        label: 'Revisión general',    icon: '🩺' },
-  { id: 'vacuna',          label: 'Vacunación',           icon: '💉' },
-  { id: 'peluqueria',      label: 'Peluquería',           icon: '✂️' },
-  { id: 'cirugia',         label: 'Cirugía',              icon: '🔬' },
-  { id: 'urgencia',        label: 'Urgencia',             icon: '🚨' },
-  { id: 'desparasitacion', label: 'Desparasitación',      icon: '🐛' },
-  { id: 'otro',            label: 'Otro motivo',          icon: '📋' },
-]
+const MOTIVOS = computed(() => [
+  { id: 'revision',        label: t('booking.motives.revision'),        icon: '🩺' },
+  { id: 'vacuna',          label: t('booking.motives.vacuna'),           icon: '💉' },
+  { id: 'peluqueria',      label: t('booking.motives.peluqueria'),       icon: '✂️' },
+  { id: 'cirugia',         label: t('booking.motives.cirugia'),          icon: '🔬' },
+  { id: 'urgencia',        label: t('booking.motives.urgencia'),         icon: '🚨' },
+  { id: 'desparasitacion', label: t('booking.motives.desparasitacion'),  icon: '🐛' },
+  { id: 'otro',            label: t('booking.motives.otro'),             icon: '📋' },
+])
 
 // Horas disponibles 9:00–19:00 cada 30 min
 const horasDisponibles = computed(() => {
@@ -93,12 +95,12 @@ const fechaMin = computed(() => {
   return d.toISOString().split('T')[0]
 })
 
-const PASOS = [
-  { num: 1, label: 'Mascota' },
-  { num: 2, label: 'Motivo'  },
-  { num: 3, label: 'Fecha'   },
-  { num: 4, label: 'Hora'    },
-]
+const PASOS = computed(() => [
+  { num: 1, label: t('booking.step1') },
+  { num: 2, label: t('booking.step2') },
+  { num: 3, label: t('booking.step3') },
+  { num: 4, label: t('booking.step4') },
+])
 
 async function abrirModal() {
   paso.value        = 1
@@ -124,15 +126,15 @@ function cerrarModal() {
 function sigPaso() {
   errorModal.value = null
   if (paso.value === 1) {
-    if (!formReserva.value.mascota) { errorModal.value = 'Selecciona una mascota para continuar.'; return }
+    if (!formReserva.value.mascota) { errorModal.value = t('booking.selectPet'); return }
     paso.value = 2; return
   }
   if (paso.value === 2) {
-    if (!formReserva.value.motivo)  { errorModal.value = 'Selecciona un motivo para continuar.'; return }
+    if (!formReserva.value.motivo)  { errorModal.value = t('booking.selectReason'); return }
     paso.value = 3; return
   }
   if (paso.value === 3) {
-    if (!formReserva.value.fecha)   { errorModal.value = 'Selecciona una fecha para continuar.'; return }
+    if (!formReserva.value.fecha)   { errorModal.value = t('booking.selectDate'); return }
     paso.value = 4; return
   }
 }
@@ -145,7 +147,7 @@ function antPaso() {
 // ── Confirmar cita ────────────────────────────────────────────
 async function confirmarCita() {
   errorModal.value = null
-  if (!formReserva.value.hora) { errorModal.value = 'Selecciona una hora.'; return }
+  if (!formReserva.value.hora) { errorModal.value = t('booking.selectTime'); return }
 
   guardando.value = true
 
@@ -191,7 +193,7 @@ function fmtFecha(iso) {
 
     <div v-else-if="error" class="msg msg-error" style="margin-top:2rem">
       <p>{{ error }}</p>
-      <button type="button" class="btn btn-outline" style="margin-top:1rem" @click="cargarDetalle">Reintentar</button>
+      <button type="button" class="btn btn-outline" style="margin-top:1rem" @click="cargarDetalle">{{ t("common.retry") }}</button>
     </div>
 
     <div v-else-if="clinica" class="det-layout">
@@ -280,7 +282,7 @@ function fmtFecha(iso) {
                   </svg>
                 </div>
                 <div>
-                  <p class="cita-header-titulo">Reservar cita</p>
+                  <p class="cita-header-titulo">{{ t("booking.title") }}</p>
                   <p class="cita-header-sub">{{ clinica?.nombre }}</p>
                 </div>
               </div>
@@ -321,24 +323,23 @@ function fmtFecha(iso) {
               <!-- ÉXITO -->
               <div v-if="exitoCita" class="cita-exito">
                 <div class="exito-emoji">🎉</div>
-                <h3 class="exito-titulo">¡Cita reservada!</h3>
+                <h3 class="exito-titulo">{{ t("booking.successTitle") }}</h3>
                 <p class="exito-desc">
-                  Tu cita en <strong>{{ clinica?.nombre }}</strong> ha sido confirmada para el
-                  <strong>{{ fmtFecha(formReserva.fecha) }}</strong> a las <strong>{{ formReserva.hora }}</strong>.
+                  {{ t('booking.successDesc', { clinic: clinica?.nombre, date: fmtFecha(formReserva.fecha), time: formReserva.hora }) }}
                 </p>
                 <div style="display:flex;gap:0.75rem;margin-top:1.5rem;flex-wrap:wrap;justify-content:center">
-                  <button type="button" class="btn btn-primary" @click="router.push({ name: 'mis-citas' })">Ver mis citas</button>
-                  <button type="button" class="btn btn-ghost" @click="cerrarModal">Cerrar</button>
+                  <button type="button" class="btn btn-primary" @click="router.push({ name: 'mis-citas' })">{{ t("booking.viewAppointments") }}</button>
+                  <button type="button" class="btn btn-ghost" @click="cerrarModal">{{ t("common.close") }}</button>
                 </div>
               </div>
 
               <!-- PASO 1: Mascota -->
               <template v-else-if="paso === 1">
-                <p class="paso-titulo">¿Para qué mascota es la cita?</p>
+                <p class="paso-titulo">{{ t("booking.step1Question") }}</p>
                 <div v-if="cargandoMascotas" style="text-align:center;padding:1.5rem"><div class="spinner"/></div>
                 <div v-else-if="mascotas.length === 0" class="msg msg-error">
-                  No tienes mascotas registradas.
-                  <RouterLink :to="{ name: 'nueva-mascota' }" style="font-weight:700;color:var(--color-primary);margin-left:0.3rem">Añadir mascota →</RouterLink>
+                  {{ t("booking.noPets") }}
+                  <RouterLink :to="{ name: 'nueva-mascota' }" style="font-weight:700;color:var(--color-primary);margin-left:0.3rem">{{ t("booking.addPetLink") }}</RouterLink>
                 </div>
                 <div v-else class="mascota-list">
                   <div v-for="m in mascotas" :key="m.id"
@@ -357,7 +358,7 @@ function fmtFecha(iso) {
 
               <!-- PASO 2: Motivo -->
               <template v-else-if="paso === 2">
-                <p class="paso-titulo">¿Cuál es el motivo de la consulta?</p>
+                <p class="paso-titulo">{{ t("booking.step2Question") }}</p>
                 <div class="motivo-grid">
                   <button v-for="m in MOTIVOS" :key="m.id" type="button"
                     class="motivo-btn"
@@ -371,12 +372,12 @@ function fmtFecha(iso) {
 
               <!-- PASO 3: Fecha con DatePicker custom -->
               <template v-else-if="paso === 3">
-                <p class="paso-titulo">¿Qué día prefieres?</p>
+                <p class="paso-titulo">{{ t("booking.step3Question") }}</p>
                 <div class="input-group">
                   <label class="label">Fecha de la cita</label>
                   <DatePicker
                     v-model="formReserva.fecha"
-                    placeholder="Selecciona un día"
+                    :placeholder="t('booking.datePlaceholder')"
                     :min-date="fechaMin"
                   />
                   <span v-if="formReserva.fecha" class="input-hint" style="margin-top:0.35rem">
@@ -387,7 +388,7 @@ function fmtFecha(iso) {
 
               <!-- PASO 4: Hora -->
               <template v-else-if="paso === 4">
-                <p class="paso-titulo">¿A qué hora?</p>
+                <p class="paso-titulo">{{ t("booking.step4Question") }}</p>
                 <div class="horas-grid">
                   <button v-for="h in horasDisponibles" :key="h" type="button"
                     class="hora-btn"
@@ -420,7 +421,7 @@ function fmtFecha(iso) {
                 :disabled="guardando || !formReserva.hora"
                 @click="confirmarCita">
                 <span v-if="guardando" class="spinner" style="width:14px;height:14px;border-width:2px"/>
-                <span v-else>Confirmar cita</span>
+                <span v-else>{{ t("booking.confirm") }}</span>
               </button>
             </div>
 

@@ -4,11 +4,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/useApi.js'
 
 const router          = useRouter()
 const { get, patch }  = useApi()
+const { t } = useI18n()
 
 const citas   = ref([])
 const loading = ref(false)
@@ -87,12 +89,12 @@ function getNombreVet(cita) {
   return [nombre, apellidos].filter(Boolean).join(' ')
 }
 
-const BADGE_COLOR = {
-  pendiente:  { bg: '#FFF3E0', color: '#E65100', label: 'Pendiente'  },
-  confirmada: { bg: '#E0F1EE', color: '#4AADA5', label: 'Confirmada' },
-  completada: { bg: '#E8F0FC', color: '#3A5FA0', label: 'Completada' },
-  cancelada:  { bg: '#FDEAEA', color: '#D95F5F', label: 'Cancelada'  },
-}
+const BADGE_COLOR = computed(() => ({
+  pendiente:  { bg: '#FFF3E0', color: '#E65100', label: t('appointments.status.pendiente') },
+  confirmada: { bg: '#E0F1EE', color: '#4AADA5', label: t('appointments.status.confirmada') },
+  completada: { bg: '#E8F0FC', color: '#3A5FA0', label: t('appointments.status.completada') },
+  cancelada:  { bg: '#FDEAEA', color: '#D95F5F', label: t('appointments.status.cancelada') },
+}))
 
 onMounted(cargarCitas)
 </script>
@@ -103,8 +105,8 @@ onMounted(cargarCitas)
     <!-- ── Cabecera ─────────────────────────────────────────── -->
     <div class="mc-head">
       <div>
-        <h1 class="mc-titulo">Mis citas</h1>
-        <p class="mc-sub">Historial de tus reservas veterinarias</p>
+        <h1 class="mc-titulo">{{ t("appointments.title") }}</h1>
+        <p class="mc-sub">{{ t("appointments.subtitle") }}</p>
       </div>
     </div>
 
@@ -133,15 +135,15 @@ onMounted(cargarCitas)
             <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
         </div>
-        <h3 class="mc-empty-titulo">No tienes citas reservadas todavía</h3>
+        <h3 class="mc-empty-titulo">{{ t("appointments.empty") }}</h3>
         <p class="mc-empty-desc">
-          Cuando reserves una cita desde una clínica veterinaria, aparecerá aquí.
+          {{ t("appointments.emptyDesc") }}
         </p>
         <button type="button" class="btn btn-teal" @click="router.push({ name: 'clinicas' })">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
           </svg>
-          Ver veterinarios
+          {{ t("appointments.viewVets") }}
         </button>
       </div>
 
@@ -149,7 +151,7 @@ onMounted(cargarCitas)
 
         <!-- ── Próximas citas ──────────────────────────────── -->
         <section v-if="proximas.length > 0" class="mc-section">
-          <h2 class="mc-section-label">Próximas</h2>
+          <h2 class="mc-section-label">{{ t("appointments.upcoming") }}</h2>
           <div class="mc-lista">
             <div
               v-for="cita in proximas"
@@ -190,12 +192,12 @@ onMounted(cargarCitas)
                 <div class="mc-accion">
                   <template v-if="confirmCancelar === cita.id">
                     <div class="mc-confirm">
-                      <p class="mc-confirm-txt">¿Cancelar esta cita?</p>
+                      <p class="mc-confirm-txt">{{ t("appointments.cancelQuestion") }}</p>
                       <div style="display:flex;gap:0.4rem">
-                        <button type="button" class="btn btn-ghost btn-sm" @click="confirmCancelar = null">No</button>
+                        <button type="button" class="btn btn-ghost btn-sm" @click="confirmCancelar = null">{{ t("common.no") }}</button>
                         <button type="button" class="btn btn-sm mc-btn-cancelar-confirm" @click="ejecutarCancelar(cita)">
                           <span v-if="cancelando === cita.id" class="spinner" style="width:12px;height:12px;border-width:2px"/>
-                          <span v-else>Sí, cancelar</span>
+                          <span v-else>{{ t("appointments.cancelYes") }}</span>
                         </button>
                       </div>
                     </div>
@@ -208,7 +210,7 @@ onMounted(cargarCitas)
                     @click="pedirCancelar(cita)"
                   >
                     <span v-if="cancelando === cita.id" class="spinner" style="width:12px;height:12px;border-width:2px"/>
-                    <span v-else>Cancelar</span>
+                    <span v-else>{{ t("appointments.cancelBtn") }}</span>
                   </button>
                 </div>
 
@@ -219,7 +221,7 @@ onMounted(cargarCitas)
 
         <!-- ── Historial ──────────────────────────────────── -->
         <section v-if="historial.length > 0" class="mc-section">
-          <h2 class="mc-section-label">Historial</h2>
+          <h2 class="mc-section-label">{{ t("appointments.history") }}</h2>
           <div class="mc-lista">
             <div
               v-for="cita in historial"

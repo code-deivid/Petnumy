@@ -1,141 +1,210 @@
 <!-- src/pages/MisMascotasPage.vue -->
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import PetAvatar from '@/components/ui/PetAvatar.vue'
-import { useRouter } from 'vue-router'
-import { useApi } from '@/composables/useApi.js'
+import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import PetAvatar from "@/components/ui/PetAvatar.vue";
+import { useRouter } from "vue-router";
+import { useApi } from "@/composables/useApi.js";
 
-const router          = useRouter()
-const { get, remove } = useApi()
+const router = useRouter();
+const { t } = useI18n();
+const { get, remove } = useApi();
 
-const mascotas = ref([])
-const loading  = ref(false)
-const error    = ref(null)
+const mascotas = ref([]);
+const loading = ref(false);
+const error = ref(null);
 
 // ── Modal de confirmación de borrado ──────────────────────────
-const confirmModal = ref({ visible: false, mascota: null, eliminando: false })
+const confirmModal = ref({ visible: false, mascota: null, eliminando: false });
 
 function pedirConfirmacion(e, mascota) {
-  e.stopPropagation()
-  confirmModal.value = { visible: true, mascota, eliminando: false }
+  e.stopPropagation();
+  confirmModal.value = { visible: true, mascota, eliminando: false };
 }
 function cancelarEliminar() {
-  confirmModal.value = { visible: false, mascota: null, eliminando: false }
+  confirmModal.value = { visible: false, mascota: null, eliminando: false };
 }
 async function confirmarEliminar() {
-  const { mascota } = confirmModal.value
-  if (!mascota) return
-  confirmModal.value.eliminando = true
-  const { ok, data } = await remove(`/api/mascotas/${mascota.id}`)
-  confirmModal.value = { visible: false, mascota: null, eliminando: false }
-  if (!ok) { error.value = data.message || 'No se pudo eliminar'; return }
-  cargarMascotas()
+  const { mascota } = confirmModal.value;
+  if (!mascota) return;
+  confirmModal.value.eliminando = true;
+  const { ok, data } = await remove(`/api/mascotas/${mascota.id}`);
+  confirmModal.value = { visible: false, mascota: null, eliminando: false };
+  if (!ok) {
+    error.value = data.message || "No se pudo eliminar";
+    return;
+  }
+  cargarMascotas();
 }
 
 async function cargarMascotas() {
-  loading.value = true
-  error.value   = null
-  const { ok, data } = await get('/api/mascotas')
-  loading.value = false
-  if (!ok) { error.value = data.message || 'No se pudieron cargar las mascotas'; return }
-  mascotas.value = data.mascotas
+  loading.value = true;
+  error.value = null;
+  const { ok, data } = await get("/api/mascotas");
+  loading.value = false;
+  if (!ok) {
+    error.value = data.message || "No se pudieron cargar las mascotas";
+    return;
+  }
+  mascotas.value = data.mascotas;
 }
-onMounted(cargarMascotas)
+onMounted(cargarMascotas);
 
-function verDetalle(id) { router.push({ name: 'mascota-detalle', params: { id } }) }
+function verDetalle(id) {
+  router.push({ name: "mascota-detalle", params: { id } });
+}
 function editarMascota(e, mascota) {
-  e.stopPropagation()
-  router.push({ name: 'nueva-mascota', query: { editar: mascota.id } })
+  e.stopPropagation();
+  router.push({ name: "nueva-mascota", query: { editar: mascota.id } });
 }
 
 function calcEdad(nacimiento) {
-  if (!nacimiento) return null
-  const meses = Math.floor((Date.now() - new Date(nacimiento)) / (1000 * 60 * 60 * 24 * 30.44))
-  if (meses < 1)  return 'Menos de 1 mes'
-  if (meses < 12) return `${meses} ${meses === 1 ? 'mes' : 'meses'}`
-  const años = Math.floor(meses / 12)
-  return `${años} ${años === 1 ? 'año' : 'años'}`
+  if (!nacimiento) return null;
+  const meses = Math.floor(
+    (Date.now() - new Date(nacimiento)) / (1000 * 60 * 60 * 24 * 30.44),
+  );
+  if (meses < 1) return t("pets.lessThanOneMonth");
+  if (meses < 12) return `${meses} ${meses === 1 ? t("common.month") : t("common.months")}`;
+  const años = Math.floor(meses / 12);
+  return `${años} ${años === 1 ? t("common.year") : t("common.years")}`;
 }
-function iniciales(n) { return (n?.[0] || '').toUpperCase() }
+function iniciales(n) {
+  return (n?.[0] || "").toUpperCase();
+}
 
-const paleta = ['#C4A898','#8EC8C4','#E8A898','#9EC89A','#D4B896','#B8A8C4']
-function colorAv(i) { return paleta[i % paleta.length] }
+function normalizarValor(v) {
+  return String(v || '').trim().toLowerCase();
+}
+function displaySpecies(especie) {
+  const v = normalizarValor(especie);
+  if (v === 'perro' || v === 'dog' || v === 'gos') return t('common.dog');
+  if (v === 'gato' || v === 'cat' || v === 'gat') return t('common.cat');
+  return especie || '';
+}
+function displayGender(genero) {
+  const v = normalizarValor(genero);
+  if (v === 'macho' || v === 'male' || v === 'mascle') return t('common.male');
+  if (v === 'hembra' || v === 'female' || v === 'femella') return t('common.female');
+  return genero || '';
+}
+
+const paleta = [
+  "#C4A898",
+  "#8EC8C4",
+  "#E8A898",
+  "#9EC89A",
+  "#D4B896",
+  "#B8A8C4",
+];
+function colorAv(i) {
+  return paleta[i % paleta.length];
+}
 
 // FIX 3: fondo sólido pastel, no degradado que se pierde
 function bgCard(genero) {
-  if (genero === 'macho')  return 'card-bg--macho'
-  if (genero === 'hembra') return 'card-bg--hembra'
-  return ''
+  if (genero === "macho") return "card-bg--macho";
+  if (genero === "hembra") return "card-bg--hembra";
+  return "";
 }
 
-const consejos = [
-  'Recuerda desparasitar a tus mascotas cada 3 meses.',
-  'El ejercicio diario mejora la salud mental y física de tu mascota.',
-  'Una revisión veterinaria anual puede detectar problemas a tiempo.',
-  'Los dientes también necesitan cuidado: cepilla a tu mascota semanalmente.',
-]
-const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.length])
+const consejoHoy = computed(() => {
+  const consejos = [
+    t("pets.tipText"),
+    t("petDetail.tipReminder"),
+    t("petDetail.tipPreventive"),
+    t("petDetail.tipReminder"),
+  ];
+  return consejos[new Date().getDate() % consejos.length];
+});
 </script>
 
 <template>
   <div class="mm-page page-container">
-
     <!-- Header -->
     <div class="mm-header">
       <div>
-        <h1 class="mm-title">Mis Mascotas</h1>
+        <h1 class="mm-title">{{ t("pets.title") }}</h1>
         <p class="mm-sub">
           <template v-if="mascotas.length > 0">
-            {{ mascotas.length }} compañero{{ mascotas.length !== 1 ? 's' : '' }} bajo tu cuidado
+            {{ t('pets.companionsUnderCare', { count: mascotas.length }) }}
           </template>
-          <template v-else>Gestiona a tus compañeros peludos</template>
+          <template v-else>{{ t("pets.subtitle") }}</template>
         </p>
       </div>
-      <button class="btn btn-primary" @click="router.push({ name: 'nueva-mascota' })">
-        + Añadir mascota
+      <button
+        class="btn btn-primary"
+        @click="router.push({ name: 'nueva-mascota' })"
+      >
+        + {{ t("pets.addPet") }}
       </button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="loading-center"><div class="spinner spinner-dark"/></div>
+    <div v-if="loading" class="loading-center">
+      <div class="spinner spinner-dark" />
+    </div>
 
     <!-- Error -->
     <div v-else-if="error" class="card">
-      <div class="card-body" style="text-align:center;padding:2.5rem">
+      <div class="card-body" style="text-align: center; padding: 2.5rem">
         <p>{{ error }}</p>
-        <button class="btn btn-outline" style="margin-top:1rem" @click="cargarMascotas">Reintentar</button>
+        <button
+          class="btn btn-outline"
+          style="margin-top: 1rem"
+          @click="cargarMascotas"
+        >
+          Reintentar
+        </button>
       </div>
     </div>
 
     <template v-else>
-
       <!-- Sin mascotas -->
       <div v-if="mascotas.length === 0" class="mm-empty-wrap">
         <div class="card mm-empty-card">
           <div class="card-body mm-empty-body">
             <div class="mm-empty-paw">
               <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
-                <ellipse cx="14" cy="24" rx="6" ry="8" fill="#E0D0C0"/>
-                <ellipse cx="46" cy="24" rx="6" ry="8" fill="#E0D0C0"/>
-                <ellipse cx="24" cy="14" rx="5.5" ry="7.5" fill="#E0D0C0"/>
-                <ellipse cx="36" cy="14" rx="5.5" ry="7.5" fill="#E0D0C0"/>
-                <path d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z" fill="#E0D0C0"/>
+                <ellipse cx="14" cy="24" rx="6" ry="8" fill="#E0D0C0" />
+                <ellipse cx="46" cy="24" rx="6" ry="8" fill="#E0D0C0" />
+                <ellipse cx="24" cy="14" rx="5.5" ry="7.5" fill="#E0D0C0" />
+                <ellipse cx="36" cy="14" rx="5.5" ry="7.5" fill="#E0D0C0" />
+                <path
+                  d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z"
+                  fill="#E0D0C0"
+                />
               </svg>
             </div>
-            <h3>Aún no tienes mascotas</h3>
-            <p>Añade a tu primer compañero para empezar a gestionar su salud, vacunas y citas.</p>
-            <button class="btn btn-primary" style="margin-top:1.25rem" @click="router.push({ name: 'nueva-mascota' })">
-              Añadir mi primera mascota
+            <h3>{{ t("pets.empty") }}</h3>
+            <p>{{ t("pets.emptyDesc") }}, vacunas y citas.</p>
+            <button
+              class="btn btn-primary"
+              style="margin-top: 1.25rem"
+              @click="router.push({ name: 'nueva-mascota' })"
+            >
+              {{ t("pets.addFirst") }}
             </button>
           </div>
         </div>
         <div class="card card-mint mm-tip">
           <div class="card-body mm-tip-body">
             <div class="mm-tip-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
             </div>
             <div>
-              <p class="mm-tip-label">Consejo del día</p>
+              <p class="mm-tip-label">{{ t("pets.tip") }}</p>
               <p class="mm-tip-text">{{ consejoHoy }}</p>
             </div>
           </div>
@@ -144,34 +213,56 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
 
       <!-- Con mascotas -->
       <template v-else>
-
         <div class="mm-top-row">
           <div class="card mm-fam-card">
             <div class="card-body mm-fam-body">
               <div class="mm-fam-avatars">
                 <div
-                  v-for="(m, i) in mascotas.slice(0,4)"
+                  v-for="(m, i) in mascotas.slice(0, 4)"
                   :key="m.id"
                   class="mm-fam-av"
                   :style="{ marginLeft: i > 0 ? '-8px' : '0', zIndex: 10 - i }"
                 >
-                  <PetAvatar :foto="m.foto" :nombre="m.nombre" :genero="m.genero" tipo="mascota" size="sm" />
+                  <PetAvatar
+                    :foto="m.foto"
+                    :nombre="m.nombre"
+                    :genero="m.genero"
+                    tipo="mascota"
+                    size="sm"
+                  />
                 </div>
-                <div v-if="mascotas.length > 4" class="mm-fam-av mm-fam-av--more">+{{ mascotas.length - 4 }}</div>
+                <div
+                  v-if="mascotas.length > 4"
+                  class="mm-fam-av mm-fam-av--more"
+                >
+                  +{{ mascotas.length - 4 }}
+                </div>
               </div>
               <div class="mm-fam-count">
                 <span class="mm-fam-num">{{ mascotas.length }}</span>
-                <span class="mm-fam-lbl">{{ mascotas.length === 1 ? 'mascota' : 'mascotas' }}</span>
+                <span class="mm-fam-lbl">{{ mascotas.length === 1 ? t('pets.petSingular') : t('pets.petPlural') }}</span>
               </div>
             </div>
           </div>
           <div class="card card-mint mm-tip">
             <div class="card-body mm-tip-body">
               <div class="mm-tip-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 16v-4" />
+                  <path d="M12 8h.01" />
+                </svg>
               </div>
               <div>
-                <p class="mm-tip-label">Consejo del día</p>
+                <p class="mm-tip-label">{{ t("pets.tip") }}</p>
                 <p class="mm-tip-text">{{ consejoHoy }}</p>
               </div>
             </div>
@@ -179,9 +270,8 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
         </div>
 
         <div>
-          <p class="mm-section-label">Tus compañeros</p>
+          <p class="mm-section-label">{{ t("pets.yourCompanions") }}</p>
           <div class="mm-grid">
-
             <div
               v-for="(mascota, idx) in mascotas"
               :key="mascota.id"
@@ -194,18 +284,48 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
             >
               <!-- Botones editar/borrar — no propagan clic -->
               <div class="mm-card-btns">
-                <button class="mm-btn mm-btn--edit" @click="editarMascota($event, mascota)" title="Editar">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                <button
+                  class="mm-btn mm-btn--edit"
+                  @click="editarMascota($event, mascota)"
+                  :title="t('common.edit')"
+                >
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                    />
+                    <path
+                      d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                    />
                   </svg>
                 </button>
                 <!-- FIX 1: abre modal propio en vez de window.confirm -->
-                <button class="mm-btn mm-btn--del" @click="pedirConfirmacion($event, mascota)" title="Eliminar">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
+                <button
+                  class="mm-btn mm-btn--del"
+                  @click="pedirConfirmacion($event, mascota)"
+                  :title="t('common.delete')"
+                >
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                    <path d="M10 11v6M14 11v6" />
                   </svg>
                 </button>
               </div>
@@ -213,31 +333,54 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
               <!-- Foto -->
               <div class="mm-card-foto-wrap">
                 <div class="mm-card-foto">
-                  <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="lg" />
+                  <PetAvatar
+                    :foto="mascota.foto"
+                    :nombre="mascota.nombre"
+                    :genero="mascota.genero"
+                    tipo="mascota"
+                    size="lg"
+                  />
                 </div>
               </div>
 
               <!-- Info — FIX 2: nombre limpio, icono dentro del chip -->
               <div class="mm-card-info">
-                <h3 class="mm-card-nombre">{{ mascota.nombre.toUpperCase() }}</h3>
+                <h3 class="mm-card-nombre">
+                  {{ mascota.nombre.toUpperCase() }}
+                </h3>
                 <p class="mm-card-raza">
-                  {{ mascota.raza?.nombre || '—' }}<template v-if="mascota.es_mestizo && mascota.raza_secundaria"><span style="opacity:.6"> + </span>{{ mascota.raza_secundaria.nombre }}</template>
+                  {{ mascota.raza?.nombre || "—"
+                  }}<template
+                    v-if="mascota.es_mestizo && mascota.raza_secundaria"
+                    ><span style="opacity: 0.6"> + </span
+                    >{{ mascota.raza_secundaria.nombre }}</template
+                  >
                 </p>
                 <div class="mm-card-tags">
                   <span v-if="mascota.raza?.especie?.especie" class="mm-tag">
-                    {{ mascota.raza.especie.especie }}
+                    {{ displaySpecies(mascota.raza.especie.especie) }}
                   </span>
                   <!-- Icono DENTRO del chip, no flotando sobre el nombre -->
                   <span
                     v-if="mascota.genero"
-                    :class="['mm-tag mm-tag-genero', mascota.genero === 'macho' ? 'mm-tag--macho' : 'mm-tag--hembra']"
+                    :class="[
+                      'mm-tag mm-tag-genero',
+                      mascota.genero === 'macho'
+                        ? 'mm-tag--macho'
+                        : 'mm-tag--hembra',
+                    ]"
                   >
                     <iconify-icon
-                      :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
-                      width="11" height="11"
-                      style="flex-shrink:0"
+                      :icon="
+                        mascota.genero === 'macho'
+                          ? 'mdi:gender-male'
+                          : 'mdi:gender-female'
+                      "
+                      width="11"
+                      height="11"
+                      style="flex-shrink: 0"
                     />
-                    {{ mascota.genero }}
+                    {{ displayGender(mascota.genero) }}
                   </span>
                 </div>
               </div>
@@ -245,16 +388,38 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
               <!-- Pie -->
               <div class="mm-card-footer">
                 <div v-if="mascota.nacimiento" class="mm-card-dato">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
                   {{ calcEdad(mascota.nacimiento) }}
                 </div>
                 <div v-if="mascota.peso" class="mm-card-dato">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/></svg>
-                  {{ mascota.peso }} kg
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  >
+                    <circle cx="12" cy="12" r="4" />
+                    <line x1="12" y1="2" x2="12" y2="6" />
+                  </svg>
+                  {{ mascota.peso }} {{ t("common.kg") }}
                 </div>
               </div>
 
-              <div class="mm-card-cta">Ver ficha →</div>
+              <div class="mm-card-cta">{{ t("pets.viewProfile") }}</div>
             </div>
 
             <!-- Card añadir -->
@@ -267,21 +432,27 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
             >
               <div class="mm-add-inner">
                 <div class="mm-add-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
                   </svg>
                 </div>
-                <p class="mm-add-title">Añadir mascota</p>
-                <p class="mm-add-sub">Crea su ficha en un minuto</p>
+                <p class="mm-add-title">{{ t("pets.addPet") }}</p>
+                <p class="mm-add-sub">{{ t("pets.addPetCardDesc") }}</p>
               </div>
             </div>
-
           </div>
         </div>
-
       </template>
     </template>
-
   </div>
 
   <!-- ── FIX 1: Modal confirmación borrado — Petnumy style ─── -->
@@ -292,21 +463,33 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
       @click.self="cancelarEliminar"
     >
       <div class="confirm-card card">
-
         <!-- Icono alerta -->
         <div class="confirm-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-            <path d="M10 11v6M14 11v6"/>
-            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
           </svg>
         </div>
 
         <!-- Texto -->
         <div class="confirm-text">
           <h3 class="confirm-title">
-            ¿Eliminar a <span class="confirm-nombre">{{ confirmModal.mascota?.nombre }}</span>?
+            ¿Eliminar a
+            <span class="confirm-nombre">{{
+              confirmModal.mascota?.nombre
+            }}</span
+            >?
           </h3>
           <p class="confirm-desc">Esta acción no se puede deshacer.</p>
         </div>
@@ -325,11 +508,14 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
             :disabled="confirmModal.eliminando"
             @click="confirmarEliminar"
           >
-            <span v-if="confirmModal.eliminando" class="spinner" style="width:14px;height:14px;border-width:2px"/>
+            <span
+              v-if="confirmModal.eliminando"
+              class="spinner"
+              style="width: 14px; height: 14px; border-width: 2px"
+            />
             <span v-else>Eliminar mascota</span>
           </button>
         </div>
-
       </div>
     </div>
   </Transition>
@@ -345,45 +531,138 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
 }
 
 /* Header */
-.mm-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
-.mm-title   { margin-bottom: 0.2rem; }
-.mm-sub     { font-size: 0.875rem; margin: 0; }
+.mm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.mm-title {
+  margin-bottom: 0.2rem;
+}
+.mm-sub {
+  font-size: 0.875rem;
+  margin: 0;
+}
 
 /* Top row */
-.mm-top-row { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: stretch; }
+.mm-top-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
 
 /* Familia */
-.mm-fam-card { box-shadow: var(--shadow-sm); }
-.mm-fam-body { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.4rem; white-space: nowrap; }
-.mm-fam-avatars { display: flex; align-items: center; }
+.mm-fam-card {
+  box-shadow: var(--shadow-sm);
+}
+.mm-fam-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.4rem;
+  white-space: nowrap;
+}
+.mm-fam-avatars {
+  display: flex;
+  align-items: center;
+}
 .mm-fam-av {
   /* Solo ring de separación — el fondo lo da PetAvatar */
-  border-radius: 50%; flex-shrink: 0;
-  border: 2px solid var(--color-surface); position: relative;
-  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid var(--color-surface);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.mm-fam-av-img  { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.mm-fam-av--more { background: var(--color-surface-alt); color: var(--color-text-muted); font-size: 0.65rem; }
-.mm-fam-count { display: flex; flex-direction: column; }
-.mm-fam-num { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: var(--color-primary); line-height: 1; }
-.mm-fam-lbl { font-family: var(--font-display); font-weight: 600; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
+.mm-fam-av-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.mm-fam-av--more {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+}
+.mm-fam-count {
+  display: flex;
+  flex-direction: column;
+}
+.mm-fam-num {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  line-height: 1;
+}
+.mm-fam-lbl {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+}
 
 /* Consejo */
-.mm-tip       { border: 1.5px solid var(--color-teal-light); }
-.mm-tip-body  { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 1.25rem; }
-.mm-tip-icon  { width: 34px; height: 34px; border-radius: 50%; background: var(--color-teal-light); color: var(--color-teal-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.mm-tip-label { font-family: var(--font-display); font-weight: 800; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-teal-dark); margin-bottom: 0.15rem; }
-.mm-tip-text  { font-size: 0.82rem; color: var(--color-text-soft); margin: 0; line-height: 1.4; }
+.mm-tip {
+  border: 1.5px solid var(--color-teal-light);
+}
+.mm-tip-body {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1.25rem;
+}
+.mm-tip-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mm-tip-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-teal-dark);
+  margin-bottom: 0.15rem;
+}
+.mm-tip-text {
+  font-size: 0.82rem;
+  color: var(--color-text-soft);
+  margin: 0;
+  line-height: 1.4;
+}
 
 /* Sección */
 .mm-section-label {
-  font-family: var(--font-display); font-weight: 700; font-size: 0.7rem;
-  text-transform: uppercase; letter-spacing: 0.7px; color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--color-text-muted);
   margin-bottom: 0.9rem;
 }
 
 /* Grid */
-.mm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(188px, 1fr)); gap: var(--card-gap); }
+.mm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+  gap: var(--card-gap);
+}
 
 /* ── FIX 3: Card con fondo sólido pastel (no degradado) ────── */
 .mm-card {
@@ -393,20 +672,27 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
   flex-direction: column;
   overflow: hidden;
   outline: none;
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
   /* Sin fondo especial de base — los modificadores lo ponen */
 }
-.mm-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-.mm-card:focus { box-shadow: 0 0 0 3px rgba(124,203,194,0.3); }
+.mm-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+.mm-card:focus {
+  box-shadow: 0 0 0 3px rgba(124, 203, 194, 0.3);
+}
 
 /* Fondos sólidos pasteles visibles */
-.card-bg--macho  {
-  background-color: #EAF4FF;                      /* azul pastel claro */
-  border: 1.5px solid #C8DEFF;                    /* borde sutil azul */
+.card-bg--macho {
+  background-color: #eaf4ff; /* azul pastel claro */
+  border: 1.5px solid #c8deff; /* borde sutil azul */
 }
 .card-bg--hembra {
-  background-color: #FFF0F7;                      /* rosa pastel claro */
-  border: 1.5px solid #FFD6EC;                    /* borde sutil rosa */
+  background-color: #fff0f7; /* rosa pastel claro */
+  border: 1.5px solid #ffd6ec; /* borde sutil rosa */
 }
 /* Hover: la card sin género tiene borde estándar */
 .mm-card:not(.card-bg--macho):not(.card-bg--hembra) {
@@ -415,76 +701,237 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
 
 /* Botones acción */
 .mm-card-btns {
-  position: absolute; top: 0.55rem; right: 0.55rem;
-  display: flex; gap: 0.25rem;
-  opacity: 0; transition: opacity var(--transition-fast); z-index: 2;
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 2;
 }
-.mm-card:hover .mm-card-btns { opacity: 1; }
+.mm-card:hover .mm-card-btns {
+  opacity: 1;
+}
 .mm-btn {
-  width: 26px; height: 26px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
 }
-.mm-btn:hover { transform: scale(1.12); }
-.mm-btn--edit { background: rgba(255,255,255,0.75); color: var(--color-teal-dark); }
-.mm-btn--edit:hover { background: var(--color-teal); color: #fff; }
-.mm-btn--del  { background: rgba(255,255,255,0.75); color: var(--color-text-muted); }
-.mm-btn--del:hover { background: var(--color-danger-light); color: var(--color-danger); }
+.mm-btn:hover {
+  transform: scale(1.12);
+}
+.mm-btn--edit {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--color-teal-dark);
+}
+.mm-btn--edit:hover {
+  background: var(--color-teal);
+  color: #fff;
+}
+.mm-btn--del {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--color-text-muted);
+}
+.mm-btn--del:hover {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
 
 /* Foto */
-.mm-card-foto-wrap { padding: 1.4rem 1.4rem 0; display: flex; justify-content: center; }
-.mm-card-foto { width: 80px; height: 80px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-.mm-card-foto-img { width: 100%; height: 100%; object-fit: cover; }
+.mm-card-foto-wrap {
+  padding: 1.4rem 1.4rem 0;
+  display: flex;
+  justify-content: center;
+}
+.mm-card-foto {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mm-card-foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .mm-card-av {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-weight: 800; font-size: 1.65rem; color: #fff;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.65rem;
+  color: #fff;
 }
 
 /* ── FIX 2: Info — nombre limpio, icono solo dentro del chip ─ */
-.mm-card-info { padding: 0.7rem 1.1rem 0; text-align: center; flex: 1; }
-.mm-card-nombre { font-size: 0.88rem; letter-spacing: 0.3px; margin-bottom: 0.1rem; }
-.mm-card-raza   { font-size: 0.73rem; color: var(--color-text-muted); margin: 0 0 0.45rem; }
-.mm-card-tags   { display: flex; gap: 0.3rem; justify-content: center; flex-wrap: wrap; }
+.mm-card-info {
+  padding: 0.7rem 1.1rem 0;
+  text-align: center;
+  flex: 1;
+}
+.mm-card-nombre {
+  font-size: 0.88rem;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.1rem;
+}
+.mm-card-raza {
+  font-size: 0.73rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.45rem;
+}
+.mm-card-tags {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
 
 .mm-tag {
-  display: inline-flex; align-items: center; gap: 0.25rem;
-  padding: 0.18rem 0.55rem; border-radius: var(--radius-full);
-  font-family: var(--font-display); font-weight: 700; font-size: 0.65rem;
-  text-transform: uppercase; letter-spacing: 0.3px;
-  background: rgba(255,255,255,0.7); color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-text-muted);
 }
 /* En cards de color, el fondo blanco semitransparente queda bien */
-.mm-tag--macho  { background: rgba(255,255,255,0.8); color: #3A5FA0; }
-.mm-tag--hembra { background: rgba(255,255,255,0.8); color: #A03A5A; }
+.mm-tag--macho {
+  background: rgba(255, 255, 255, 0.8);
+  color: #3a5fa0;
+}
+.mm-tag--hembra {
+  background: rgba(255, 255, 255, 0.8);
+  color: #a03a5a;
+}
 
 /* Pie */
-.mm-card-footer { display: flex; justify-content: space-around; padding: 0.6rem 1rem; border-top: 1px solid rgba(0,0,0,0.06); margin-top: 0.6rem; }
-.mm-card-dato { display: flex; align-items: center; gap: 0.3rem; font-size: 0.71rem; color: var(--color-text-muted); }
+.mm-card-footer {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-top: 0.6rem;
+}
+.mm-card-dato {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.71rem;
+  color: var(--color-text-muted);
+}
 
 /* CTA hover */
 .mm-card-cta {
-  text-align: center; padding: 0.45rem;
-  font-family: var(--font-display); font-weight: 700; font-size: 0.7rem;
-  color: var(--color-primary); opacity: 0;
+  text-align: center;
+  padding: 0.45rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  opacity: 0;
   transition: opacity var(--transition-fast);
-  background: rgba(240,130,99,0.1);
+  background: rgba(240, 130, 99, 0.1);
 }
-.mm-card:hover .mm-card-cta { opacity: 1; }
+.mm-card:hover .mm-card-cta {
+  opacity: 1;
+}
 
 /* Card añadir */
-.mm-add { cursor: pointer; border: 2px dashed var(--color-border); background: transparent; box-shadow: none; outline: none; transition: border-color var(--transition-fast), background var(--transition-fast); }
-.mm-add:hover, .mm-add:focus { border-color: var(--color-primary); background: var(--color-primary-light); }
-.mm-add-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-height: 198px; padding: 1.5rem; text-align: center; }
-.mm-add-icon  { width: 42px; height: 42px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; transition: background var(--transition-fast); }
-.mm-add:hover .mm-add-icon { background: rgba(240,130,99,0.22); }
-.mm-add-title { font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; color: var(--color-text-soft); margin: 0; }
-.mm-add-sub   { font-size: 0.73rem; color: var(--color-text-muted); margin: 0; }
+.mm-add {
+  cursor: pointer;
+  border: 2px dashed var(--color-border);
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+.mm-add:hover,
+.mm-add:focus {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.mm-add-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 198px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.mm-add-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+.mm-add:hover .mm-add-icon {
+  background: rgba(240, 130, 99, 0.22);
+}
+.mm-add-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--color-text-soft);
+  margin: 0;
+}
+.mm-add-sub {
+  font-size: 0.73rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
 
 /* Empty */
-.mm-empty-wrap { display: flex; flex-direction: column; gap: 1.25rem; }
-.mm-empty-body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 3rem 2rem; gap: 0.6rem; }
-.mm-empty-paw  { width: 72px; height: 72px; border-radius: 50%; background: var(--color-surface-alt); display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; }
+.mm-empty-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.mm-empty-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  gap: 0.6rem;
+}
+.mm-empty-paw {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
 
 /* ── FIX 1: Modal confirmación borrado ────────────────────── */
 .confirm-overlay {
@@ -513,24 +960,42 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
 }
 
 .confirm-icon {
-  width: 52px; height: 52px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--color-danger-light);
   color: var(--color-danger);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.confirm-text  { display: flex; flex-direction: column; gap: 0.3rem; }
-.confirm-title {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: 1rem; color: var(--color-text); margin: 0;
+.confirm-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
-.confirm-nombre { color: var(--color-primary); }
-.confirm-desc   { font-size: 0.85rem; color: var(--color-text-muted); margin: 0; }
+.confirm-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+  margin: 0;
+}
+.confirm-nombre {
+  color: var(--color-primary);
+}
+.confirm-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
 
 .confirm-btns {
-  display: flex; gap: 0.75rem; width: 100%;
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
   justify-content: center;
 }
 
@@ -548,32 +1013,61 @@ const consejoHoy = computed(() => consejos[new Date().getDate() % consejos.lengt
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
-  box-shadow: 0 3px 10px rgba(217,95,95,0.3);
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+  box-shadow: 0 3px 10px rgba(217, 95, 95, 0.3);
 }
 .btn-eliminar:hover:not(:disabled) {
   background: #be4b4b;
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(217,95,95,0.4);
+  box-shadow: 0 5px 14px rgba(217, 95, 95, 0.4);
 }
-.btn-eliminar:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-eliminar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* Animación modal */
 .confirm-modal-enter-active,
-.confirm-modal-leave-active { transition: opacity var(--transition-normal), transform var(--transition-normal); }
+.confirm-modal-leave-active {
+  transition:
+    opacity var(--transition-normal),
+    transform var(--transition-normal);
+}
 .confirm-modal-enter-from,
-.confirm-modal-leave-to     { opacity: 0; transform: scale(0.96) translateY(8px); }
+.confirm-modal-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(8px);
+}
 
 /* Responsive */
 @media (max-width: 640px) {
-  .mm-header { flex-direction: column; }
-  .mm-header .btn { width: 100%; }
-  .mm-top-row { grid-template-columns: 1fr; }
-  .mm-grid { grid-template-columns: 1fr 1fr; }
-  .confirm-btns { flex-direction: column; }
-  .confirm-btns .btn, .confirm-btns .btn-eliminar { width: 100%; justify-content: center; }
+  .mm-header {
+    flex-direction: column;
+  }
+  .mm-header .btn {
+    width: 100%;
+  }
+  .mm-top-row {
+    grid-template-columns: 1fr;
+  }
+  .mm-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .confirm-btns {
+    flex-direction: column;
+  }
+  .confirm-btns .btn,
+  .confirm-btns .btn-eliminar {
+    width: 100%;
+    justify-content: center;
+  }
 }
 @media (max-width: 380px) {
-  .mm-grid { grid-template-columns: 1fr; }
+  .mm-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

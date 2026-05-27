@@ -11,7 +11,7 @@ import { useRecordatorios } from '@/composables/useRecordatorios.js'
 
 const router    = useRouter()
 const authStore = useAuthStore()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 const isLoggedIn = computed(() => authStore.isLoggedIn)
 
@@ -166,10 +166,10 @@ function irA(name) {
 
       <!-- Nav links — desktop -->
       <nav class="nav-links">
-        <RouterLink v-if="isLoggedIn" :to="{ name: 'home' }"         class="nav-link" active-class="nav-link--active">Home</RouterLink>
-        <RouterLink v-if="isLoggedIn" :to="{ name: 'mis-mascotas' }" class="nav-link" active-class="nav-link--active">Mis Mascotas</RouterLink>
-        <RouterLink v-if="isLoggedIn" :to="{ name: 'mis-citas' }"    class="nav-link" active-class="nav-link--active">Mis Citas</RouterLink>
-        <RouterLink v-if="isLoggedIn" :to="{ name: 'clinicas' }"     class="nav-link" active-class="nav-link--active">Veterinarios</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'home' }"         class="nav-link" active-class="nav-link--active">{{ t("nav.home") }}</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'mis-mascotas' }" class="nav-link" active-class="nav-link--active">{{ t("nav.myPets") }}</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'mis-citas' }"    class="nav-link" active-class="nav-link--active">{{ t("nav.myAppointments") }}</RouterLink>
+        <RouterLink v-if="isLoggedIn" :to="{ name: 'clinicas' }"     class="nav-link" active-class="nav-link--active">{{ t("nav.vets") }}</RouterLink>
       </nav>
 
       <!-- Zona derecha -->
@@ -177,8 +177,8 @@ function irA(name) {
 
         <!-- Sin sesión -->
         <template v-if="!isLoggedIn">
-          <RouterLink :to="{ name: 'login' }"    class="btn btn-ghost btn-sm nav-auth-ghost">Entrar</RouterLink>
-          <RouterLink :to="{ name: 'registro' }" class="btn btn-primary btn-sm">Registrarse</RouterLink>
+          <RouterLink :to="{ name: 'login' }"    class="btn btn-ghost btn-sm nav-auth-ghost">{{ t("nav.enter") }}</RouterLink>
+          <RouterLink :to="{ name: 'registro' }" class="btn btn-primary btn-sm">{{ t("nav.register") }}</RouterLink>
         </template>
 
         <!-- Con sesión -->
@@ -319,28 +319,28 @@ function irA(name) {
                 <span class="mobile-link-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
                 </span>
-                <span>Home</span>
+                <span>{{ t("nav.home") }}</span>
               </RouterLink>
 
               <RouterLink :to="{ name: 'mis-mascotas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="2.2"/><circle cx="9.5" cy="5" r="2.2"/><circle cx="14.5" cy="5" r="2.2"/><circle cx="19" cy="8" r="2.2"/><path d="M7.2 14.8c1.6-3.2 8-3.2 9.6 0 1 2-.5 4.2-2.6 3.5-1.4-.5-3-.5-4.4 0-2.1.7-3.6-1.5-2.6-3.5z"/></svg>
                 </span>
-                <span>Mis Mascotas</span>
+                <span>{{ t("nav.myPets") }}</span>
               </RouterLink>
 
               <RouterLink :to="{ name: 'mis-citas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
                 </span>
-                <span>Mis Citas</span>
+                <span>{{ t("nav.myAppointments") }}</span>
               </RouterLink>
 
               <RouterLink :to="{ name: 'clinicas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg>
                 </span>
-                <span>Veterinarios</span>
+                <span>{{ t("nav.vets") }}</span>
               </RouterLink>
 
               <div class="mobile-divider" />
@@ -361,7 +361,7 @@ function irA(name) {
               <p class="mobile-section-label">Acceso</p>
               <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">⌂</span><span>Inicio</span></RouterLink>
               <RouterLink :to="{ name: 'login' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">↳</span><span>Iniciar sesión</span></RouterLink>
-              <RouterLink :to="{ name: 'registro' }" class="mobile-link mobile-link--settings" @click="cerrarTodo"><span class="mobile-link-icon mobile-link-icon--settings">＋</span><span>Registrarse</span></RouterLink>
+              <RouterLink :to="{ name: 'registro' }" class="mobile-link mobile-link--settings" @click="cerrarTodo"><span class="mobile-link-icon mobile-link-icon--settings">＋</span><span>{{ t("nav.register") }}</span></RouterLink>
             </template>
           </template>
 

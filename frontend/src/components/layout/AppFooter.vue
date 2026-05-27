@@ -1,5 +1,7 @@
 <!-- src/components/layout/AppFooter.vue -->
 <script setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const year = new Date().getFullYear()
 </script>
 
@@ -19,22 +21,22 @@ const year = new Date().getFullYear()
           </svg>
           <span class="footer-logo-text">Petnumy</span>
         </div>
-        <p class="footer-tagline">La salud de tu mascota, en un solo lugar.</p>
+        <p class="footer-tagline">{{ t("footer.tagline") }}</p>
       </div>
 
       <!-- Columna navegación -->
       <div class="footer-nav-col">
-        <p class="footer-col-title">Plataforma</p>
-        <RouterLink :to="{ name: 'home' }"        class="footer-link">Inicio</RouterLink>
-        <RouterLink :to="{ name: 'clinicas' }"    class="footer-link">Clínicas</RouterLink>
-        <RouterLink :to="{ name: 'mis-mascotas' }" class="footer-link">Mis Mascotas</RouterLink>
+        <p class="footer-col-title">{{ t("footer.platform") }}</p>
+        <RouterLink :to="{ name: 'home' }"        class="footer-link">{{ t("footer.home") }}</RouterLink>
+        <RouterLink :to="{ name: 'clinicas' }"    class="footer-link">{{ t("footer.clinics") }}</RouterLink>
+        <RouterLink :to="{ name: 'mis-mascotas' }" class="footer-link">{{ t("footer.myPets") }}</RouterLink>
       </div>
 
       <!-- Columna cuenta -->
       <div class="footer-nav-col">
-        <p class="footer-col-title">Cuenta</p>
-        <RouterLink :to="{ name: 'login' }"    class="footer-link">Iniciar sesión</RouterLink>
-        <RouterLink :to="{ name: 'registro' }" class="footer-link">Registrarse</RouterLink>
+        <p class="footer-col-title">{{ t("footer.account") }}</p>
+        <RouterLink :to="{ name: 'login' }"    class="footer-link">{{ t("footer.signIn") }}</RouterLink>
+        <RouterLink :to="{ name: 'registro' }" class="footer-link">{{ t("footer.signUp") }}</RouterLink>
       </div>
 
     </div>
@@ -43,7 +45,7 @@ const year = new Date().getFullYear()
     <div class="footer-bottom">
       <div class="page-container footer-bottom-inner">
         <span>© {{ year }} Petnumy — Proyecto TFG</span>
-        <span>Hecho con cariño por y para mascotas</span>
+        <span>{{ t("footer.madeWith") }}</span>
       </div>
     </div>
   </footer>

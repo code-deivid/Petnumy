@@ -2,6 +2,7 @@
 <!-- Modal informativo premium sobre una vacuna concreta -->
 <script setup>
 import { computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getVacunaInfo, estadoConfig } from '@/data/vacunasInfo.js'
 
 const props = defineProps({
@@ -9,22 +10,24 @@ const props = defineProps({
   vacuna:  { type: Object,  default: null  }   // objeto vacuna_mascota completo
 })
 const emit = defineEmits(['close'])
+const { t, locale } = useI18n()
+const dateLocale = computed(() => locale.value === 'en' ? 'en-US' : (locale.value === 'va' ? 'ca-ES' : 'es-ES'))
 
-const info = computed(() => getVacunaInfo(props.vacuna?.vacuna?.nombre))
+const info = computed(() => getVacunaInfo(props.vacuna?.vacuna?.nombre, locale.value))
 const cfg  = computed(() => estadoConfig[props.vacuna?.estado] || estadoConfig.pendiente)
 
 function fmt(iso) {
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(dateLocale.value, { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 // Días restantes o transcurridos
 const diasInfo = computed(() => {
   if (!props.vacuna?.proxima_aplicacion) return null
   const diff = Math.ceil((new Date(props.vacuna.proxima_aplicacion) - Date.now()) / (1000*60*60*24))
-  if (diff > 0)  return { texto: `En ${diff} día${diff !== 1 ? 's' : ''}`, positivo: true }
-  if (diff === 0) return { texto: 'Hoy',           positivo: true  }
-  return { texto: `Hace ${Math.abs(diff)} día${Math.abs(diff) !== 1 ? 's' : ''}`, positivo: false }
+  if (diff > 0)  return { texto: t('petDetail.daysLeft', { n: diff }), positivo: true }
+  if (diff === 0) return { texto: t('petDetail.today'), positivo: true }
+  return { texto: t('petDetail.overdueDays', { n: Math.abs(diff) }), positivo: false }
 })
 
 watch(() => props.visible, v => {
@@ -45,7 +48,7 @@ watch(() => props.visible, v => {
               <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
             <div class="mdv-header-text">
-              <h3 class="mdv-title">{{ vacuna?.vacuna?.nombre || 'Vacuna' }}</h3>
+              <h3 class="mdv-title">{{ vacuna?.vacuna?.nombre || t('petDetail.colVaccine') }}</h3>
               <span
                 class="mdv-badge"
                 :style="{ background: cfg.bg, color: cfg.color }"
@@ -63,12 +66,12 @@ watch(() => props.visible, v => {
             <!-- Fechas -->
             <div class="mdv-fechas">
               <div class="mdv-fecha-item">
-                <span class="mdv-fecha-label">Última dosis</span>
+                <span class="mdv-fecha-label">{{ t('petDetail.colLastDose') }}</span>
                 <span class="mdv-fecha-val">{{ fmt(vacuna?.fecha_aplicacion) }}</span>
               </div>
               <div class="mdv-fecha-sep" />
               <div class="mdv-fecha-item">
-                <span class="mdv-fecha-label">Próxima dosis</span>
+                <span class="mdv-fecha-label">{{ t('petDetail.colNextDose') }}</span>
                 <span class="mdv-fecha-val" :style="{ color: diasInfo?.positivo === false ? 'var(--color-danger)' : '' }">
                   {{ fmt(vacuna?.proxima_aplicacion) }}
                 </span>
@@ -82,37 +85,37 @@ watch(() => props.visible, v => {
             <template v-if="info">
 
               <div class="mdv-section">
-                <p class="mdv-section-label">¿Qué enfermedad previene?</p>
+                <p class="mdv-section-label">{{ t('petDetail.whatDisease') }}</p>
                 <p class="mdv-section-text">{{ info.enfermedad }}</p>
               </div>
 
               <div class="mdv-section">
-                <p class="mdv-section-label">Descripción</p>
+                <p class="mdv-section-label">{{ t('petDetail.description') }}</p>
                 <p class="mdv-section-text">{{ info.descripcionLarga }}</p>
               </div>
 
               <div class="mdv-section">
-                <p class="mdv-section-label">Síntomas de la enfermedad</p>
+                <p class="mdv-section-label">{{ t('petDetail.symptoms') }}</p>
                 <p class="mdv-section-text">{{ info.sintomas }}</p>
               </div>
 
-              <!-- Descripción del backend (más detallada que el catálogo local) -->
+              <!-- {{ t('petDetail.description') }} del backend (más detallada que el catálogo local) -->
               <div v-if="vacuna?.vacuna?.descripcion" class="mdv-section">
-                <p class="mdv-section-label">Descripción completa</p>
+                <p class="mdv-section-label">{{ t('petDetail.fullDescription') }}</p>
                 <p class="mdv-section-text">{{ vacuna.vacuna.descripcion }}</p>
               </div>
 
               <div class="mdv-row-2">
                 <div class="mdv-section mdv-section--card">
-                  <p class="mdv-section-label">Frecuencia</p>
+                  <p class="mdv-section-label">{{ t('petDetail.frequency') }}</p>
                   <p class="mdv-section-text">{{ info.frecuencia }}</p>
                 </div>
                 <div class="mdv-section mdv-section--card">
-                  <p class="mdv-section-label">Nivel de riesgo</p>
+                  <p class="mdv-section-label">{{ t('petDetail.riskLevel') }}</p>
                   <span
                     class="mdv-riesgo"
                     :class="`mdv-riesgo--${info.riesgo}`"
-                  >{{ info.riesgo.charAt(0).toUpperCase() + info.riesgo.slice(1) }}</span>
+                  >{{ t(`petDetail.risk.${info.riesgo}`) }}</span>
                 </div>
               </div>
 
@@ -120,16 +123,16 @@ watch(() => props.visible, v => {
 
             <!-- Sin info del catálogo local → usar descripción del backend directamente -->
             <div v-else class="mdv-section">
-              <p class="mdv-section-label">Descripción</p>
+              <p class="mdv-section-label">{{ t('petDetail.description') }}</p>
               <p class="mdv-section-text">
-                {{ vacuna?.vacuna?.descripcion || 'Sin información adicional disponible.' }}
+                {{ vacuna?.vacuna?.descripcion || t('petDetail.noAdditionalInfo') }}
               </p>
             </div>
 
           </div>
 
           <div class="mdv-footer">
-            <button type="button" class="btn btn-teal" @click="$emit('close')">Cerrar</button>
+            <button type="button" class="btn btn-teal" @click="$emit('close')">{{ t('common.close') }}</button>
           </div>
 
         </div>
