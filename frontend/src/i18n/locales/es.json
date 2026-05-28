@@ -411,13 +411,21 @@
     "tagline": "La salud de tu mascota, en un solo lugar.",
     "platform": "Plataforma",
     "account": "Cuenta",
+    "legal": "Proyecto",
     "home": "Inicio",
     "clinics": "Clínicas",
     "myPets": "Mis Mascotas",
+    "myAppointments": "Mis Citas",
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
+    "profile": "Mi perfil",
+    "tfg": "Proyecto TFG",
+    "tech": "Tecnologías usadas",
+    "about": "Acerca de Petnumy",
     "copyright": "© {year} Petnumy — Proyecto TFG",
-    "madeWith": "Hecho con cariño por y para mascotas"
+    "madeWith": "Hecho con cariño para mascotas y sus familias",
+    "desc": "Gestiona la salud de tus mascotas, encuentra clínicas veterinarias y mantén sus vacunas siempre al día.",
+    "builtWith": "Construido con Vue 3, Express y Supabase"
   },
   "landing": {
     "title": "Su salud,<br />tu tranquilidad.",

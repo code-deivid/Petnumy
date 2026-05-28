@@ -411,13 +411,21 @@
     "tagline": "Your pet's health, all in one place.",
     "platform": "Platform",
     "account": "Account",
+    "legal": "Project",
     "home": "Home",
     "clinics": "Clinics",
     "myPets": "My Pets",
+    "myAppointments": "My Appointments",
     "signIn": "Sign in",
     "signUp": "Sign up",
+    "profile": "My profile",
+    "tfg": "TFG Project",
+    "tech": "Technologies used",
+    "about": "About Petnumy",
     "copyright": "© {year} Petnumy — TFG Project",
-    "madeWith": "Made with love for pets and their owners"
+    "madeWith": "Made with care for pets and their families",
+    "desc": "Manage your pet's health, find vet clinics and keep their vaccines up to date.",
+    "builtWith": "Built with Vue 3, Express and Supabase"
   },
   "landing": {
     "title": "Your health,<br />your peace of mind.",

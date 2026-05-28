@@ -411,13 +411,21 @@
     "tagline": "La salut de la teua mascota, en un sol lloc.",
     "platform": "Plataforma",
     "account": "Compte",
+    "legal": "Projecte",
     "home": "Inici",
     "clinics": "Clíniques",
     "myPets": "Les meues Mascotes",
+    "myAppointments": "Les meues Cites",
     "signIn": "Iniciar sessió",
     "signUp": "Registrar-se",
+    "profile": "El meu perfil",
+    "tfg": "Projecte TFG",
+    "tech": "Tecnologies usades",
+    "about": "Sobre Petnumy",
     "copyright": "© {year} Petnumy — Projecte TFG",
-    "madeWith": "Fet amb estima per i per a mascotes"
+    "madeWith": "Fet amb estima per a les mascotes i les seues famílies",
+    "desc": "Gestiona la salut de la teua mascota, troba clíniques veterinàries i manté les seues vacunes al dia.",
+    "builtWith": "Construït amb Vue 3, Express i Supabase"
   },
   "landing": {
     "title": "La seua salut,<br />la teua tranquil·litat.",
