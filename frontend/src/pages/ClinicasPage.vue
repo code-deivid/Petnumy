@@ -758,4 +758,31 @@ onBeforeUnmount(() => {
   .cl-search-wrap { max-width: 100%; }
   .cl-card-nombre { font-size: 0.82rem; }
 }
+
+/* ── Mejoras móvil adicionales ───────────────────────────── */
+@media (max-width: 768px) {
+  /* Topbar en columna */
+  .cl-topbar {
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.75rem var(--page-padding);
+  }
+  .cl-search-wrap { width: 100%; max-width: 100%; }
+  .cl-chips-row { flex-wrap: wrap; }
+
+  /* Botones de orden más pequeños */
+  .cl-orden-btn { font-size: 0.75rem; padding: 0.3rem 0.65rem; min-height: 36px; }
+
+  /* Cards más compactas */
+  .cl-card-body { padding: 0.85rem; }
+  .cl-card-nombre { font-size: 0.88rem; }
+  .cl-card-dir { font-size: 0.72rem; }
+
+  /* Botón reservar siempre visible y grande */
+  .cl-reservar-btn {
+    min-height: 40px;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+}
 </style>

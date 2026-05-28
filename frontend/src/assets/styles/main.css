@@ -1507,3 +1507,169 @@ html.dark .tag,
 html[data-theme="dark"] .tag {
   border: 1px solid rgba(255,255,255,0.10);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE GLOBAL v6 — Mejoras móvil/tablet
+   Solo aplica a max-width: 1024px. No toca desktop.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Tamaños táctiles mínimos (WCAG) ─────────────────────── */
+@media (max-width: 1024px) {
+  /* Todos los botones al menos 44px de alto (iOS HIG) */
+  .btn { min-height: 44px; }
+  .btn-sm { min-height: 38px; }
+
+  /* Inputs cómodos */
+  .input { min-height: 48px; font-size: 16px; } /* 16px evita zoom en iOS */
+
+  /* Prevenir overflow horizontal global */
+  body { overflow-x: hidden; }
+  .page-container { overflow-x: hidden; }
+}
+
+/* ── Navbar en móvil ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* El hamburguesa necesita área grande */
+  .hamburger {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px;
+    border-radius: 14px !important;
+  }
+}
+
+/* ── Cards en móvil ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .card { border-radius: var(--radius-lg); }
+  .card-body { padding: 1.1rem; }
+}
+@media (max-width: 480px) {
+  .card-body { padding: 0.9rem; }
+}
+
+/* ── Modales en móvil ────────────────────────────────────── */
+@media (max-width: 600px) {
+  /* Los modales como sheet desde abajo */
+  .modal-card {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+    max-height: 92vh !important;
+  }
+  .overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  /* Siempre hay scroll en el body del modal */
+  .modal-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── Formularios en móvil ────────────────────────────────── */
+@media (max-width: 768px) {
+  .input-group { gap: 0.4rem; }
+  .label { font-size: 0.68rem; }
+
+  /* Selects y date pickers */
+  select, input[type="date"], input[type="time"] {
+    min-height: 48px;
+    font-size: 16px; /* evitar zoom en Safari/iOS */
+  }
+}
+
+/* ── Grids adaptativos ───────────────────────────────────── */
+@media (max-width: 600px) {
+  /* Forzar columna única si el grid tiene minmax muy grande */
+  .features-grid,
+  .vets-grid,
+  .mc-lista {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Headers de página en móvil ──────────────────────────── */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .section-title { font-size: 1.25rem; }
+  h1 { font-size: clamp(1.4rem, 5vw, 2rem); }
+  h2 { font-size: clamp(1.1rem, 4vw, 1.5rem); }
+}
+
+/* ── Overflow horizontal en páginas específicas ──────────── */
+@media (max-width: 860px) {
+  /* La tabla de vacunas tiene un wrapper con overflow-x */
+  .vac-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .vac-table-wrapper::-webkit-scrollbar { display: none; }
+}
+
+/* ── Spacing vertical ajustado ───────────────────────────── */
+@media (max-width: 768px) {
+  .page-section {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+}
+
+/* ── Botones full-width en pantallas pequeñas ────────────── */
+@media (max-width: 480px) {
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .hero-actions .btn,
+  .hero-actions .btn-hero {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* ── Texto en formularios ────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Placeholder legible */
+  ::placeholder { font-size: 0.9rem; }
+}
+
+/* ── Fix citas page en móvil ─────────────────────────────── */
+@media (max-width: 600px) {
+  .mc-card-inner {
+    padding: 0.85rem !important;
+  }
+  /* El botón cancelar siempre visible en móvil */
+  .mc-accion { display: flex !important; }
+  .mc-btn-cancelar { font-size: 0.72rem; padding: 0.3rem 0.65rem; }
+}
+
+/* ── Fix clínicas page en móvil ──────────────────────────── */
+@media (max-width: 768px) {
+  .cl-topbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem var(--page-padding);
+  }
+}
+
+/* ── Fix login/registro en móvil ─────────────────────────── */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem 1.1rem !important;
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* ── Safe area para iPhone con notch/home indicator ─────── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .app-footer {
+      padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    }
+  }
+}

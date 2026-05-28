@@ -530,4 +530,20 @@ function volver() { router.back() }
   .nm-actions { flex-direction: column-reverse; }
   .nm-actions .btn { width: 100%; }
 }
+
+/* ── Mejoras móvil ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Radio de género más grande */
+  .nm-genero-option { min-height: 48px; padding: 0.65rem 1rem; }
+  .nm-foto-btn { min-height: 40px; font-size: 0.82rem; }
+  .nm-foto-circle { width: 120px; height: 120px; }
+  /* Botones de submit grandes */
+  .nm-submit-row { flex-direction: column; gap: 0.6rem; }
+  .nm-submit-row .btn { width: 100%; min-height: 50px; font-size: 1rem; }
+  /* Paso a paso más claro */
+  .nm-steps { gap: 0.25rem; }
+}
+@media (max-width: 480px) {
+  .input { font-size: 16px !important; } /* evitar zoom iOS */
+}
 </style>

@@ -692,4 +692,21 @@ function fmtFecha(iso) {
 @media (max-width: 600px) {
   .modal-slide-enter-from, .modal-slide-leave-to { opacity: 0; transform: translateY(100%); }
 }
+
+/* ── Mejoras móvil adicionales ───────────────────────────── */
+@media (max-width: 480px) {
+  /* Horas en 3 columnas en pantallas pequeñas */
+  .horas-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  /* Motivos 1 col en pantallas muy pequeñas */
+  .motivo-grid { grid-template-columns: 1fr 1fr; }
+  /* Resumen de cita */
+  .cita-resumen { font-size: 0.8rem; }
+  .resumen-v { max-width: 55%; text-align: right; word-break: break-word; }
+  /* Header del modal */
+  .cita-header { padding: 0.9rem 1rem; }
+  .cita-header-titulo { font-size: 0.88rem; }
+  /* Footer más cómodo */
+  .cita-footer { padding: 0.75rem 1rem; }
+  .btn-hero, .btn { min-height: 46px; }
+}
 </style>

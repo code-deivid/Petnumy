@@ -587,6 +587,7 @@ function irA(name) {
   top: calc(var(--navbar-height) + 12px);
   right: 12px;
   width: min(372px, calc(100vw - 24px));
+  /* Usar dvh para respetar safe areas en iOS */
   max-height: calc(100dvh - var(--navbar-height) - 24px);
   background: var(--color-surface);
   border: 1px solid rgba(230,185,145,0.70);
@@ -595,6 +596,7 @@ function irA(name) {
   flex-direction: column;
   box-shadow: 0 28px 80px rgba(60,46,31,0.26);
   z-index: 350;
+  /* overflow hidden en el contenedor principal para el border-radius */
   overflow: hidden;
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
@@ -650,12 +652,17 @@ function irA(name) {
   letter-spacing: -0.02em;
 }
 .mobile-nav-body {
-  padding: 0.85rem 0.95rem 1rem;
+  padding: 0.85rem 0.95rem;
+  /* padding-bottom extra para safe area en notch/home indicator de iPhone */
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
   min-height: 0;
+  flex: 1; /* Ocupa todo el espacio disponible */
 }
 .mobile-section-label {
   margin: 0.25rem 0.45rem 0.05rem;
@@ -967,13 +974,40 @@ function irA(name) {
 }
 
 @media (max-width: 768px) {
-  /* En móvil ya no se abre el SettingsModal desde el menú hamburguesa. Si se abre por otra vía, evitamos cortes. */
   .sm-popover {
     max-height: calc(100dvh - var(--navbar-height) - 18px);
     overflow-y: auto;
   }
   .mobile-nav {
+    /* En móvil ocupa casi toda la pantalla de forma cómoda */
+    top: calc(var(--navbar-height) + 8px);
+    right: 10px;
+    left: 10px;
+    width: auto;
     max-height: calc(100dvh - var(--navbar-height) - 18px);
+    border-radius: 26px;
+  }
+  /* Quitar la flecha del popover en móvil (no hay dónde anclarla) */
+  .mobile-nav::before { display: none; }
+}
+
+@media (max-width: 430px) {
+  .mobile-nav {
+    top: calc(var(--navbar-height) + 6px);
+    right: 8px;
+    left: 8px;
+    max-height: calc(100dvh - var(--navbar-height) - 14px);
+    border-radius: 22px;
+  }
+  .mobile-link {
+    min-height: 56px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.95rem;
+  }
+  .mobile-link-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
   }
 }
 

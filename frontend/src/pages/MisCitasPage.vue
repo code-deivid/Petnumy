@@ -385,4 +385,18 @@ onMounted(cargarCitas)
   .mc-accion { display: none; }
   .mc-card--proxima { cursor: pointer; }
 }
+
+/* ── Mejoras móvil ───────────────────────────────────────── */
+@media (max-width: 600px) {
+  .mc-card-inner { flex-wrap: wrap; gap: 0.75rem; }
+  .mc-accion { display: flex !important; flex-shrink: 0; }
+  .mc-btn-cancelar { opacity: 1; min-height: 40px; font-size: 0.78rem; }
+  .mc-confirm { flex-direction: row; gap: 0.4rem; align-items: center; }
+  .mc-info { width: 100%; }
+}
+@media (max-width: 480px) {
+  .mc-lista { gap: 0.5rem; }
+  .mc-dia { font-size: 1.1rem; }
+  .mc-descripcion { font-size: 0.8rem; }
+}
 </style>

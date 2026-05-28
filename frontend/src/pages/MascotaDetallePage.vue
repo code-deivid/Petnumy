@@ -210,7 +210,8 @@ async function compartir() {
   <div class="md-page page-container">
 
     <!-- Volver -->
-    <button type="button" class="btn btn-ghost btn-sm md-back" @click="router.push({ name: 'mis-mascotas' })">
+    <button type="button" class="md-back" @click="router.push({ name: 'mis-mascotas' })">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       {{ t('pets.backToPets') }}
     </button>
 
@@ -236,23 +237,31 @@ async function compartir() {
             <div class="md-foto-ring">
               <PetAvatar :foto="mascota.foto" :nombre="mascota.nombre" :genero="mascota.genero" tipo="mascota" size="xl" />
             </div>
-            <!-- Género badge sobre la foto -->
-            <div
-              v-if="mascota.genero"
-              class="md-genero"
-              :class="mascota.genero === 'macho' ? 'md-genero--m' : 'md-genero--f'"
-              :title="t('petDetail.gender')"
-            >
-              <iconify-icon
-                :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
-                width="13" height="13"
-              />
-            </div>
-            <!-- Nombre + raza bajo la foto (visible en móvil también) -->
+
+            <!-- Nombre + raza bajo la foto -->
             <div class="md-foto-name">
-              <span v-if="mascota.raza?.especie?.especie" class="md-especie-pill">
-                {{ mascota.raza.especie.especie.toUpperCase() }}
-              </span>
+              <!-- Fila de badges: especie + género juntos -->
+              <div class="md-badges-row">
+                <span
+                  v-if="mascota.raza?.especie?.especie"
+                  class="md-especie-pill"
+                  :class="mascota.raza.especie.especie.toLowerCase() === 'perro' || mascota.raza.especie.especie.toLowerCase() === 'dog' || mascota.raza.especie.especie.toLowerCase() === 'gos' ? 'md-especie-pill--perro' : 'md-especie-pill--gato'"
+                >
+                  {{ mascota.raza.especie.especie.toUpperCase() }}
+                </span>
+                <span
+                  v-if="mascota.genero"
+                  class="md-genero-pill"
+                  :class="mascota.genero === 'macho' ? 'md-genero-pill--m' : 'md-genero-pill--f'"
+                >
+                  <iconify-icon
+                    :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
+                    width="11" height="11"
+                    style="flex-shrink:0"
+                  />
+                  {{ mascota.genero === 'macho' ? t('common.male') : t('common.female') }}
+                </span>
+              </div>
               <h1 class="md-nombre">{{ mascota.nombre }}</h1>
               <p class="md-raza-lbl">
               {{ mascota.raza?.nombre || '—' }}
@@ -437,8 +446,8 @@ async function compartir() {
             </div>
 
             <!-- Fechas -->
-            <span class="vac-col vac-fecha">{{ fmt(vac.fecha_aplicacion) }}</span>
-            <span class="vac-col vac-fecha" :class="{ 'vac-fecha--alert': vac.estado === 'retrasada' }">
+            <span class="vac-col vac-fecha" :data-label="t('petDetail.colLastDose')">{{ fmt(vac.fecha_aplicacion) }}</span>
+            <span class="vac-col vac-fecha" :class="{ 'vac-fecha--alert': vac.estado === 'retrasada' }" :data-label="t('petDetail.colNextDose')">
               {{ fmt(vac.proxima_aplicacion) }}
             </span>
 
@@ -467,7 +476,7 @@ async function compartir() {
               </span>
             </div>
 
-            <!-- Acciones: marcar + editar + borrar -->
+            <!-- Acciones: marcar + editar + borrar + campana -->
             <div class="vac-col vac-col-acciones">
               <!-- Marcar / Ver -->
               <button type="button"
@@ -626,7 +635,39 @@ async function compartir() {
   gap: 1.75rem;
 }
 
-.md-back { align-self: flex-start; padding-left: 0; color: var(--color-text-muted); margin-bottom: -0.5rem; }
+.md-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  align-self: flex-start;
+  /* Área táctil grande */
+  min-height: 44px;
+  padding: 0.5rem 0.75rem 0.5rem 0.4rem;
+  border-radius: var(--radius-full);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: -0.25rem;
+  transition: color var(--transition-fast), background var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.md-back:hover,
+.md-back:active {
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+}
+@media (max-width: 768px) {
+  .md-back {
+    min-height: 48px;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem 0.6rem 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+}
 
 /* ══ HERO ══════════════════════════════════════════════════ */
 .md-hero { box-shadow: var(--shadow-md); }
@@ -653,25 +694,40 @@ async function compartir() {
 .md-foto-img      { width: 100%; height: 100%; object-fit: cover; }
 .md-foto-initials { font-family: var(--font-display); font-weight: 800; font-size: 3rem; color: var(--color-primary-dark); }
 
-/* Badge género superpuesto */
-.md-genero {
-  position: absolute;
-  bottom: 62px; right: 14px;
-  width: 28px; height: 28px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid var(--color-surface);
-  box-shadow: 0 2px 6px rgba(60,46,31,0.14);
-}
-.md-genero--m { background: #EEF4FB; color: #3A5FA0; }
-.md-genero--f { background: #FCF0F5; color: #A03A5A; }
+/* ── Badges de especie + género ─────────────────────────── */
+.md-foto-name { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
 
-/* Nombre bajo foto */
-.md-foto-name { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+/* Fila de badges juntos */
+.md-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Badge especie */
 .md-especie-pill {
   font-family: var(--font-display); font-weight: 800; font-size: 0.66rem; letter-spacing: 0.8px;
-  background: var(--color-teal-light); color: var(--color-teal-dark);
-  padding: 0.18rem 0.6rem; border-radius: var(--radius-full); display: inline-block;
+  padding: 0.22rem 0.7rem; border-radius: var(--radius-full); display: inline-flex; align-items: center;
 }
+/* Perro: turquesa */
+.md-especie-pill--perro { background: var(--color-teal-light); color: var(--color-teal-dark); }
+/* Gato: lila/naranja suave */
+.md-especie-pill--gato  { background: rgba(200,180,220,0.22); color: #7A4FA0; }
+/* Fallback si no hay clase */
+.md-especie-pill:not(.md-especie-pill--perro):not(.md-especie-pill--gato) {
+  background: var(--color-teal-light); color: var(--color-teal-dark);
+}
+
+/* Badge género — inline junto a especie */
+.md-genero-pill {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.64rem; letter-spacing: 0.5px;
+  padding: 0.2rem 0.6rem; border-radius: var(--radius-full);
+}
+.md-genero-pill--m { background: #EEF4FB; color: #3A5FA0; }
+.md-genero-pill--f { background: #FCF0F5; color: #A03A5A; }
 .md-nombre    { font-size: clamp(1.6rem, 4vw, 2.25rem); letter-spacing: -0.4px; margin: 0; line-height: 1.1; }
 .md-raza-lbl  { font-size: 0.875rem; color: var(--color-text-muted); margin: 0; }
 
@@ -927,22 +983,139 @@ async function compartir() {
 }
 .vac-ver-btn:hover { color: var(--color-teal); }
 
-/* Responsive tabla vacunas */
+/* ─────────────────────────────────────────────────────────
+   VACUNAS — Responsive Mobile: tarjeta vertical estilo app
+   ───────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
-  .vac-thead  { display: none; }
-  .vac-row    {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
-    gap: 0.4rem;
-    padding: 0.85rem 1rem;
+  .vac-thead { display: none; }
+
+  /* Resetear el grid de escritorio */
+  .vac-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface) !important;
+    position: relative;
   }
-  .vac-col-nombre { grid-column: 1 / -1; }
+  .vac-row:last-child { border-bottom: none; }
+
+  /* Estado fondo sutil */
+  .vac-row--pendiente { background: rgba(254,249,231,0.5) !important; }
+  .vac-row--retrasada { background: rgba(253,234,234,0.5) !important; }
+
+  /* ── Cabecera de la card: icono + nombre + badge estado ─ */
+  .vac-col-nombre {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem 0.65rem;
+    grid-column: unset;
+  }
+  .vac-row-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .vac-nombre-wrap { flex: 1; min-width: 0; }
+  .vac-nombre { font-size: 0.9rem; }
+  .vac-desc   { font-size: 0.7rem; white-space: normal; }
+
+  /* ── Cuerpo de la card: fechas + días + badge ─────────── */
+  .vac-col {
+    /* Las columnas normales se muestran como filas de info */
+    display: flex;
+    align-items: center;
+    padding: 0.2rem 1rem 0.2rem calc(1rem + 42px + 0.75rem); /* alinear con texto */
+    font-size: 0.8rem;
+  }
+  /* Fechas — fila aparte */
+  .vac-col.vac-fecha::before {
+    content: attr(data-label);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  /* Badge estado — inline con el icono (desktop) → en móvil va a cabecera */
+  /* Lo mostramos dentro de vac-col-nombre en posición derecha */
+  .vac-col:has(.vac-badge) {
+    padding: 0.25rem 1rem 0.1rem calc(1rem + 42px + 0.75rem);
+  }
+  .vac-badge { font-size: 0.6rem; padding: 0.22rem 0.6rem; }
+
+  /* Días restantes */
+  .vac-dias { font-size: 0.85rem; }
+
+  /* ── Barra de acciones: siempre visible en móvil ──────── */
+  .vac-col-acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    margin-top: 0.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+  /* En móvil los micro-btns siempre visibles (no solo en hover) */
+  .vac-micro-btns {
+    opacity: 1 !important;
+    display: flex;
+    gap: 0.4rem;
+    margin-left: auto;
+  }
+  .vac-micro-btn {
+    /* Más grande y táctil */
+    width: 38px !important; height: 38px !important;
+    border-radius: 10px !important;
+  }
+  .vac-micro-btn svg { width: 14px !important; height: 14px !important; }
+
+  /* Botón marcar/ver */
+  .vac-accion-btn {
+    font-size: 0.8rem !important;
+    padding: 0.55rem 1rem !important;
+    min-height: 38px;
+    flex: 1;
+  }
+  .vac-ver-btn {
+    font-size: 0.82rem;
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.25rem;
+  }
+
+  /* ── Campana recordatorio: siempre visible, área grande ── */
+  .vac-col-bell {
+    /* Se integra en la barra de acciones con absoluto */
+    position: static !important;
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem;
+  }
+  .vac-bell-btn {
+    width: 38px !important; height: 38px !important;
+    border-radius: 10px !important;
+    /* Siempre visible en móvil (no depende de hover) */
+    opacity: 1 !important;
+    flex-shrink: 0;
+  }
+  .vac-bell-btn svg { width: 16px !important; height: 16px !important; }
+
   .vac-stats { gap: 0.75rem; }
 }
 
 @media (max-width: 480px) {
-  .vac-cartilla-head { flex-direction: column; align-items: flex-start; }
-  .vac-row { grid-template-columns: 1fr; }
+  .vac-cartilla-head { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .vac-col {
+    padding-left: 1rem; /* sin sangría de icono en pantallas tiny */
+  }
 }
 
 /* ── Botón campana recordatorio ─────────────────────────── */

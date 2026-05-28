@@ -1070,4 +1070,31 @@ const consejoHoy = computed(() => {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Mobile improvements ────────────────────────────────── */
+@media (max-width: 600px) {
+  /* 2 columnas en móvil, no 1 — mejor uso del espacio */
+  .mm-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  /* Ajustar card para 2 col */
+  .mm-card { min-width: 0; }
+  .mm-card-nombre { font-size: 1rem; }
+  .mm-card-raza   { font-size: 0.72rem; }
+}
+@media (max-width: 360px) {
+  .mm-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Botón añadir mascota siempre accesible ─────────────── */
+@media (max-width: 600px) {
+  .mm-page-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  /* El botón de añadir ocupa todo el ancho */
+  .mm-add-btn { width: 100%; justify-content: center; }
+}
 </style>

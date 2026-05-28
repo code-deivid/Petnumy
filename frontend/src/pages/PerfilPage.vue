@@ -450,4 +450,11 @@ async function guardar() {
   .pf-form-body { padding: 1.25rem; }
   .pf-avatar-body { flex-direction: column; align-items: center; text-align: center; }
 }
+
+/* ── Mejoras móvil ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .pf-grid { grid-template-columns: 1fr !important; }
+  .input { font-size: 16px !important; }
+  .btn[type="submit"], .btn-save { width: 100%; min-height: 50px; font-size: 1rem; }
+}
 </style>

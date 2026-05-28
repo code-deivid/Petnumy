@@ -424,3 +424,98 @@ select.input {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   COMPONENTS — Mejoras táctiles móvil v6
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Botones: touch feedback ─────────────────────────────── */
+@media (max-width: 1024px) {
+  .btn {
+    /* Feedback táctil más claro */
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.96);
+    opacity: 0.92;
+  }
+
+  /* btn-sm más cómodo en móvil */
+  .btn-sm {
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+  }
+
+  /* Block siempre disponible */
+  .btn-block-mobile {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Tags/pills en móvil ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .tag { font-size: 0.6rem; padding: 0.18rem 0.5rem; }
+}
+
+/* ── Spinners en móvil ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .spinner { width: 22px; height: 22px; }
+}
+
+/* ── Overlays/modales ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+  /* Modal como sheet */
+  .cita-modal, .modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    max-height: 92dvh;
+  }
+  /* Barra drag handle */
+  .cita-header::before,
+  .modal-header::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 2px;
+  }
+  .cita-header, .modal-header { position: relative; padding-top: 1.25rem; }
+}
+
+/* ── Stepper en móvil ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .cita-stepper, .modal-stepper {
+    gap: 0;
+    padding: 0.75rem 0.75rem 0;
+  }
+  .stepper-label { font-size: 0.62rem; }
+  .stepper-dot   { width: 22px; height: 22px; font-size: 0.65rem; }
+  .stepper-line  { width: 16px; }
+}
+
+/* ── DatePicker en móvil ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .dp-trigger { min-height: 48px; font-size: 0.875rem; }
+}
+
+/* ── RazaSelect dropdown en móvil ───────────────────────── */
+@media (max-width: 480px) {
+  .rz-dropdown {
+    max-height: 220px !important;
+  }
+}
+
+/* ── Empty states en móvil ───────────────────────────────── */
+@media (max-width: 480px) {
+  .empty-state { padding: 2.5rem 1rem; }
+  .empty-state-icon { width: 56px; height: 56px; }
+}
