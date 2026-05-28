@@ -28,6 +28,19 @@ const settingsVisible = ref(false)
 const mobileMenu      = ref(false)
 const mobileMenuView  = ref('nav') // 'nav' | 'settings'
 const langOpenMobile  = ref(false)
+const langPillRef     = ref(null)
+const langDropPos     = ref({ top: '0px', right: '0px' })
+
+function toggleLangMobile() {
+  langOpenMobile.value = !langOpenMobile.value
+  if (langOpenMobile.value && langPillRef.value) {
+    const rect = langPillRef.value.getBoundingClientRect()
+    langDropPos.value = {
+      top: (rect.bottom + 4) + 'px',
+      right: (window.innerWidth - rect.right) + 'px',
+    }
+  }
+}
 const navRef          = ref(null)
 
 const usuarioActual = computed(() => authStore.usuario || {})
@@ -393,25 +406,37 @@ function irA(name) {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
               </span>
               <span>{{ t("settings.language") }}</span>
-              <button class="mobile-lang-pill" type="button" @click.stop="langOpenMobile = !langOpenMobile">
+              <button class="mobile-lang-pill" type="button" ref="langPillRef" @click.stop="toggleLangMobile">
                 {{ currentMobileLang.flag }}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :style="{ transform: langOpenMobile ? 'rotate(180deg)' : 'none' }"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
-              <Transition name="lang-drop">
-                <div v-if="langOpenMobile" class="mobile-lang-dropdown">
-                  <button
-                    v-for="lang in mobileLanguages"
-                    :key="lang.code"
-                    class="mobile-lang-option"
-                    :class="{ 'mobile-lang-option--active': lang.code === locale }"
-                    type="button"
-                    @click.stop="selectMobileLang(lang.code)"
+              <Teleport to="body">
+                <!-- Overlay para cerrar al tocar fuera -->
+                <div
+                  v-if="langOpenMobile"
+                  class="mobile-lang-backdrop"
+                  @click.stop="langOpenMobile = false"
+                />
+                <Transition name="lang-drop">
+                  <div
+                    v-if="langOpenMobile"
+                    class="mobile-lang-dropdown mobile-lang-dropdown--teleport"
+                    :style="{ top: langDropPos.top, right: langDropPos.right }"
                   >
-                    <span>{{ lang.flag }}</span>
-                    <strong>{{ lang.label }}</strong>
-                  </button>
-                </div>
-              </Transition>
+                    <button
+                      v-for="lang in mobileLanguages"
+                      :key="lang.code"
+                      class="mobile-lang-option"
+                      :class="{ 'mobile-lang-option--active': lang.code === locale }"
+                      type="button"
+                      @click.stop="selectMobileLang(lang.code)"
+                    >
+                      <span>{{ lang.flag }}</span>
+                      <strong>{{ lang.label }}</strong>
+                    </button>
+                  </div>
+                </Transition>
+              </Teleport>
             </div>
 
             <div class="mobile-divider" />

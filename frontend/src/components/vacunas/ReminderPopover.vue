@@ -22,41 +22,40 @@ const { getDeVacuna, guardar, eliminar } = useRecordatorios()
 // con position:fixed calculado desde el botón trigger.
 const pos = ref({ top: '0px', left: '0px' })
 
+const isMobileMode = ref(false)
+
 function calcPos() {
+  const vw = window.innerWidth
+  isMobileMode.value = vw < 680
+
+  // En móvil: NO calculamos posición — el CSS centra con overlay flex
+  if (isMobileMode.value) return
+
+  // Desktop: posicionamiento relativo al botón trigger
   if (!props.triggerEl) return
   const rect = props.triggerEl.getBoundingClientRect()
-  const pw   = 290   // ancho del popover
-  const ph   = 420   // alto estimado
-  const vw   = window.innerWidth
+  const pw   = 290
+  const ph   = 420
   const vh   = window.innerHeight
 
-  // En móvil (< 600px) → popover centrado en pantalla como modal
-  if (vw < 600) {
-    const left = Math.max(8, (vw - pw) / 2)
-    const top  = Math.max(60, (vh - ph) / 2) + window.scrollY
-    pos.value = { top: top + 'px', left: left + 'px' }
-    return
-  }
-
-  // Desktop: posicionamiento relativo al botón
-  // Horizontal: alinear a la derecha del botón, si no cabe → izquierda
+  // Horizontal: derecha del botón, si no cabe → izquierda
   let left = rect.right - pw
   if (left < 8) left = 8
   if (left + pw > vw - 8) left = vw - pw - 8
 
-  // Vertical: intentar abrir hacia arriba; si no hay espacio → hacia abajo
+  // Vertical: intentar arriba, si no → abajo
+  // IMPORTANTE: position:fixed → coordenadas de viewport, sin scrollY
   let top
   const spaceAbove = rect.top
   const spaceBelow = vh - rect.bottom
   if (spaceAbove >= ph + 8 || spaceAbove > spaceBelow) {
-    top = rect.top - ph - 6 + window.scrollY
-    if (top < 8) top = rect.bottom + 6 + window.scrollY
+    top = rect.top - ph - 6
+    if (top < 8) top = rect.bottom + 6
   } else {
-    top = rect.bottom + 6 + window.scrollY
-    if (top + ph > vh + window.scrollY - 8) {
-      top = vh + window.scrollY - ph - 8
-    }
+    top = rect.bottom + 6
+    if (top + ph > vh - 8) top = vh - ph - 8
   }
+  if (top < 8) top = 8
 
   pos.value = { top: top + 'px', left: left + 'px' }
 }
@@ -227,12 +226,19 @@ async function confirmar() {
 <template>
   <!-- Teleport → siempre visible, nunca cortado por overflow -->
   <Teleport to="body">
+    <!-- Overlay visible solo en móvil para centrar el popover -->
+    <div
+      v-if="visible && isMobileMode"
+      class="rp-mobile-overlay"
+      @click="emit('close')"
+    />
     <Transition name="rp-fade">
       <div
         v-if="visible"
         id="reminder-popover"
         class="rp-popover"
-        :style="{ top: pos.top, left: pos.left }"
+        :class="{ 'rp-popover--mobile': isMobileMode }"
+        :style="isMobileMode ? {} : { top: pos.top, left: pos.left }"
       >
         <!-- Cabecera -->
         <div class="rp-header">
@@ -398,8 +404,40 @@ async function confirmar() {
 
 /* Animación */
 .rp-fade-enter-active, .rp-fade-leave-active {
-  transition: opacity 130ms ease, transform 130ms ease;
-  transform-origin: top right;
+  transition: opacity 180ms ease, transform 220ms cubic-bezier(.22,1,.36,1);
 }
 .rp-fade-enter-from, .rp-fade-leave-to { opacity: 0; transform: scale(0.95) translateY(-4px); }
+
+/* ── Modo móvil: modal centrado en viewport ─────────────── */
+.rp-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30,20,14,0.40);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 8999;
+}
+
+.rp-popover--mobile {
+  /* Centrado en viewport puro — el :style binding es {} cuando mobile */
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(320px, calc(100vw - 32px));
+  max-height: 88dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.rp-popover--mobile.rp-fade-enter-from,
+.rp-popover--mobile.rp-fade-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.93);
+}
+
+@media (max-width: 680px) {
+  .rp-popover {
+    width: min(320px, calc(100vw - 32px));
+  }
+}
 </style>

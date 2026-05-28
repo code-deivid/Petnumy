@@ -236,9 +236,17 @@ function volver() { router.back() }
                     <path d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z" fill="var(--color-primary-mid)" opacity="0.7"/>
                   </svg>
                 </div>
-                <div class="nm-foto-btn">
+                <!-- Botón + solo cuando NO hay foto -->
+                <div v-if="!fotoPreview" class="nm-foto-btn">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round">
                     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </div>
+                <!-- Icono de editar sutil cuando SÍ hay foto (hover) -->
+                <div v-else class="nm-foto-edit-overlay">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                   </svg>
                 </div>
               </div>
@@ -464,6 +472,20 @@ function volver() { router.back() }
   box-shadow: 0 2px 8px rgba(124,203,194,0.5);
 }
 .nm-foto-label { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; color: var(--color-primary); text-align: center; }
+
+/* Overlay editar foto (al hacer hover cuando ya hay foto) */
+.nm-foto-edit-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(30,20,14,0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.nm-foto-area:hover .nm-foto-edit-overlay { opacity: 1; }
 .hidden-input { display: none; }
 
 /* Formulario */
