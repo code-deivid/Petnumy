@@ -131,7 +131,7 @@
     "helloUser": "Hola, {name}!",
     "helloGuest": "El teu veterinari,",
     "helloGuestSub": "a un clic",
-    "welcomeMsg": "Benvingut a <strong>Petnumy</strong>. En què et podem ajudar hui?",
+    "welcomeMsg": "Benvingut a {brand}. En què et podem ajudar hui?",
     "guestMsg": "Gestiona la salut de les teues mascotes, consulta clíniques i reserva cites sense complicacions.",
     "startFree": "Comença gratis",
     "signIn": "Iniciar sessió",

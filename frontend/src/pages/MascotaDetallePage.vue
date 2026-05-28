@@ -983,139 +983,178 @@ async function compartir() {
 }
 .vac-ver-btn:hover { color: var(--color-teal); }
 
-/* ─────────────────────────────────────────────────────────
-   VACUNAS — Responsive Mobile: tarjeta vertical estilo app
-   ───────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   VACUNAS — Mobile: tarjeta vertical premium estilo app iOS
+   ═══════════════════════════════════════════════════════════ */
 @media (max-width: 860px) {
+  /* Ocultar thead de escritorio */
   .vac-thead { display: none; }
 
-  /* Resetear el grid de escritorio */
+  /* ── La tabla pasa a lista de cards ──────────────── */
+  .vac-table-body { display: flex; flex-direction: column; gap: 0; }
+
   .vac-row {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    /* Col izq: icono+info, Col der: badge+días */
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "nombre  nombre"
+      "fechas  fechas"
+      "estado  dias"
+      "acciones acciones";
     gap: 0;
     padding: 0;
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface) !important;
+    border-radius: 0;
     position: relative;
   }
-  .vac-row:last-child { border-bottom: none; }
+  .vac-row:first-child { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .vac-row:last-child  { border-radius: 0 0 var(--radius-md) var(--radius-md); border-bottom: none; }
 
-  /* Estado fondo sutil */
-  .vac-row--pendiente { background: rgba(254,249,231,0.5) !important; }
-  .vac-row--retrasada { background: rgba(253,234,234,0.5) !important; }
+  /* Estados con fondo sutil */
+  .vac-row--pendiente { background: rgba(254,249,231,0.6) !important; }
+  .vac-row--retrasada { background: rgba(253,234,234,0.6) !important; }
 
-  /* ── Cabecera de la card: icono + nombre + badge estado ─ */
+  /* ── ÁREA NOMBRE: icono + nombre + descripción ─── */
   .vac-col-nombre {
+    grid-area: nombre;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.9rem 1rem 0.65rem;
-    grid-column: unset;
+    padding: 0.95rem 1rem 0.6rem;
+    cursor: pointer;
   }
-  .vac-row-icon {
-    width: 42px; height: 42px;
-    border-radius: 12px;
-    flex-shrink: 0;
-  }
+  .vac-row-icon { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; font-size: 1.25rem; }
   .vac-nombre-wrap { flex: 1; min-width: 0; }
   .vac-nombre { font-size: 0.9rem; }
-  .vac-desc   { font-size: 0.7rem; white-space: normal; }
+  .vac-desc   { font-size: 0.68rem; white-space: normal; line-height: 1.3; }
 
-  /* ── Cuerpo de la card: fechas + días + badge ─────────── */
-  .vac-col {
-    /* Las columnas normales se muestran como filas de info */
+  /* ── ÁREA FECHAS: última y próxima dosis ─────────── */
+  /* Las columnas vac-fecha en mobile las mostramos como pares label:valor */
+  .vac-col.vac-fecha {
+    grid-area: unset; /* se reorganizan en el flujo del grid */
     display: flex;
     align-items: center;
-    padding: 0.2rem 1rem 0.2rem calc(1rem + 42px + 0.75rem); /* alinear con texto */
+    gap: 0.5rem;
+    padding: 0.18rem 1rem 0.18rem calc(1rem + 44px + 0.75rem);
     font-size: 0.8rem;
+    color: var(--color-text-soft);
   }
-  /* Fechas — fila aparte */
   .vac-col.vac-fecha::before {
     content: attr(data-label);
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--color-text-muted);
-    min-width: 80px;
+    min-width: 88px;
     flex-shrink: 0;
   }
-
-  /* Badge estado — inline con el icono (desktop) → en móvil va a cabecera */
-  /* Lo mostramos dentro de vac-col-nombre en posición derecha */
-  .vac-col:has(.vac-badge) {
-    padding: 0.25rem 1rem 0.1rem calc(1rem + 42px + 0.75rem);
+  /* Dos fechas se stacks como "fechas" area */
+  .vac-row > .vac-col.vac-fecha { grid-area: fechas; }
+  /* Segunda fecha */
+  .vac-row > .vac-col.vac-fecha + .vac-col.vac-fecha {
+    grid-area: unset;
+    padding-top: 0;
+    padding-bottom: 0.3rem;
   }
-  .vac-badge { font-size: 0.6rem; padding: 0.22rem 0.6rem; }
 
-  /* Días restantes */
-  .vac-dias { font-size: 0.85rem; }
-
-  /* ── Barra de acciones: siempre visible en móvil ──────── */
-  .vac-col-acciones {
+  /* ── ÁREA ESTADO Y DÍAS ────────────────────────── */
+  .vac-col:has(.vac-badge) {
+    grid-area: estado;
+    padding: 0.35rem 1rem 0.35rem calc(1rem + 44px + 0.75rem);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1rem;
-    margin-top: 0.25rem;
-    border-top: 1px solid var(--color-border);
   }
-  /* En móvil los micro-btns siempre visibles (no solo en hover) */
+  .vac-badge { font-size: 0.62rem; padding: 0.22rem 0.65rem; }
+
+  .vac-col:has(.vac-dias) {
+    grid-area: dias;
+    padding: 0.35rem 1rem 0.35rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .vac-dias { font-size: 0.85rem; font-weight: 700; }
+
+  /* ── BARRA DE ACCIONES ─────────────────────────── */
+  .vac-col-acciones {
+    grid-area: acciones;
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--color-border);
+    background: rgba(0,0,0,0.015);
+  }
+
+  /* Botón marcar completada: grande y táctil */
+  .vac-accion-btn {
+    flex: 1;
+    min-height: 42px !important;
+    font-size: 0.82rem !important;
+    padding: 0.55rem 1rem !important;
+  }
+  /* Enlace "ver certificado" */
+  .vac-ver-btn {
+    flex: 1;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.82rem;
+  }
+
+  /* Botones editar + eliminar: siempre visibles y grandes */
   .vac-micro-btns {
     opacity: 1 !important;
     display: flex;
     gap: 0.4rem;
-    margin-left: auto;
-  }
-  .vac-micro-btn {
-    /* Más grande y táctil */
-    width: 38px !important; height: 38px !important;
-    border-radius: 10px !important;
-  }
-  .vac-micro-btn svg { width: 14px !important; height: 14px !important; }
-
-  /* Botón marcar/ver */
-  .vac-accion-btn {
-    font-size: 0.8rem !important;
-    padding: 0.55rem 1rem !important;
-    min-height: 38px;
-    flex: 1;
-  }
-  .vac-ver-btn {
-    font-size: 0.82rem;
-    min-height: 38px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0 0.25rem;
-  }
-
-  /* ── Campana recordatorio: siempre visible, área grande ── */
-  .vac-col-bell {
-    /* Se integra en la barra de acciones con absoluto */
-    position: static !important;
-    display: flex;
-    align-items: center;
-    padding: 0 0.25rem;
-  }
-  .vac-bell-btn {
-    width: 38px !important; height: 38px !important;
-    border-radius: 10px !important;
-    /* Siempre visible en móvil (no depende de hover) */
-    opacity: 1 !important;
     flex-shrink: 0;
   }
-  .vac-bell-btn svg { width: 16px !important; height: 16px !important; }
+  .vac-micro-btn {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .vac-micro-btn svg { width: 15px !important; height: 15px !important; }
+
+  /* ── CAMPANA RECORDATORIO ──────────────────────── */
+  /* Fix 6: campana siempre visible y con area táctil grande */
+  .vac-col-bell {
+    position: static !important;
+    display: flex !important;
+    align-items: center;
+    flex-shrink: 0;
+    /* z-index garantizado para que el popover no quede oculto */
+    z-index: auto;
+  }
+  .vac-bell-btn {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px;
+    border-radius: 12px !important;
+    opacity: 1 !important;
+    /* Touch events asegurados */
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+  .vac-bell-btn svg {
+    width: 17px !important;
+    height: 17px !important;
+    pointer-events: none;
+  }
 
   .vac-stats { gap: 0.75rem; }
 }
 
 @media (max-width: 480px) {
   .vac-cartilla-head { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-  .vac-col {
-    padding-left: 1rem; /* sin sangría de icono en pantallas tiny */
-  }
+  .vac-col.vac-fecha { padding-left: 0.85rem; }
+  .vac-col.vac-fecha::before { min-width: 78px; }
 }
 
 /* ── Botón campana recordatorio ─────────────────────────── */

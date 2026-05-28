@@ -680,17 +680,29 @@ function fmtFecha(iso) {
   .det-hero-img-wrap, .det-hero-img-placeholder { width: 100%; height: 180px; }
   .vets-grid { grid-template-columns: 1fr; }
   .horas-grid { grid-template-columns: repeat(3, 1fr); }
-  .cita-modal { max-height: 95vh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
-  .cita-overlay { align-items: flex-end; padding: 0; }
+
+  /* Modal CENTRADO en móvil — no bottom sheet */
+  .cita-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .cita-modal {
+    max-height: 88dvh;
+    /* Conservar border-radius completo — no sheet */
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
-/* Transición */
+/* Transición — siempre scale, no slide up */
 .modal-slide-enter-active, .modal-slide-leave-active {
-  transition: opacity 200ms ease, transform 250ms cubic-bezier(.22,1,.36,1);
+  transition: opacity 220ms ease, transform 280ms cubic-bezier(.22,1,.36,1);
 }
-.modal-slide-enter-from, .modal-slide-leave-to { opacity: 0; transform: scale(0.97) translateY(10px); }
-@media (max-width: 600px) {
-  .modal-slide-enter-from, .modal-slide-leave-to { opacity: 0; transform: translateY(100%); }
+.modal-slide-enter-from, .modal-slide-leave-to {
+  opacity: 0;
+  transform: scale(0.95) translateY(12px);
 }
 
 /* ── Mejoras móvil adicionales ───────────────────────────── */

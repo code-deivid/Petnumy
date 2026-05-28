@@ -151,16 +151,11 @@ function irA(name) {
         class="nav-logo"
         @click="cerrarTodo"
       >
-        <svg class="nav-logo-svg" viewBox="0 0 64 64" fill="none">
-          <path d="M54 18 A26 26 0 1 1 50 51" fill="none" stroke="#F08263" stroke-width="3.5" stroke-linecap="round"/>
-          <ellipse cx="24" cy="17" rx="4.5" ry="6"   fill="#2E3150"/>
-          <ellipse cx="40" cy="17" rx="4.5" ry="6"   fill="#2E3150"/>
-          <ellipse cx="15" cy="27" rx="4"   ry="5.5" fill="#2E3150"/>
-          <ellipse cx="49" cy="27" rx="4"   ry="5.5" fill="#2E3150"/>
-          <path d="M32 23c-9.5 0-17 7-17 13.5 0 5 4 8.5 8.5 8.5 3 0 5.5-1.5 8.5-1.5s5.5 1.5 8.5 1.5c4.5 0 8.5-3.5 8.5-8.5C49 30 41.5 23 32 23z" fill="#2E3150"/>
-          <path d="M42 34 Q50 40 43 50 Q37 55 32 46 Q38 51 43 47 Q50 41 42 34z" fill="#F5EFE3" opacity="0.65"/>
-          <path d="M32 31c-1.1 0-3 1.1-3 3 0 .9.3 1.7.9 2.2L32 38.5l2.1-2.3c.6-.5.9-1.3.9-2.2 0-1.9-1.9-3-3-3z" fill="white"/>
-        </svg>
+        <img
+          src="@/assets/logo/Logo Petnumy.svg"
+          alt="Petnumy"
+          class="nav-logo-svg"
+        />
         <span class="nav-logo-text">Petnumy</span>
       </RouterLink>
 

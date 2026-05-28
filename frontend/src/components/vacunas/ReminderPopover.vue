@@ -27,22 +27,34 @@ function calcPos() {
   const rect = props.triggerEl.getBoundingClientRect()
   const pw   = 290   // ancho del popover
   const ph   = 420   // alto estimado
+  const vw   = window.innerWidth
+  const vh   = window.innerHeight
 
-  // Horizontal: intentar alinear a la derecha del botón, si no cabe → izquierda
+  // En móvil (< 600px) → popover centrado en pantalla como modal
+  if (vw < 600) {
+    const left = Math.max(8, (vw - pw) / 2)
+    const top  = Math.max(60, (vh - ph) / 2) + window.scrollY
+    pos.value = { top: top + 'px', left: left + 'px' }
+    return
+  }
+
+  // Desktop: posicionamiento relativo al botón
+  // Horizontal: alinear a la derecha del botón, si no cabe → izquierda
   let left = rect.right - pw
   if (left < 8) left = 8
+  if (left + pw > vw - 8) left = vw - pw - 8
 
   // Vertical: intentar abrir hacia arriba; si no hay espacio → hacia abajo
   let top
   const spaceAbove = rect.top
-  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceBelow = vh - rect.bottom
   if (spaceAbove >= ph + 8 || spaceAbove > spaceBelow) {
     top = rect.top - ph - 6 + window.scrollY
     if (top < 8) top = rect.bottom + 6 + window.scrollY
   } else {
     top = rect.bottom + 6 + window.scrollY
-    if (top + ph > window.innerHeight + window.scrollY - 8) {
-      top = window.innerHeight + window.scrollY - ph - 8
+    if (top + ph > vh + window.scrollY - 8) {
+      top = vh + window.scrollY - ph - 8
     }
   }
 

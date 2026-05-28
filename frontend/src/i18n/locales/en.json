@@ -131,7 +131,7 @@
     "helloUser": "Hello, {name}!",
     "helloGuest": "Your vet,",
     "helloGuestSub": "one click away",
-    "welcomeMsg": "Welcome to <strong>Petnumy</strong>. How can we help you today?",
+    "welcomeMsg": "Welcome to {brand}. How can we help you today?",
     "guestMsg": "Manage your pet's health, find clinics and book appointments — all in one place.",
     "startFree": "Start for free",
     "signIn": "Sign in",
