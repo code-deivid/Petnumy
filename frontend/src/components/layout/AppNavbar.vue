@@ -205,10 +205,7 @@ function irA(name) {
               @click.stop="toggleNotif"
               :aria-label="t('reminders.title')"
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 01-3.46 0"/>
-              </svg>
+              <Icon :icon="$icons.bell" width="17" height="17" />
               <!-- Punto rojo SOLO si hay notificaciones -->
               <span v-if="hasNotifications" class="notif-dot" />
             </button>
@@ -220,10 +217,7 @@ function irA(name) {
               @click.stop="toggleSettings"
               :aria-label="t('settings.title')"
             >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
-              </svg>
+              <Icon :icon="$icons.settings" width="17" height="17" />
             </button>
 
             <!-- Dropdown notificaciones — anclado al nav-icons-wrap -->
@@ -241,9 +235,7 @@ function irA(name) {
                     class="notif-item"
                   >
                     <div class="notif-item-icon">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                      </svg>
+                      <Icon :icon="$icons.health" width="13" height="13" />
                     </div>
                     <div class="notif-item-text">
                       <p class="notif-item-title">
@@ -260,10 +252,7 @@ function irA(name) {
                   </div>
                 </div>
                 <div v-else class="notif-empty">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 01-3.46 0"/>
-                  </svg>
+                  <Icon :icon="$icons.bell" width="26" height="26" />
                   <span>{{ t("reminders.none") }}</span>
                 </div>
               </div>
@@ -305,9 +294,7 @@ function irA(name) {
             @click="volverMenuMobile"
             :aria-label="t('common.back')"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M15 18l-6-6 6-6"/>
-            </svg>
+            <Icon :icon="$icons.back" width="18" height="18" />
           </button>
 
           <PetAvatar :foto="fotoPerfil" :nombre="nombrePerfil" tipo="usuario" size="lg" />
@@ -325,28 +312,28 @@ function irA(name) {
 
               <RouterLink :to="{ name: 'home' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+                  <Icon :icon="$icons.home" width="18" height="18" />
                 </span>
                 <span>{{ t("nav.home") }}</span>
               </RouterLink>
 
               <RouterLink :to="{ name: 'mis-mascotas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="8" r="2.2"/><circle cx="9.5" cy="5" r="2.2"/><circle cx="14.5" cy="5" r="2.2"/><circle cx="19" cy="8" r="2.2"/><path d="M7.2 14.8c1.6-3.2 8-3.2 9.6 0 1 2-.5 4.2-2.6 3.5-1.4-.5-3-.5-4.4 0-2.1.7-3.6-1.5-2.6-3.5z"/></svg>
+                  <Icon :icon="$icons.pets" width="18" height="18" />
                 </span>
                 <span>{{ t("nav.myPets") }}</span>
               </RouterLink>
 
               <RouterLink :to="{ name: 'mis-citas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+                  <Icon :icon="$icons.calendar" width="18" height="18" />
                 </span>
                 <span>{{ t("nav.myAppointments") }}</span>
               </RouterLink>
 
               <RouterLink :to="{ name: 'clinicas' }" class="mobile-link" active-class="mobile-link--active" @click="cerrarTodo">
                 <span class="mobile-link-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg>
+                  <Icon :icon="$icons.clinic" width="18" height="18" />
                 </span>
                 <span>{{ t("nav.vets") }}</span>
               </RouterLink>
@@ -355,21 +342,18 @@ function irA(name) {
 
               <button class="mobile-link mobile-link--settings" type="button" @click="abrirSettingsMobile">
                 <span class="mobile-link-icon mobile-link-icon--settings">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-                  </svg>
+                  <Icon :icon="$icons.settings" width="18" height="18" />
                 </span>
                 <span>{{ t("settings.title") }}</span>
-                <svg class="mobile-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                <Icon class="mobile-link-arrow" :icon="$icons.chevronRight" width="14" height="14" />
               </button>
             </template>
 
             <template v-else>
               <p class="mobile-section-label">{{ t("mobile.access") }}</p>
-              <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">⌂</span><span>{{ t("nav.home") }}</span></RouterLink>
-              <RouterLink :to="{ name: 'login' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon">↳</span><span>{{ t("nav.enter") }}</span></RouterLink>
-              <RouterLink :to="{ name: 'registro' }" class="mobile-link mobile-link--settings" @click="cerrarTodo"><span class="mobile-link-icon mobile-link-icon--settings">＋</span><span>{{ t("nav.register") }}</span></RouterLink>
+              <RouterLink :to="{ name: 'landing' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon"><Icon :icon="$icons.home" width="18" height="18" /></span><span>{{ t("nav.home") }}</span></RouterLink>
+              <RouterLink :to="{ name: 'login' }" class="mobile-link" @click="cerrarTodo"><span class="mobile-link-icon"><Icon :icon="$icons.login" width="18" height="18" /></span><span>{{ t("nav.enter") }}</span></RouterLink>
+              <RouterLink :to="{ name: 'registro' }" class="mobile-link mobile-link--settings" @click="cerrarTodo"><span class="mobile-link-icon mobile-link-icon--settings"><Icon :icon="$icons.addCircle" width="18" height="18" /></span><span>{{ t("nav.register") }}</span></RouterLink>
             </template>
           </template>
 
@@ -378,15 +362,15 @@ function irA(name) {
 
             <button class="mobile-link" type="button" @click="irA('perfil')">
               <span class="mobile-link-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <Icon :icon="$icons.user" width="18" height="18" />
               </span>
               <span>{{ t("settings.profile") }}</span>
-              <svg class="mobile-link-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+              <Icon class="mobile-link-arrow" :icon="$icons.chevronRight" width="14" height="14" />
             </button>
 
             <div class="mobile-link mobile-link--control">
               <span class="mobile-link-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                <Icon :icon="$icons.light" width="18" height="18" />
               </span>
               <span>{{ t("settings.darkMode") }}</span>
               <button
@@ -403,12 +387,12 @@ function irA(name) {
 
             <div class="mobile-link mobile-link--control mobile-lang-control">
               <span class="mobile-link-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                <Icon :icon="$icons.language" width="18" height="18" />
               </span>
               <span>{{ t("settings.language") }}</span>
               <button class="mobile-lang-pill" type="button" ref="langPillRef" @click.stop="toggleLangMobile">
                 {{ currentMobileLang.flag }}
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :style="{ transform: langOpenMobile ? 'rotate(180deg)' : 'none' }"><polyline points="6 9 12 15 18 9"/></svg>
+                <Icon :style="{ transform: langOpenMobile ? 'rotate(180deg)' : 'none' }" :icon="$icons.chevronDown" width="12" height="12" />
               </button>
               <Teleport to="body">
                 <!-- Overlay para cerrar al tocar fuera -->
@@ -443,7 +427,7 @@ function irA(name) {
 
             <button class="mobile-link mobile-link--logout" type="button" @click="logoutMobile">
               <span class="mobile-link-icon mobile-link-icon--settings">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <Icon :icon="$icons.logout" width="18" height="18" />
               </span>
               <span>{{ t("settings.logout") }}</span>
             </button>

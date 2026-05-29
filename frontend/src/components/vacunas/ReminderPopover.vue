@@ -243,25 +243,20 @@ async function confirmar() {
         <!-- Cabecera -->
         <div class="rp-header">
           <div class="rp-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 01-3.46 0"/>
-            </svg>
+            <Icon :icon="$icons.bell" width="13" height="13" />
           </div>
           <div class="rp-title-wrap">
             <p class="rp-title">{{ t("reminders.reminder") }}</p>
             <p class="rp-sub">{{ nombreVacuna }}</p>
           </div>
           <button type="button" class="rp-close" @click="$emit('close')">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
+            <Icon :icon="$icons.vaccine" width="11" height="11" />
           </button>
         </div>
 
         <!-- Sin próxima dosis -->
         <div v-if="!proximaAplicacion" class="rp-no-fecha">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <Icon :icon="$icons.calendar" width="16" height="16" />
           <p>{{ t("reminders.needNextDose") }}</p>
         </div>
 
@@ -276,9 +271,7 @@ async function confirmar() {
               @click="elegir(op)"
             >
               <span>{{ opcionLabel(op) }}</span>
-              <svg v-if="opcionId === op.id" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
+              <Icon v-if="opcionId === op.id" :icon="$icons.check" width="13" height="13" />
             </button>
           </div>
 
@@ -302,7 +295,7 @@ async function confirmar() {
           <!-- Preview fecha -->
           <Transition name="fade">
             <div v-if="fechaAviso" class="rp-preview">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <Icon :icon="$icons.calendar" width="11" height="11" />
               <span>{{ t('reminders.noticeOn') }} <strong>{{ fechaAviso }}</strong></span>
             </div>
           </Transition>

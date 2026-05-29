@@ -93,13 +93,13 @@ const cargandoMascotas  = ref(false)
 
 // Motivos predefinidos
 const MOTIVOS = computed(() => [
-  { id: 'revision',        label: t('booking.motives.revision'),        icon: '🩺' },
-  { id: 'vacuna',          label: t('booking.motives.vacuna'),           icon: '💉' },
-  { id: 'peluqueria',      label: t('booking.motives.peluqueria'),       icon: '✂️' },
-  { id: 'cirugia',         label: t('booking.motives.cirugia'),          icon: '🔬' },
-  { id: 'urgencia',        label: t('booking.motives.urgencia'),         icon: '🚨' },
-  { id: 'desparasitacion', label: t('booking.motives.desparasitacion'),  icon: '🐛' },
-  { id: 'otro',            label: t('booking.motives.otro'),             icon: '📋' },
+  { id: 'revision',        label: t('booking.motives.revision'),        icon: 'mdi:stethoscope' },
+  { id: 'vacuna',          label: t('booking.motives.vacuna'),           icon: 'mdi:needle' },
+  { id: 'peluqueria',      label: t('booking.motives.peluqueria'),       icon: 'mdi:content-cut' },
+  { id: 'cirugia',         label: t('booking.motives.cirugia'),          icon: 'mdi:medical-bag' },
+  { id: 'urgencia',        label: t('booking.motives.urgencia'),         icon: 'mdi:ambulance' },
+  { id: 'desparasitacion', label: t('booking.motives.desparasitacion'),  icon: 'mdi:bug-outline' },
+  { id: 'otro',            label: t('booking.motives.otro'),             icon: 'mdi:clipboard-text-outline' },
 ])
 
 // Horas disponibles 9:00–19:00 cada 30 min
@@ -208,7 +208,8 @@ function fmtFecha(iso) {
   <div class="page-container page-section">
 
     <button type="button" class="btn btn-ghost btn-sm back-btn" @click="router.back()">
-      {{ t('common.back') }}
+      <Icon :icon="$icons.back" width="18" height="18" />
+      <span>{{ t('common.back') }}</span>
     </button>
 
     <div v-if="loading" style="display:flex;justify-content:center;padding:4rem 0">
@@ -229,13 +230,13 @@ function fmtFecha(iso) {
             <img :src="clinica.imagen" :alt="clinica.nombre" class="det-hero-img" />
           </div>
           <div v-else class="det-hero-img-placeholder">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <Icon :icon="$icons.home" width="48" height="48" />
           </div>
 
           <div class="det-hero-info">
             <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
               <span v-if="clinica.abierto_24h" class="badge-24h">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <Icon :icon="$icons.clock" width="10" height="10" />
                 24H
               </span>
             </div>
@@ -243,11 +244,11 @@ function fmtFecha(iso) {
 
             <div class="det-datos">
               <span v-if="clinica.ciudad || clinica.direccion" class="det-dato">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <Icon :icon="$icons.location" width="13" height="13" />
                 {{ [clinica.direccion, clinica.ciudad].filter(Boolean).join(', ') }}
               </span>
               <span v-if="clinica.telefono" class="det-dato">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.09a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 15z"/></svg>
+                <Icon :icon="$icons.phone" width="13" height="13" />
                 {{ clinica.telefono }}
               </span>
             </div>
@@ -260,21 +261,18 @@ function fmtFecha(iso) {
             </div>
 
             <button type="button" class="btn btn-primary" style="margin-top:1rem;align-self:flex-start" @click="abrirModal">
-              📅 {{ t('clinicDetail.book') }}
+              <Icon :icon="$icons.calendar" width="17" height="17" /> {{ t('clinicDetail.book') }}
             </button>
           </div>
         </div>
       </div>
 
       <!-- ── Veterinarios ────────────────────────────────── -->
-      <div>
+      <div v-if="veterinarios.length > 0">
         <h2 style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--color-text);margin-bottom:1rem">
           {{ t('clinicDetail.vetsTitle') }}
         </h2>
-        <div v-if="veterinarios.length === 0" class="empty-state" style="padding:2rem">
-          <p>🩺 {{ t('clinicDetail.noVets') }}</p>
-        </div>
-        <div v-else class="vets-grid">
+        <div class="vets-grid">
           <div v-for="vet in veterinarios" :key="vet.id" class="card card-animate vet-card">
             <div class="card-body" style="display:flex;align-items:center;gap:0.85rem">
               <PetAvatar :foto="vet.foto" :nombre="(vet.nombre || '') + ' ' + (vet.apellidos || '')" tipo="usuario" size="sm" />
@@ -301,9 +299,7 @@ function fmtFecha(iso) {
             <div class="cita-header">
               <div class="cita-header-left">
                 <div class="cita-header-chip">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
+                  <Icon :icon="$icons.calendar" width="16" height="16" />
                 </div>
                 <div>
                   <p class="cita-header-titulo">{{ t("booking.title") }}</p>
@@ -311,9 +307,7 @@ function fmtFecha(iso) {
                 </div>
               </div>
               <button type="button" class="cita-close" @click="cerrarModal">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
+                <Icon :icon="$icons.close" width="15" height="15" />
               </button>
             </div>
 
@@ -323,8 +317,8 @@ function fmtFecha(iso) {
                 <div class="stepper-item">
                   <div class="stepper-dot"
                     :class="{ 'stepper-dot--active': paso === p.num, 'stepper-dot--done': paso > p.num }">
-                    <svg v-if="paso > p.num" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span v-else>{{ p.num }}</span>
+                    <Icon v-if="paso > p.num" :icon="$icons.check" width="18" height="18" />
+                    <span v-if="paso <= p.num">{{ p.num }}</span>
                   </div>
                   <span class="stepper-label"
                     :class="{ 'stepper-label--active': paso === p.num, 'stepper-label--done': paso > p.num }">
@@ -346,7 +340,7 @@ function fmtFecha(iso) {
 
               <!-- ÉXITO -->
               <div v-if="exitoCita" class="cita-exito">
-                <div class="exito-emoji">🎉</div>
+                <div class="exito-emoji"><Icon :icon="$icons.checkCircle" width="30" height="30" /></div>
                 <h3 class="exito-titulo">{{ t("booking.successTitle") }}</h3>
                 <p class="exito-desc">
                   {{ t('booking.successDesc', { clinic: clinica?.nombre, date: fmtFecha(formReserva.fecha), time: formReserva.hora }) }}
@@ -375,7 +369,7 @@ function fmtFecha(iso) {
                       <p class="mascota-nombre">{{ m.nombre }}</p>
                       <p class="mascota-raza">{{ m.raza?.nombre || '' }}</p>
                     </div>
-                    <svg v-if="formReserva.mascota?.id === m.id" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal)" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
+                    <Icon v-if="formReserva.mascota?.id === m.id" style="flex-shrink:0" :icon="$icons.check" width="18" height="18" />
                   </div>
                 </div>
               </template>
@@ -388,7 +382,7 @@ function fmtFecha(iso) {
                     class="motivo-btn"
                     :class="{ 'motivo-btn--sel': formReserva.motivo === m.label }"
                     @click="formReserva.motivo = m.label">
-                    <span class="motivo-icon">{{ m.icon }}</span>
+                    <span class="motivo-icon"><Icon :icon="m.icon" width="20" height="20" /></span>
                     <span class="motivo-label">{{ m.label }}</span>
                   </button>
                 </div>
@@ -405,7 +399,7 @@ function fmtFecha(iso) {
                     :min-date="fechaMin"
                   />
                   <span v-if="formReserva.fecha" class="input-hint" style="margin-top:0.35rem">
-                    📅 {{ fmtFecha(formReserva.fecha) }}
+                    <Icon :icon="$icons.calendar" width="14" height="14" /> {{ fmtFecha(formReserva.fecha) }}
                   </span>
                 </div>
               </template>
@@ -458,7 +452,23 @@ function fmtFecha(iso) {
 </template>
 
 <style scoped>
-.back-btn { margin-bottom: 1.5rem; padding-left: 0; color: var(--color-text-soft); }
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  min-height: 42px;
+  margin-bottom: 1.5rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: var(--radius-full);
+  color: var(--color-text-soft);
+  background: rgba(255,255,255,0.36);
+  border: 1px solid rgba(107,76,56,0.08);
+}
+.back-btn:hover {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
 .det-layout { display: flex; flex-direction: column; gap: 2rem; }
 
 /* ── Hero ──────────────────────────────────────────────────── */

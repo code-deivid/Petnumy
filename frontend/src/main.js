@@ -1,5 +1,7 @@
 // src/main.js
 import { createApp }   from 'vue'
+import { Icon }        from '@iconify/vue'
+import { ICONS }       from './lib/icons.js'
 import { createPinia } from 'pinia'
 
 import App    from './App.vue'
@@ -25,6 +27,9 @@ document.documentElement.setAttribute('lang', savedLocale)
 
 const app   = createApp(App)
 const pinia = createPinia()
+
+app.component('Icon', Icon)
+app.config.globalProperties.$icons = ICONS
 
 app.use(pinia)
 app.use(router)

@@ -153,19 +153,10 @@ watch(busqueda, () => { highlighted.value = -1 })
           tabindex="-1"
           :aria-label="t('common.delete')"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
+          <Icon :icon="$icons.delete" width="12" height="12" />
         </button>
         <!-- Chevron -->
-        <svg
-          class="rs-chevron"
-          :class="{ 'rs-chevron--up': abierto }"
-          width="14" height="14" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-        >
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
+        <Icon class="rs-chevron" :icon="$icons.chevronDown" width="14" height="14" />
       </div>
     </div>
 
@@ -175,9 +166,7 @@ watch(busqueda, () => { highlighted.value = -1 })
 
         <!-- Búsqueda -->
         <div class="rs-search-wrap">
-          <svg class="rs-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <Icon class="rs-search-icon" :icon="$icons.search" width="14" height="14" />
           <input
             ref="inputRef"
             v-model="busqueda"
@@ -207,9 +196,7 @@ watch(busqueda, () => { highlighted.value = -1 })
           >
             <span class="raza-option-name">{{ nombreRaza(raza) }}</span>
             <!-- Checkmark si está seleccionada -->
-            <svg v-if="raza.id === modelValue" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
+            <Icon v-if="raza.id === modelValue" :icon="$icons.check" width="13" height="13" />
           </button>
         </div>
 

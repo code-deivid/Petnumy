@@ -99,19 +99,12 @@ function crearIcono(activo = false) {
   if (!L) return null
   const color    = activo ? '#F08263' : '#7CCBC2'
   const colorBg  = activo ? '#FDE3D7' : '#E0F1EE'
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="40" viewBox="0 0 34 40">
-    <ellipse cx="17" cy="38" rx="7" ry="2.5" fill="rgba(0,0,0,0.15)"/>
-    <path d="M17 0 C8 0 1 7 1 15.5 C1 25 17 38 17 38 C17 38 33 25 33 15.5 C33 7 26 0 17 0Z"
-      fill="${colorBg}" stroke="${color}" stroke-width="2"/>
-    <path d="M17 9 C14.5 9 12 11 12 13.5 A5 5 0 0 0 22 13.5 C22 11 19.5 9 17 9Z" fill="${color}"/>
-    <path d="M9 14 C9 12 11 10 13 11 C11.5 12.5 12 14.5 13 15.5" fill="${color}"/>
-    <path d="M25 14 C25 12 23 10 21 11 C22.5 12.5 22 14.5 21 15.5" fill="${color}"/>
-    <ellipse cx="17" cy="18" rx="5.5" ry="4" fill="${color}"/>
-    <path d="M14 20.5 C14 21.5 15 22.5 17 22.5 S20 21.5 20 20.5" fill="white"/>
-  </svg>`
-
   return L.divIcon({
-    html: `<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.25))">${svg}</div>`,
+    html: `
+      <div class="cl-map-marker ${activo ? 'is-active' : ''}" style="--marker-color:${color};--marker-bg:${colorBg}">
+        <span class="cl-map-marker-dot"></span>
+      </div>
+    `,
     iconSize:   [34, 40],
     iconAnchor: [17, 40],
     popupAnchor:[0, -42],
@@ -187,7 +180,7 @@ watch(ubicacion, (u) => {
   })
   markers.value['_usuario'] = L.marker([u.lat, u.lng], { icon: icono, zIndexOffset: 1000 })
     .addTo(leaflet)
-    .bindPopup(`<b style="font-size:.8rem">📍 ${u.label}</b>`)
+    .bindPopup(`<b style="font-size:.8rem">${u.label}</b>`)
 })
 
 onMounted(async () => {
@@ -222,17 +215,11 @@ onBeforeUnmount(() => {
             @click="usarUbicacionReal"
             :title="t('clinics.useMyLocation')"
           >
-            <svg v-if="!buscandoUbicacion" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
-              <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
-              <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
-            </svg>
+            <Icon v-if="!buscandoUbicacion" :icon="$icons.location" width="14" height="14" />
             <div v-else class="spinner" style="width:13px;height:13px;border-width:2px"/>
           </button>
           <div class="cl-search-input-wrap">
-            <svg class="cl-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <Icon class="cl-search-icon" :icon="$icons.search" width="13" height="13" />
             <input
               v-model="inputBusqueda"
               type="text"
@@ -240,18 +227,16 @@ onBeforeUnmount(() => {
               :placeholder="t('clinics.searchPlaceholder')"
               @keyup.enter="handleBusqueda"
             />
-            <button v-if="inputBusqueda" type="button" class="cl-search-clear" @click="inputBusqueda = ''; limpiarUbicacion()">✕</button>
+            <button v-if="inputBusqueda" type="button" class="cl-search-clear" @click="inputBusqueda = ''; limpiarUbicacion()"><Icon :icon="$icons.close" width="12" height="12" /></button>
           </div>
         </div>
 
         <!-- Zona activa -->
         <Transition name="fade">
           <div v-if="ubicacion" class="cl-zona-activa">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
-            </svg>
+            <Icon :icon="$icons.location" width="11" height="11" />
             {{ ubicacion.label }}
-            <button type="button" @click="limpiarUbicacion(); inputBusqueda = ''">✕</button>
+            <button type="button" @click="limpiarUbicacion(); inputBusqueda = ''"><Icon :icon="$icons.close" width="12" height="12" /></button>
           </div>
         </Transition>
 
@@ -278,7 +263,7 @@ onBeforeUnmount(() => {
           :class="{ 'cl-chip--on': filtros.servicios.includes(key) }"
           @click="toggleServicio(key)"
         >
-          <span>{{ SERVICIOS_META[key]?.icon }}</span> {{ t(`clinics.services.${key}`) }}
+          <Icon :icon="SERVICIOS_META[key]?.icon || $icons.clinic" width="15" height="15" /> {{ t(`clinics.services.${key}`) }}
         </button>
         <button type="button"
           v-if="filtros.servicios.length > 0"
@@ -318,7 +303,7 @@ onBeforeUnmount(() => {
 
         <!-- Sin resultados -->
         <div v-else-if="clinicasFiltradas.length === 0" class="cl-empty">
-          <div class="cl-empty-icon">🏥</div>
+          <div class="cl-empty-icon"><Icon :icon="$icons.clinic" width="36" height="36" /></div>
           <p class="cl-empty-title">{{ t("clinics.noResults") }}</p>
           <p>{{ t("clinics.noResultsDesc") }}</p>
           <button type="button" class="btn btn-outline btn-sm" style="margin-top:1rem" @click="resetFiltros">
@@ -342,12 +327,10 @@ onBeforeUnmount(() => {
             <div class="cl-card-img-wrap">
               <img v-if="c.imagen" :src="c.imagen" :alt="c.nombre" class="cl-card-img" loading="lazy" />
               <div v-else class="cl-card-img-placeholder">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
+                <Icon :icon="$icons.home" width="32" height="32" />
               </div>
               <span v-if="c.abierto_24h" class="cl-badge-24h">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <Icon :icon="$icons.clock" width="9" height="9" />
                 24H
               </span>
             </div>
@@ -373,9 +356,7 @@ onBeforeUnmount(() => {
 
               <!-- Dirección -->
               <p class="cl-card-dir">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                </svg>
+                <Icon :icon="$icons.location" width="11" height="11" />
                 {{ [c.direccion, c.ciudad].filter(Boolean).join(', ') }}
                 <span v-if="fmtDistancia(c.distancia)" class="cl-dir-dist">• {{ fmtDistancia(c.distancia) }}</span>
               </p>
@@ -412,11 +393,11 @@ onBeforeUnmount(() => {
     <!-- Toggle móvil -->
     <div class="cl-toggle-movil">
       <button type="button" class="cl-vtoggle" :class="{ 'cl-vtoggle--on': vistaMovil === 'lista' }" @click="vistaMovil = 'lista'">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>
+        <Icon :icon="$icons.list" width="13" height="13" />
         {{ t("clinics.toggleList") }}
       </button>
       <button type="button" class="cl-vtoggle" :class="{ 'cl-vtoggle--on': vistaMovil === 'mapa' }" @click="vistaMovil = 'mapa'">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+        <Icon :icon="$icons.map" width="13" height="13" />
         {{ t("clinics.toggleMap") }}
       </button>
     </div>
@@ -710,6 +691,38 @@ onBeforeUnmount(() => {
   text-align: center; font-size: 0.75rem; color: var(--color-text-muted);
   font-style: italic; margin: 0.75rem 0 0; padding: 0.75rem 0;
   border-top: 1px dashed var(--color-border);
+}
+
+
+/* Marcador Leaflet sin SVG inline: forma CSS consistente con Iconify en la UI Vue */
+:global(.cl-map-marker) {
+  width: 34px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  transform: translateY(-2px);
+}
+:global(.cl-map-marker::before) {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 50% 50% 50% 6px;
+  transform: rotate(-45deg);
+  background: var(--marker-bg, #E0F1EE);
+  border: 2px solid var(--marker-color, #7CCBC2);
+  box-shadow: 0 8px 18px rgba(52, 94, 89, 0.18);
+}
+:global(.cl-map-marker-dot) {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--marker-color, #7CCBC2);
+  box-shadow: 0 0 0 4px rgba(255,255,255,.72);
+}
+:global(.cl-map-marker.is-active) {
+  transform: translateY(-5px) scale(1.08);
 }
 
 /* ══ TOGGLE MÓVIL ════════════════════════════════════════════ */

@@ -13,7 +13,7 @@ export const vacunasInfo = {
 
   // ── PERRO Y GATO (compartidas) ─────────────────────────────
   'rabia': {
-    icon: '🧠',
+    icon: 'mdi:brain',
     enfermedad: 'Rabia',
     descripcionCorta: 'Obligatoria · Anual o trienal',
     descripcionLarga: 'Enfermedad viral mortal que afecta al sistema nervioso de todos los mamíferos, incluidos los humanos. Es de notificación obligatoria y la vacunación es exigida por ley.',
@@ -24,7 +24,7 @@ export const vacunasInfo = {
 
   // ── PERRO ──────────────────────────────────────────────────
   'moquillo': {
-    icon: '🫁',
+    icon: 'mdi:lungs',
     enfermedad: 'Moquillo Canino (Distemper)',
     descripcionCorta: 'Polivalente · Refuerzo anual',
     descripcionLarga: 'Enfermedad viral sistémica altamente contagiosa que afecta al sistema respiratorio, digestivo y nervioso. Puede dejar secuelas neurológicas permanentes.',
@@ -33,7 +33,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'parvovirus': {
-    icon: '🧬',
+    icon: 'mdi:dna',
     enfermedad: 'Parvovirus Canino',
     descripcionCorta: 'Polivalente · Refuerzo anual',
     descripcionLarga: 'Infección viral altamente contagiosa que ataca el tracto gastrointestinal. Especialmente letal en cachorros sin tratar.',
@@ -42,7 +42,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'hepatitis': {
-    icon: '🫀',
+    icon: 'mdi:heart-pulse',
     enfermedad: 'Hepatitis Infecciosa Canina (Adenovirus tipo 1)',
     descripcionCorta: 'Polivalente · Refuerzo anual',
     descripcionLarga: 'Causada por el adenovirus canino tipo 1. Afecta principalmente al hígado, riñones y endotelio vascular. Se incluye en la vacuna polivalente.',
@@ -51,7 +51,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'leptospirosis': {
-    icon: '🌊',
+    icon: 'mdi:water-outline',
     enfermedad: 'Leptospirosis',
     descripcionCorta: 'Anual · Zoonosis',
     descripcionLarga: 'Enfermedad bacteriana que puede transmitirse a los humanos (zoonosis). Frecuente en perros con acceso a agua estancada o roedores.',
@@ -60,7 +60,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'parainfluenza': {
-    icon: '💨',
+    icon: 'mdi:weather-windy',
     enfermedad: 'Parainfluenza Canina',
     descripcionCorta: 'Polivalente · Refuerzo anual',
     descripcionLarga: 'Una de las causas principales del complejo respiratorio conocido como "tos de las perreras". Muy contagiosa entre perros que conviven.',
@@ -69,7 +69,7 @@ export const vacunasInfo = {
     riesgo: 'medio',
   },
   'bordetella': {
-    icon: '🐕',
+    icon: 'mdi:paw',
     enfermedad: 'Tos de las Perreras (Bordetella)',
     descripcionCorta: 'Recomendada · 6-12 meses',
     descripcionLarga: 'Infección bacteriana del tracto respiratorio superior, muy contagiosa en parques, guarderías o residencias caninas.',
@@ -78,7 +78,7 @@ export const vacunasInfo = {
     riesgo: 'medio',
   },
   'coronavirus canino': {
-    icon: '🦠',
+    icon: 'mdi:virus-outline',
     enfermedad: 'Coronavirus Entérico Canino',
     descripcionCorta: 'Opcional · Refuerzo anual',
     descripcionLarga: 'Provoca diarreas y problemas gastrointestinales en perros. Especialmente relevante en cachorros y perros de criadero.',
@@ -87,7 +87,7 @@ export const vacunasInfo = {
     riesgo: 'medio',
   },
   'leishmaniosis': {
-    icon: '🦟',
+    icon: 'mdi:bug-outline',
     enfermedad: 'Leishmaniosis',
     descripcionCorta: 'Recomendada en zonas mediterráneas',
     descripcionLarga: 'Enfermedad parasitaria transmitida por la picadura del flebótomo. Especialmente relevante en zonas mediterráneas y tropicales.',
@@ -96,7 +96,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'lyme': {
-    icon: '🕷️',
+    icon: 'mdi:bug-outline',
     enfermedad: 'Enfermedad de Lyme (Borrelia)',
     descripcionCorta: 'Recomendada · Garrapatas',
     descripcionLarga: 'Enfermedad transmitida por garrapatas que afecta a articulaciones, riñones y sistema nervioso.',
@@ -107,7 +107,7 @@ export const vacunasInfo = {
 
   // ── GATO ───────────────────────────────────────────────────
   'panleucopenia': {
-    icon: '🧫',
+    icon: 'mdi:flask-outline',
     enfermedad: 'Panleucopenia Felina (Parvovirus felino)',
     descripcionCorta: 'Obligatoria · Refuerzo anual',
     descripcionLarga: 'Destruye glóbulos blancos dejando al gato sin defensas. Muy contagiosa con alta mortalidad en gatitos.',
@@ -116,7 +116,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'herpesvirus': {
-    icon: '🤧',
+    icon: 'mdi:emoticon-sick-outline',
     enfermedad: 'Rinotraqueitis Viral Felina (Herpesvirus felino)',
     descripcionCorta: 'Trivalente · Refuerzo anual',
     descripcionLarga: 'Infección del tracto respiratorio superior causada por el herpesvirus felino tipo 1. Muy común en colonias de gatos.',
@@ -125,7 +125,7 @@ export const vacunasInfo = {
     riesgo: 'medio',
   },
   'calicivirus': {
-    icon: '😿',
+    icon: 'mdi:paw',
     enfermedad: 'Calicivirus Felino',
     descripcionCorta: 'Trivalente · Refuerzo anual',
     descripcionLarga: 'Infección viral del tracto respiratorio y cavidad oral. Puede causar úlceras dolorosas y cojera en casos graves.',
@@ -134,7 +134,7 @@ export const vacunasInfo = {
     riesgo: 'medio',
   },
   'leucemia felina': {
-    icon: '🩸',
+    icon: 'mdi:water',
     enfermedad: 'Leucemia Felina (FeLV)',
     descripcionCorta: 'Recomendada para gatos con exterior',
     descripcionLarga: 'Retrovirus que suprime el sistema inmunológico y puede causar tumores. Se transmite por contacto directo entre gatos.',
@@ -143,7 +143,7 @@ export const vacunasInfo = {
     riesgo: 'alto',
   },
   'clamidiosis': {
-    icon: '👁️',
+    icon: 'mdi:eye-outline',
     enfermedad: 'Clamidiosis Felina',
     descripcionCorta: 'Recomendada en colonias',
     descripcionLarga: 'Causada por Chlamydia felis, provoca conjuntivitis persistente y problemas respiratorios. Especialmente relevante en gatos que conviven con muchos otros.',
@@ -152,7 +152,7 @@ export const vacunasInfo = {
     riesgo: 'bajo',
   },
   'peritonitis': {
-    icon: '🏥',
+    icon: 'mdi:hospital-box-outline',
     enfermedad: 'Peritonitis Infecciosa Felina (PIF)',
     descripcionCorta: 'Opcional · Criaderos',
     descripcionLarga: 'Causada por una mutación del coronavirus felino. Alta mortalidad, especialmente en gatitos. Su uso depende de recomendación veterinaria.',

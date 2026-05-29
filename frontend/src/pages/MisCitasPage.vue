@@ -128,21 +128,14 @@ onMounted(cargarCitas)
       <!-- ── Sin citas ─────────────────────────────────────── -->
       <div v-if="citas.length === 0" class="mc-empty card">
         <div class="mc-empty-icon">
-          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
+          <Icon :icon="$icons.calendar" width="38" height="38" />
         </div>
         <h3 class="mc-empty-titulo">{{ t("appointments.empty") }}</h3>
         <p class="mc-empty-desc">
           {{ t("appointments.emptyDesc") }}
         </p>
         <button type="button" class="btn btn-teal" @click="router.push({ name: 'clinicas' })">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
+          <Icon style="flex-shrink:0" :icon="$icons.location" width="15" height="15" />
           {{ t("appointments.viewVets") }}
         </button>
       </div>
@@ -178,9 +171,7 @@ onMounted(cargarCitas)
                   </div>
                   <p class="mc-descripcion">{{ getDescripcion(cita) }}</p>
                   <p v-if="getNombreClinica(cita)" class="mc-clinica">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
+                    <Icon :icon="$icons.location" width="11" height="11" />
                     {{ getNombreClinica(cita) }}
                     <template v-if="getNombreVet(cita)">
                       · Dr. {{ getNombreVet(cita) }}
@@ -246,9 +237,7 @@ onMounted(cargarCitas)
                   </div>
                   <p class="mc-descripcion">{{ getDescripcion(cita) }}</p>
                   <p v-if="getNombreClinica(cita)" class="mc-clinica">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
+                    <Icon :icon="$icons.location" width="11" height="11" />
                     {{ getNombreClinica(cita) }}
                     <template v-if="getNombreVet(cita)">
                       · Dr. {{ getNombreVet(cita) }}

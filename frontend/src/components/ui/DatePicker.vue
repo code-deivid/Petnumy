@@ -181,18 +181,11 @@ onBeforeUnmount(() => {
       :class="{ 'dp-trigger--open': abierto, 'dp-trigger--filled': !!modelValue }"
       @click="abrirCalendario"
     >
-      <svg class="dp-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8"  y1="2" x2="8"  y2="6"/>
-        <line x1="3"  y1="10" x2="21" y2="10"/>
-      </svg>
+      <Icon class="dp-icon" :icon="$icons.calendar" width="15" height="15" />
       <span v-if="etiqueta" class="dp-value">{{ etiqueta }}</span>
       <span v-else class="dp-placeholder">{{ placeholder }}</span>
       <button v-if="modelValue" class="dp-clear" type="button" @click.stop="limpiar" tabindex="-1">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
+        <Icon :icon="$icons.close" width="11" height="11" />
       </button>
     </div>
 
@@ -219,7 +212,7 @@ onBeforeUnmount(() => {
           <div class="dp-header">
             <button type="button" class="dp-nav-btn"
               @click="modoPicker === 'dias' ? irMesAnterior() : (vistaAño2 -= 16)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <Icon :icon="$icons.chevronLeft" width="14" height="14" />
             </button>
             <div class="dp-header-labels">
               <button type="button" class="dp-header-btn"
@@ -233,7 +226,7 @@ onBeforeUnmount(() => {
             </div>
             <button type="button" class="dp-nav-btn"
               @click="modoPicker === 'dias' ? irMesSiguiente() : (vistaAño2 += 16)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <Icon :icon="$icons.chevronRight" width="14" height="14" />
             </button>
           </div>
 

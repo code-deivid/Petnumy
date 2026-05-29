@@ -211,7 +211,7 @@ async function compartir() {
 
     <!-- Volver -->
     <button type="button" class="md-back" @click="router.push({ name: 'mis-mascotas' })">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <Icon :icon="$icons.back" width="16" height="16" />
       {{ t('pets.backToPets') }}
     </button>
 
@@ -254,11 +254,7 @@ async function compartir() {
                   class="md-genero-pill"
                   :class="mascota.genero === 'macho' ? 'md-genero-pill--m' : 'md-genero-pill--f'"
                 >
-                  <iconify-icon
-                    :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
-                    width="11" height="11"
-                    style="flex-shrink:0"
-                  />
+                  <Icon style="flex-shrink:0" :icon="$icons.male" width="11" height="11" />
                   {{ mascota.genero === 'macho' ? t('common.male') : t('common.female') }}
                 </span>
               </div>
@@ -280,7 +276,7 @@ async function compartir() {
 
               <div v-if="fechaNac" class="md-dato">
                 <span class="md-dato-icon md-dato-icon--teal">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <Icon :icon="$icons.calendar" width="13" height="13" />
                 </span>
                 <div>
                   <span class="md-dato-key">{{ t("petDetail.birthdate") }}</span>
@@ -290,10 +286,7 @@ async function compartir() {
 
               <div v-if="mascota.genero" class="md-dato">
                 <span class="md-dato-icon md-dato-icon--teal">
-                  <iconify-icon
-                    :icon="mascota.genero === 'macho' ? 'mdi:gender-male' : 'mdi:gender-female'"
-                    width="14" height="14"
-                  />
+                  <Icon :icon="$icons.male" width="14" height="14" />
                 </span>
                 <div>
                   <span class="md-dato-key">{{ t("petDetail.gender") }}</span>
@@ -303,7 +296,7 @@ async function compartir() {
 
               <div v-if="mascota.peso" class="md-dato">
                 <span class="md-dato-icon md-dato-icon--teal">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2h12l1 8H5L6 2z"/><path d="M5 10l-2 10h18L19 10"/></svg>
+                  <Icon :icon="$icons.weight" width="13" height="13" />
                 </span>
                 <div>
                   <span class="md-dato-key">{{ t("petDetail.weight") }}</span>
@@ -313,7 +306,7 @@ async function compartir() {
 
               <div v-if="mascota.microchip" class="md-dato">
                 <span class="md-dato-icon md-dato-icon--teal">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M7 9H5M7 12H5M7 15H5M17 9h2M17 12h2M17 15h2M9 7V5M12 7V5M15 7V5M9 17v2M12 17v2M15 17v2"/></svg>
+                  <Icon :icon="$icons.chip" width="13" height="13" />
                 </span>
                 <div>
                   <span class="md-dato-key">{{ t("petDetail.microchip") }}</span>
@@ -324,7 +317,7 @@ async function compartir() {
               <!-- Edad si hay nacimiento -->
               <div v-if="edad" class="md-dato">
                 <span class="md-dato-icon md-dato-icon--teal">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <Icon :icon="$icons.clock" width="13" height="13" />
                 </span>
                 <div>
                   <span class="md-dato-key">{{ t("petDetail.age") }}</span>
@@ -337,11 +330,11 @@ async function compartir() {
             <!-- Botones acción -->
             <div class="md-hero-btns">
               <button type="button" class="btn btn-teal" @click="router.push({ name: 'nueva-mascota', query: { editar: mascota.id } })">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <Icon :icon="$icons.edit" width="13" height="13" />
                 {{ t('petDetail.editProfile') }}
               </button>
               <button type="button" class="btn btn-outline" @click="compartir">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <Icon :icon="$icons.share" width="13" height="13" />
                 {{ t('petDetail.shareProfile') }}
               </button>
             </div>
@@ -357,12 +350,12 @@ async function compartir() {
         <div class="md-section-head">
           <div class="md-section-title-row">
             <div class="md-section-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <Icon :icon="$icons.health" width="15" height="15" />
             </div>
             <h2 class="md-section-h2">{{ t("petDetail.vaccineHistory") }}</h2>
           </div>
           <button type="button" class="btn btn-primary btn-sm" @click="modalAddVacuna = true">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <Icon :icon="$icons.add" width="13" height="13" />
             {{ t('petDetail.addVaccine') }}
           </button>
         </div>
@@ -404,7 +397,7 @@ async function compartir() {
           <!-- Sin vacunas — empty state elegante -->
           <div v-else-if="vacunas.length === 0" class="vac-empty">
             <div class="vac-empty-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <Icon :icon="$icons.health" width="28" height="28" />
             </div>
             <p class="vac-empty-title">{{ t("petDetail.emptyVaccines") }}</p>
             <p class="vac-empty-sub">{{ t('petDetail.addFirstVaccineFor') }} <strong>{{ mascota.nombre }}</strong></p>
@@ -434,10 +427,7 @@ async function compartir() {
             <!-- Icono + nombre -->
             <div class="vac-col-nombre" @click="abrirDetalle(vac)">
               <div class="vac-row-icon" :class="`vac-row-icon--${vac.estado}`">
-                <span v-if="vacunaInfoDisplay(vac).icon" class="vac-icon-emoji">
-                  {{ vacunaInfoDisplay(vac).icon }}
-                </span>
-                <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                <Icon class="vac-icon-emoji" :icon="vacunaInfoDisplay(vac).icon || $icons.vaccine" width="18" height="18" />
               </div>
               <div class="vac-nombre-wrap">
                 <span class="vac-nombre">{{ vacunaInfoDisplay(vac).enfermedad || vac.vacuna?.nombre || '—' }}</span>
@@ -499,11 +489,11 @@ async function compartir() {
               <div class="vac-micro-btns">
                 <button type="button" class="vac-micro-btn vac-micro-btn--edit"
                   :title="t('common.edit')" @click.stop="abrirEditar(vac)">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <Icon :icon="$icons.edit" width="11" height="11" />
                 </button>
                 <button type="button" class="vac-micro-btn vac-micro-btn--del"
                   :title="t('common.delete')" @click.stop="pedirEliminar(vac)">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                  <Icon :icon="$icons.delete" width="11" height="11" />
                 </button>
               </div>
             </div>
@@ -518,13 +508,7 @@ async function compartir() {
                 :ref="el => { if (el) reminderBtnRefs[vac.id] = el }"
                 @click.stop="toggleReminder(vac.id)"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24"
-                  fill="none"
-                  :stroke="getDeVacuna(vac.id) ? 'var(--color-teal-dark)' : 'currentColor'"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                  <path d="M13.73 21a2 2 0 01-3.46 0"/>
-                </svg>
+                <Icon :icon="$icons.vaccine" width="14" height="14" />
                 <span v-if="getDeVacuna(vac.id)" class="vac-bell-dot" />
               </button>
               <ReminderPopover
@@ -546,7 +530,7 @@ async function compartir() {
         <div v-if="confirmEliminar" class="vac-confirm-overlay" @click.self="confirmEliminar = null">
           <div class="vac-confirm-card card">
             <div class="vac-confirm-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              <Icon :icon="$icons.delete" width="22" height="22" />
             </div>
             <h3 class="vac-confirm-title">{{ t("petDetail.deleteVaccineTitle") }}</h3>
             <p class="vac-confirm-desc">
@@ -586,10 +570,7 @@ async function compartir() {
         <div v-if="proximaVacuna" class="card md-tip md-tip--coral">
           <div class="card-body md-tip-body">
             <div class="md-tip-icon md-tip-icon--coral">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 01-3.46 0"/>
-              </svg>
+              <Icon :icon="$icons.health" width="17" height="17" />
             </div>
             <div>
               <p class="md-tip-label">{{ t("petDetail.reminderTitle") }}</p>
@@ -606,9 +587,7 @@ async function compartir() {
         <div class="card md-tip md-tip--teal">
           <div class="card-body md-tip-body">
             <div class="md-tip-icon md-tip-icon--teal">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-              </svg>
+              <Icon :icon="$icons.health" width="17" height="17" />
             </div>
             <div>
               <p class="md-tip-label">{{ t("petDetail.preventiveTitle") }}</p>

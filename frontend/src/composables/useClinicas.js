@@ -69,12 +69,12 @@ function geocodificarZona(query) {
 
 // ── Servicio label/icon map ───────────────────────────────────
 export const SERVICIOS_META = {
-  urgencias:       { label: 'Urgencias',    icon: '🚨', color: '#D95F5F', bg: '#FDEAEA' },
-  exoticos:        { label: 'Exóticos',     icon: '🦎', color: '#B07D1A', bg: '#FEF6DC' },
-  peluqueria:      { label: 'Peluquería',   icon: '✂️',  color: '#A03A5A', bg: '#FCE8F0' },
-  vacunas:         { label: 'Vacunas',      icon: '💉', color: '#4AADA5', bg: '#E0F1EE' },
-  cirugia:         { label: 'Cirugía',      icon: '🔬', color: '#6B4C38', bg: '#F7F0E8' },
-  hospitalizacion: { label: 'Hospitalización', icon: '🏥', color: '#3A5FA0', bg: '#E8F0FC' },
+  urgencias:       { label: 'Urgencias',    icon: 'mdi:ambulance', color: '#D95F5F', bg: '#FDEAEA' },
+  exoticos:        { label: 'Exóticos',     icon: 'mdi:snake', color: '#B07D1A', bg: '#FEF6DC' },
+  peluqueria:      { label: 'Peluquería',   icon: 'mdi:content-cut',  color: '#A03A5A', bg: '#FCE8F0' },
+  vacunas:         { label: 'Vacunas',      icon: 'mdi:needle', color: '#4AADA5', bg: '#E0F1EE' },
+  cirugia:         { label: 'Cirugía',      icon: 'mdi:medical-bag', color: '#6B4C38', bg: '#F7F0E8' },
+  hospitalizacion: { label: 'Hospitalización', icon: 'mdi:hospital-box-outline', color: '#3A5FA0', bg: '#E8F0FC' },
 }
 
 // Solo estos servicios se exponen como filtros principales en la pantalla de clínicas.

@@ -46,74 +46,19 @@ const loggedIn = computed(() => auth.isLoggedIn);
             :to="{ name: loggedIn ? 'home' : 'landing' }"
             class="pf-link"
           >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.home" width="13" height="13" />
             {{ t("footer.home") }}
           </RouterLink>
           <RouterLink :to="{ name: 'clinicas' }" class="pf-link">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.location" width="13" height="13" />
             {{ t("footer.clinics") }}
           </RouterLink>
           <RouterLink :to="{ name: 'mis-mascotas' }" class="pf-link">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <circle cx="5" cy="8" r="2.2" />
-              <circle cx="9.5" cy="5" r="2.2" />
-              <circle cx="14.5" cy="5" r="2.2" />
-              <circle cx="19" cy="8" r="2.2" />
-              <path
-                d="M7.2 14.8c1.6-3.2 8-3.2 9.6 0 1 2-.5 4.2-2.6 3.5-1.4-.5-3-.5-4.4 0-2.1.7-3.6-1.5-2.6-3.5z"
-              />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.pets" width="13" height="13" />
             {{ t("footer.myPets") }}
           </RouterLink>
           <RouterLink :to="{ name: 'mis-citas' }" class="pf-link">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.calendar" width="13" height="13" />
             {{ t("footer.myAppointments") }}
           </RouterLink>
         </nav>
@@ -124,54 +69,15 @@ const loggedIn = computed(() => auth.isLoggedIn);
         <h3 class="pf-col-title">{{ t("footer.account") }}</h3>
         <nav class="pf-nav" aria-label="Cuenta">
           <RouterLink :to="{ name: 'login' }" class="pf-link">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
-              <polyline points="10 17 15 12 10 7" />
-              <line x1="15" y1="12" x2="3" y2="12" />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.login" width="13" height="13" />
             {{ t("footer.signIn") }}
           </RouterLink>
           <RouterLink :to="{ name: 'registro' }" class="pf-link">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <line x1="19" y1="8" x2="19" y2="14" />
-              <line x1="22" y1="11" x2="16" y2="11" />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.addCircle" width="13" height="13" />
             {{ t("footer.signUp") }}
           </RouterLink>
           <RouterLink v-if="loggedIn" :to="{ name: 'perfil' }" class="pf-link">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+            <Icon aria-hidden="true" :icon="$icons.user" width="13" height="13" />
             {{ t("footer.profile") }}
           </RouterLink>
         </nav>

@@ -54,9 +54,7 @@ async function handleReset() {
 
       <!-- Icono -->
       <div class="rp-icon-wrap">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-        </svg>
+        <Icon :icon="$icons.lock" width="28" height="28" />
       </div>
 
       <h1 class="rp-title">{{ t("auth.newPassword.title") }}</h1>
@@ -83,9 +81,7 @@ async function handleReset() {
           <div class="input-group">
             <label class="label" for="rp-pass">{{ t("auth.newPassword.password") }}</label>
             <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-              </svg>
+              <Icon class="input-icon" :icon="$icons.lock" width="18" height="18" />
               <input
                 id="rp-pass"
                 v-model="password"
@@ -100,9 +96,7 @@ async function handleReset() {
           <div class="input-group">
             <label class="label" for="rp-pass2">{{ t("auth.newPassword.confirm") }}</label>
             <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-              </svg>
+              <Icon class="input-icon" :icon="$icons.lock" width="18" height="18" />
               <input
                 id="rp-pass2"
                 v-model="passwordConfirm"

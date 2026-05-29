@@ -147,10 +147,7 @@ async function enviarReset() {
           <div class="input-group">
             <label class="label" for="login-email">{{ t("auth.email") }}</label>
             <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
+              <Icon class="input-icon" :icon="$icons.mail" width="18" height="18" />
               <input
                 id="login-email"
                 v-model="email"
@@ -167,10 +164,7 @@ async function enviarReset() {
           <div class="input-group">
             <label class="label" for="login-password">{{ t("auth.password") }}</label>
             <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0110 0v4"/>
-              </svg>
+              <Icon class="input-icon" :icon="$icons.lock" width="18" height="18" />
               <input
                 id="login-password"
                 v-model="password"
@@ -211,12 +205,7 @@ async function enviarReset() {
         <button type="button" class="btn-social" :disabled="loadingGoogle" @click="handleGoogle">
           <span v-if="loadingGoogle" class="spinner" style="width:16px;height:16px;border-width:2px;border-top-color:var(--color-teal)"/>
           <template v-else>
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
+            <Icon :icon="$icons.google" width="18" height="18" />
             Inicia Sesión con Google
           </template>
         </button>
@@ -239,17 +228,13 @@ async function enviarReset() {
             <!-- Header -->
             <div class="modal-header">
               <div style="display:flex;align-items:center;gap:0.5rem">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-                </svg>
+                <Icon :icon="$icons.lock" width="18" height="18" />
                 <span style="font-family:var(--font-display);font-weight:700;font-size:0.95rem">
                   {{ t("auth.reset.title") }}
                 </span>
               </div>
               <button type="button" class="modal-close-btn" @click="cerrarReset">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
+                <Icon :icon="$icons.close" width="16" height="16" />
               </button>
             </div>
 
@@ -272,10 +257,7 @@ async function enviarReset() {
                 <div class="input-group">
                   <label class="label" for="reset-email">{{ t("auth.email") }}</label>
                   <div class="input-wrapper">
-                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                      <polyline points="22,6 12,13 2,6"/>
-                    </svg>
+                    <Icon class="input-icon" :icon="$icons.mail" width="18" height="18" />
                     <input
                       id="reset-email"
                       v-model="resetEmail"

@@ -228,26 +228,15 @@ function volver() { router.back() }
               <div class="nm-foto-circle">
                 <img v-if="fotoPreview" :src="fotoPreview" :alt="t('pets.pet')" class="nm-foto-img" />
                 <div v-else class="nm-foto-placeholder">
-                  <svg width="44" height="44" viewBox="0 0 60 60" fill="none">
-                    <ellipse cx="14" cy="24" rx="6"   ry="8"   fill="var(--color-primary-mid)" opacity="0.7"/>
-                    <ellipse cx="46" cy="24" rx="6"   ry="8"   fill="var(--color-primary-mid)" opacity="0.7"/>
-                    <ellipse cx="24" cy="14" rx="5.5" ry="7.5" fill="var(--color-primary-mid)" opacity="0.7"/>
-                    <ellipse cx="36" cy="14" rx="5.5" ry="7.5" fill="var(--color-primary-mid)" opacity="0.7"/>
-                    <path d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z" fill="var(--color-primary-mid)" opacity="0.7"/>
-                  </svg>
+                  <Icon :icon="$icons.camera" width="44" height="44" />
                 </div>
                 <!-- Botón + solo cuando NO hay foto -->
                 <div v-if="!fotoPreview" class="nm-foto-btn">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
+                  <Icon :icon="$icons.add" width="14" height="14" />
                 </div>
                 <!-- Icono de editar sutil cuando SÍ hay foto (hover) -->
                 <div v-else class="nm-foto-edit-overlay">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
+                  <Icon :icon="$icons.edit" width="16" height="16" />
                 </div>
               </div>
               <span class="nm-foto-label">
@@ -361,7 +350,7 @@ function volver() { router.back() }
                       Cargado desde CDN en index.html (o puede añadirse aquí con script).
                       Fallback: texto si Iconify no está disponible.
                     -->
-                    <iconify-icon icon="mdi:gender-male" width="14" height="14" style="vertical-align:middle;margin-right:3px" />
+                    <Icon style="vertical-align:middle;margin-right:3px" :icon="$icons.male" width="14" height="14" />
                     {{ t('pets.male') }}
                   </button>
                   <button
@@ -369,7 +358,7 @@ function volver() { router.back() }
                     :class="['pill-btn pill-btn--hembra', { 'pill-btn--on': form.genero === 'hembra' }]"
                     @click="form.genero = 'hembra'"
                   >
-                    <iconify-icon icon="mdi:gender-female" width="14" height="14" style="vertical-align:middle;margin-right:3px" />
+                    <Icon style="vertical-align:middle;margin-right:3px" :icon="$icons.male" width="14" height="14" />
                     {{ t('pets.female') }}
                   </button>
                 </div>

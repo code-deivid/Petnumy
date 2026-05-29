@@ -50,8 +50,7 @@ watch(() => props.visible, v => {
           <!-- Header -->
           <div class="mdv-header">
             <div class="mdv-header-icon">
-              <span v-if="info?.icon" style="font-size:1.3rem">{{ info.icon }}</span>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <Icon :icon="info?.icon || $icons.vaccine" width="22" height="22" />
             </div>
             <div class="mdv-header-text">
               <h3 class="mdv-title">{{ info?.enfermedad || vacuna?.vacuna?.nombre || t('petDetail.colVaccine') }}</h3>
@@ -61,9 +60,7 @@ watch(() => props.visible, v => {
               >{{ estadoLabel(vacuna?.estado) }}</span>
             </div>
             <button type="button" class="mdv-close" @click="$emit('close')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+              <Icon :icon="$icons.close" width="14" height="14" />
             </button>
           </div>
 

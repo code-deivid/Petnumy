@@ -100,10 +100,7 @@ watch(() => props.visible, (v) => {
           <div class="sm-header">
             <!-- Botón cerrar -->
             <button class="sm-close" @click="$emit('close')" :aria-label="t('settings.close')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+              <Icon :icon="$icons.close" width="14" height="14" />
             </button>
 
             <!-- Avatar circular -->
@@ -122,31 +119,16 @@ watch(() => props.visible, (v) => {
             <!-- Perfil -->
             <button class="sm-item" @click="irPerfil">
               <div class="sm-item-icon sm-item-icon--teal">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
+                <Icon :icon="$icons.user" width="16" height="16" />
               </div>
               <span class="sm-item-label">{{ t('settings.profile') }}</span>
-              <svg class="sm-item-arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <path d="M9 18l6-6-6-6"/>
-              </svg>
+              <Icon class="sm-item-arrow" :icon="$icons.chevronRight" width="13" height="13" />
             </button>
 
             <!-- Apariencia / dark mode -->
             <div class="sm-item sm-item--noclick">
               <div class="sm-item-icon sm-item-icon--teal">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="5"/>
-                  <line x1="12" y1="1" x2="12" y2="3"/>
-                  <line x1="12" y1="21" x2="12" y2="23"/>
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                  <line x1="1" y1="12" x2="3" y2="12"/>
-                  <line x1="21" y1="12" x2="23" y2="12"/>
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                </svg>
+                <Icon :icon="$icons.light" width="16" height="16" />
               </div>
               <span class="sm-item-label">{{ t('settings.darkMode') }}</span>
               <!-- Toggle dark mode -->
@@ -167,20 +149,14 @@ watch(() => props.visible, (v) => {
             <!-- Idioma -->
             <div class="sm-item sm-item--noclick sm-lang-wrap">
               <div class="sm-item-icon sm-item-icon--teal">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="2" y1="12" x2="22" y2="12"/>
-                  <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                </svg>
+                <Icon :icon="$icons.language" width="16" height="16" />
               </div>
               <span class="sm-item-label">{{ t('settings.language') }}</span>
 
               <!-- Selector idioma inline -->
               <div class="sm-lang-selector" @click.stop="langOpen = !langOpen">
                 <span class="sm-lang-badge">{{ currentLang.flag }}</span>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" :style="{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <Icon :style="{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }" :icon="$icons.chevronDown" width="11" height="11" />
               </div>
 
               <!-- Dropdown idiomas -->
@@ -195,7 +171,7 @@ watch(() => props.visible, (v) => {
                   >
                     <span class="sm-lang-opt-flag">{{ lang.flag }}</span>
                     <span class="sm-lang-opt-label">{{ lang.label }}</span>
-                    <svg v-if="lang.code === locale" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <Icon v-if="lang.code === locale" :icon="$icons.check" width="12" height="12" />
                   </button>
                 </div>
               </Transition>
@@ -206,11 +182,7 @@ watch(() => props.visible, (v) => {
             <!-- Cerrar sesión -->
             <button class="sm-item sm-item--logout" @click="logout">
               <div class="sm-item-icon sm-item-icon--danger">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                  <polyline points="16 17 21 12 16 7"/>
-                  <line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
+                <Icon :icon="$icons.logout" width="16" height="16" />
               </div>
               <span class="sm-item-label sm-item-label--danger">{{ t('settings.logout') }}</span>
             </button>

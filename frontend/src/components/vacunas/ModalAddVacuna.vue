@@ -204,9 +204,7 @@ const hoy = new Date().toISOString().split('T')[0]
           <div class="mav-header">
             <div class="mav-header-left">
               <div class="mav-header-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
+                <Icon :icon="$icons.health" width="16" height="16" />
               </div>
               <div>
                 <h3 class="mav-title">{{ modoEdicion ? t('vaccines.editTitle') : t('vaccines.addTitle') }}</h3>
@@ -218,9 +216,7 @@ const hoy = new Date().toISOString().split('T')[0]
               </div>
             </div>
             <button type="button" class="mav-close" @click="$emit('close')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+              <Icon :icon="$icons.close" width="14" height="14" />
             </button>
           </div>
 
@@ -241,18 +237,13 @@ const hoy = new Date().toISOString().split('T')[0]
                 @click="seleccionar(v)"
               >
                 <div class="mav-card-icon">
-                  <span v-if="v.info?.icon" class="mav-card-emoji">{{ v.info.icon }}</span>
-                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                  </svg>
+                  <Icon class="mav-card-emoji" :icon="v.info?.icon || $icons.vaccine" width="20" height="20" />
                 </div>
                 <div class="mav-card-info">
                   <span class="mav-card-nombre">{{ v.nombre }}</span>
                   <span class="mav-card-desc">{{ v.info?.descripcionCorta || v.descripcion || '' }}</span>
                 </div>
-                <svg v-if="vacunaSeleccionada?.id === v.id" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" class="mav-card-check">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
+                <Icon v-if="vacunaSeleccionada?.id === v.id" class="mav-card-check" :icon="$icons.check" width="16" height="16" />
               </button>
             </div>
           </div>
@@ -262,7 +253,7 @@ const hoy = new Date().toISOString().split('T')[0]
 
             <!-- Vacuna elegida -->
             <div class="mav-elegida">
-              <span class="mav-elegida-emoji">{{ infoVacuna?.icon || '💉' }}</span>
+              <Icon class="mav-elegida-emoji" :icon="infoVacuna?.icon || $icons.vaccine" width="22" height="22" />
               <div>
                 <p class="mav-elegida-nombre">{{ vacunaSeleccionada?.nombre }}</p>
                 <p class="mav-elegida-desc">{{ infoVacuna?.descripcionCorta || vacunaSeleccionada?.descripcion }}</p>

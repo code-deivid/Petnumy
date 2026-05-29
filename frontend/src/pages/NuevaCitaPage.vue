@@ -157,13 +157,13 @@ function formatPrecio(precio) {
             >
               <div class="card-body flex items-center gap-3">
                 <div class="clinica-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <Icon :icon="$icons.home" width="20" height="20" />
                 </div>
                 <div class="flex flex-col gap-1">
                   <span class="clinica-nombre">{{ clinica.nombre }}</span>
                   <span class="clinica-ciudad">{{ clinica.ciudad }}</span>
                 </div>
-                <svg class="ml-auto" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                <Icon class="ml-auto" :icon="$icons.chevronRight" width="14" height="14" />
               </div>
             </button>
           </div>
@@ -194,7 +194,7 @@ function formatPrecio(precio) {
                       <span v-if="vet.especialidad" class="opcion-sub">{{ vet.especialidad }}</span>
                     </div>
                     <div v-if="vetSel?.id === vet.id" class="opcion-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <Icon :icon="$icons.check" width="14" height="14" />
                     </div>
                   </div>
                 </button>
@@ -220,7 +220,7 @@ function formatPrecio(precio) {
                       </span>
                     </div>
                     <div v-if="servicioSel?.id === srv.id" class="opcion-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      <Icon :icon="$icons.check" width="14" height="14" />
                     </div>
                   </div>
                 </button>

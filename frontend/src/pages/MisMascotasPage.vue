@@ -164,16 +164,7 @@ const consejoHoy = computed(() => {
         <div class="card mm-empty-card">
           <div class="card-body mm-empty-body">
             <div class="mm-empty-paw">
-              <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
-                <ellipse cx="14" cy="24" rx="6" ry="8" fill="#E0D0C0" />
-                <ellipse cx="46" cy="24" rx="6" ry="8" fill="#E0D0C0" />
-                <ellipse cx="24" cy="14" rx="5.5" ry="7.5" fill="#E0D0C0" />
-                <ellipse cx="36" cy="14" rx="5.5" ry="7.5" fill="#E0D0C0" />
-                <path
-                  d="M30 28c-10 0-18 8-18 15 0 5 4 9 9 9 3.5 0 5.5-1.5 9-1.5s5.5 1.5 9 1.5c5 0 9-4 9-9 0-7-8-15-18-15z"
-                  fill="#E0D0C0"
-                />
-              </svg>
+              <Icon :icon="$icons.pets" width="52" height="52" />
             </div>
             <h3>{{ t("pets.empty") }}</h3>
             <p>{{ t("pets.emptyDesc") }}, vacunas y citas.</p>
@@ -189,19 +180,7 @@ const consejoHoy = computed(() => {
         <div class="card card-mint mm-tip">
           <div class="card-body mm-tip-body">
             <div class="mm-tip-icon">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4" />
-                <path d="M12 8h.01" />
-              </svg>
+              <Icon :icon="$icons.info" width="16" height="16" />
             </div>
             <div>
               <p class="mm-tip-label">{{ t("pets.tip") }}</p>
@@ -247,19 +226,7 @@ const consejoHoy = computed(() => {
           <div class="card card-mint mm-tip">
             <div class="card-body mm-tip-body">
               <div class="mm-tip-icon">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 16v-4" />
-                  <path d="M12 8h.01" />
-                </svg>
+                <Icon :icon="$icons.info" width="16" height="16" />
               </div>
               <div>
                 <p class="mm-tip-label">{{ t("pets.tip") }}</p>
@@ -289,23 +256,7 @@ const consejoHoy = computed(() => {
                   @click="editarMascota($event, mascota)"
                   :title="t('common.edit')"
                 >
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
-                    />
-                    <path
-                      d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-                    />
-                  </svg>
+                  <Icon :icon="$icons.edit" width="11" height="11" />
                 </button>
                 <!-- FIX 1: abre modal propio en vez de window.confirm -->
                 <button
@@ -313,20 +264,7 @@ const consejoHoy = computed(() => {
                   @click="pedirConfirmacion($event, mascota)"
                   :title="t('common.delete')"
                 >
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                    <path d="M10 11v6M14 11v6" />
-                  </svg>
+                  <Icon :icon="$icons.delete" width="11" height="11" />
                 </button>
               </div>
 
@@ -370,16 +308,7 @@ const consejoHoy = computed(() => {
                         : 'mm-tag--hembra',
                     ]"
                   >
-                    <iconify-icon
-                      :icon="
-                        mascota.genero === 'macho'
-                          ? 'mdi:gender-male'
-                          : 'mdi:gender-female'
-                      "
-                      width="11"
-                      height="11"
-                      style="flex-shrink: 0"
-                    />
+                    <Icon style="flex-shrink: 0" :icon="$icons.male" width="11" height="11" />
                     {{ displayGender(mascota.genero) }}
                   </span>
                 </div>
@@ -388,33 +317,11 @@ const consejoHoy = computed(() => {
               <!-- Pie -->
               <div class="mm-card-footer">
                 <div v-if="mascota.nacimiento" class="mm-card-dato">
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  >
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
+                  <Icon :icon="$icons.calendar" width="11" height="11" />
                   {{ calcEdad(mascota.nacimiento) }}
                 </div>
                 <div v-if="mascota.peso" class="mm-card-dato">
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  >
-                    <circle cx="12" cy="12" r="4" />
-                    <line x1="12" y1="2" x2="12" y2="6" />
-                  </svg>
+                  <Icon :icon="$icons.weight" width="11" height="11" />
                   {{ mascota.peso }} {{ t("common.kg") }}
                 </div>
               </div>
@@ -432,18 +339,7 @@ const consejoHoy = computed(() => {
             >
               <div class="mm-add-inner">
                 <div class="mm-add-icon">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                  >
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
+                  <Icon :icon="$icons.add" width="20" height="20" />
                 </div>
                 <p class="mm-add-title">{{ t("pets.addPet") }}</p>
                 <p class="mm-add-sub">{{ t("pets.addPetCardDesc") }}</p>
@@ -465,21 +361,7 @@ const consejoHoy = computed(() => {
       <div class="confirm-card card">
         <!-- Icono alerta -->
         <div class="confirm-icon">
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-            <path d="M10 11v6M14 11v6" />
-            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-          </svg>
+          <Icon :icon="$icons.delete" width="22" height="22" />
         </div>
 
         <!-- Texto -->
