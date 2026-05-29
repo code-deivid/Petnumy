@@ -26,7 +26,8 @@ const hasNotifications = hasRecordatorios
 const notifAbiertas   = ref(false)
 const settingsVisible = ref(false)
 const mobileMenu      = ref(false)
-const mobileMenuView  = ref('nav') // 'nav' | 'settings'
+const mobileMenuView  = ref('nav')
+const mobileSettingsOpen = ref(false) // 'nav' | 'settings'
 const langOpenMobile  = ref(false)
 const langPillRef     = ref(null)
 const langDropPos     = ref({ top: '0px', right: '0px' })
@@ -82,7 +83,9 @@ function toggleNotif() {
   settingsVisible.value = false
   mobileMenu.value      = false
   mobileMenuView.value  = 'nav'
+  mobileSettingsOpen.value = false
   langOpenMobile.value  = false
+  mobileSettingsOpen.value = false
 }
 
 function toggleSettings() {
@@ -98,17 +101,20 @@ function toggleMobile() {
   if (mobileMenu.value) {
     mobileMenuView.value = 'nav'
     langOpenMobile.value = false
+    mobileSettingsOpen.value = false
   }
 }
 
 function abrirSettingsMobile() {
-  mobileMenuView.value  = 'settings'
+  // En móvil queremos una subpantalla interna por encima del menú, no otro panel externo.
+  mobileSettingsOpen.value = true
   notifAbiertas.value   = false
   settingsVisible.value = false
   langOpenMobile.value  = false
 }
 
 function volverMenuMobile() {
+  mobileSettingsOpen.value = false
   mobileMenuView.value = 'nav'
   langOpenMobile.value = false
 }
@@ -132,7 +138,9 @@ function handleClickOutside(e) {
     settingsVisible.value = false
     mobileMenu.value      = false
     mobileMenuView.value  = 'nav'
+    mobileSettingsOpen.value = false
     langOpenMobile.value  = false
+    mobileSettingsOpen.value = false
   }
 }
 onMounted(() => {
@@ -285,7 +293,7 @@ function irA(name) {
 
     <!-- Menú móvil integrado: navegación + subventana configuración móvil -->
     <Transition name="mobile-menu">
-      <div v-if="mobileMenu" class="mobile-nav" role="dialog" aria-label="Menú de navegación">
+      <div v-if="mobileMenu" class="mobile-nav" :class="{ 'mobile-nav--settings': mobileMenuView === 'settings' }" role="dialog" aria-label="Menú de navegación">
         <div class="mobile-nav-header">
           <button
             v-if="mobileMenuView === 'settings'"
@@ -340,7 +348,7 @@ function irA(name) {
 
               <div class="mobile-divider" />
 
-              <button class="mobile-link mobile-link--settings" type="button" @click="abrirSettingsMobile">
+              <button class="mobile-link mobile-link--settings" type="button" @click.stop.prevent="abrirSettingsMobile">
                 <span class="mobile-link-icon mobile-link-icon--settings">
                   <Icon :icon="$icons.settings" width="18" height="18" />
                 </span>
@@ -358,6 +366,12 @@ function irA(name) {
           </template>
 
           <template v-else>
+            <div class="mobile-settings-topbar">
+              <button class="mobile-settings-back" type="button" @click.stop.prevent="volverMenuMobile">
+                <Icon :icon="$icons.back" width="18" height="18" />
+                <span>{{ t('common.back') }}</span>
+              </button>
+            </div>
             <p class="mobile-section-label">{{ t("settings.title") }}</p>
 
             <button class="mobile-link" type="button" @click="irA('perfil')">
@@ -433,6 +447,82 @@ function irA(name) {
             </button>
           </template>
         </div>
+
+        <Transition name="mobile-settings-slide">
+          <div v-if="mobileSettingsOpen" class="mobile-settings-overlay" @click.stop>
+            <div class="mobile-settings-overlay-head">
+              <button class="mobile-settings-back" type="button" @click.stop.prevent="volverMenuMobile">
+                <Icon :icon="$icons.back" width="18" height="18" />
+                <span>{{ t('common.back') }}</span>
+              </button>
+              <button class="mobile-settings-close" type="button" @click.stop.prevent="cerrarTodo" :aria-label="t('common.close')">
+                <Icon :icon="$icons.close" width="20" height="20" />
+              </button>
+            </div>
+
+            <p class="mobile-section-label">{{ t("settings.title") }}</p>
+
+            <button class="mobile-link" type="button" @click="irA('perfil')">
+              <span class="mobile-link-icon">
+                <Icon :icon="$icons.user" width="18" height="18" />
+              </span>
+              <span>{{ t("settings.profile") }}</span>
+              <Icon class="mobile-link-arrow" :icon="$icons.chevronRight" width="14" height="14" />
+            </button>
+
+            <div class="mobile-link mobile-link--control">
+              <span class="mobile-link-icon">
+                <Icon :icon="$icons.light" width="18" height="18" />
+              </span>
+              <span>{{ t("settings.darkMode") }}</span>
+              <button
+                class="mobile-toggle"
+                :class="{ 'mobile-toggle--on': isDarkMobile }"
+                type="button"
+                role="switch"
+                :aria-checked="isDarkMobile"
+                @click.stop="toggleDarkMobile"
+              >
+                <span />
+              </button>
+            </div>
+
+            <div class="mobile-link mobile-link--control mobile-lang-control">
+              <span class="mobile-link-icon">
+                <Icon :icon="$icons.language" width="18" height="18" />
+              </span>
+              <span>{{ t("settings.language") }}</span>
+              <button class="mobile-lang-pill" type="button" ref="langPillRef" @click.stop="toggleLangMobile">
+                {{ currentMobileLang.flag }}
+                <Icon :style="{ transform: langOpenMobile ? 'rotate(180deg)' : 'none' }" :icon="$icons.chevronDown" width="12" height="12" />
+              </button>
+            </div>
+
+            <div v-if="langOpenMobile" class="mobile-lang-dropdown mobile-lang-dropdown--inside">
+              <button
+                v-for="lang in mobileLanguages"
+                :key="lang.code"
+                class="mobile-lang-option"
+                :class="{ 'mobile-lang-option--active': lang.code === locale }"
+                type="button"
+                @click.stop="selectMobileLang(lang.code)"
+              >
+                <span>{{ lang.flag }}</span>
+                <strong>{{ lang.label }}</strong>
+              </button>
+            </div>
+
+            <div class="mobile-divider" />
+
+            <button class="mobile-link mobile-link--logout" type="button" @click="logoutMobile">
+              <span class="mobile-link-icon mobile-link-icon--settings">
+                <Icon :icon="$icons.logout" width="18" height="18" />
+              </span>
+              <span>{{ t("settings.logout") }}</span>
+            </button>
+          </div>
+        </Transition>
+
       </div>
     </Transition>
 
@@ -1013,6 +1103,112 @@ function irA(name) {
     height: 40px;
     border-radius: 14px;
   }
+}
+
+
+/* Submenú móvil de configuración: aparece como una pantalla interna por encima del menú */
+.mobile-nav--settings .mobile-nav-header {
+  display: none;
+}
+.mobile-nav--settings .mobile-nav-body {
+  padding-top: 1.15rem;
+}
+.mobile-settings-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 0.25rem 0.25rem;
+}
+.mobile-settings-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  background: var(--color-surface-alt);
+  color: var(--color-text-soft);
+  border: 1px solid rgba(230,185,145,0.22);
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(60,46,31,0.06);
+}
+.mobile-settings-back:hover {
+  background: var(--color-surface-warm);
+  color: var(--color-text);
+}
+html.dark .mobile-settings-back,
+html[data-theme="dark"] .mobile-settings-back {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.78);
+}
+html.dark .mobile-settings-back:hover,
+html[data-theme="dark"] .mobile-settings-back:hover {
+  background: rgba(255,255,255,0.10);
+  color: #fff;
+}
+
+
+/* Subpantalla real de configuración móvil: se superpone al menú y siempre recibe clicks */
+.mobile-settings-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 0.95rem max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--color-surface);
+  border-radius: inherit;
+}
+.mobile-settings-overlay::before {
+  content: '';
+  position: sticky;
+  top: -1rem;
+  height: 0;
+}
+.mobile-settings-overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0.15rem 0.2rem;
+}
+.mobile-settings-close {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: rgba(255,255,255,0.72);
+  color: var(--color-text);
+  border: 1px solid rgba(230,185,145,0.28);
+  box-shadow: 0 8px 18px rgba(60,46,31,0.10);
+}
+.mobile-lang-dropdown--inside {
+  position: static;
+  width: 100%;
+  margin: -0.15rem 0 0.25rem;
+  border-radius: 20px;
+}
+.mobile-settings-slide-enter-active,
+.mobile-settings-slide-leave-active {
+  transition: opacity 220ms ease, transform 260ms cubic-bezier(.22, 1, .36, 1);
+}
+.mobile-settings-slide-enter-from,
+.mobile-settings-slide-leave-to {
+  opacity: 0;
+  transform: translateX(24px);
+}
+html.dark .mobile-settings-overlay,
+html[data-theme="dark"] .mobile-settings-overlay {
+  background: var(--color-surface);
 }
 
 </style>
