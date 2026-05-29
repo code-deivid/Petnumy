@@ -250,7 +250,7 @@ async function confirmar() {
             <p class="rp-sub">{{ nombreVacuna }}</p>
           </div>
           <button type="button" class="rp-close" @click="$emit('close')">
-            <Icon :icon="$icons.vaccine" width="11" height="11" />
+            <Icon :icon="$icons.close" width="14" height="14" />
           </button>
         </div>
 

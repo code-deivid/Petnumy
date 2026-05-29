@@ -121,7 +121,8 @@ async function guardar() {
     <!-- Cabecera -->
     <div class="pf-head">
       <button class="btn btn-ghost btn-sm back-btn" @click="router.back()">
-        ← {{ t('common.back') }}
+        <Icon :icon="$icons.back" width="17" height="17" />
+        <span>{{ t('common.back') }}</span>
       </button>
       <h1>{{ t('profile.title') }}</h1>
     </div>
@@ -296,7 +297,19 @@ async function guardar() {
   gap: 0.35rem;
   margin-bottom: 2rem;
 }
-.back-btn { align-self: flex-start; padding-left: 0; color: var(--color-text-muted); }
+.back-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  background: rgba(255,255,255,0.44);
+  transition: color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+.back-btn:hover { color: var(--color-text); background: var(--color-surface-alt); transform: translateX(-2px); }
 
 /* ── Layout 2 columnas ───────────────────────────────────────── */
 .pf-layout {

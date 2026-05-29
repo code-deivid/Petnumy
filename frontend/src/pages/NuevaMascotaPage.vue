@@ -208,7 +208,8 @@ function volver() { router.back() }
 
     <div class="nm-head">
       <button class="btn btn-ghost btn-sm back-btn" @click="volver">
-        {{ t('common.back') }}
+        <Icon :icon="$icons.back" width="17" height="17" />
+        <span>{{ t('common.back') }}</span>
       </button>
       <h1>{{ modoEdicion ? t('pets.editPet') : t('pets.newPet') }}</h1>
     </div>
@@ -422,7 +423,19 @@ function volver() { router.back() }
 
 .nm-head { display: flex; flex-direction: column; gap: 0.4rem; }
 .nm-head h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
-.back-btn { align-self: flex-start; padding-left: 0; color: var(--color-text-muted); }
+.back-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  background: rgba(255,255,255,0.44);
+  transition: color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+.back-btn:hover { color: var(--color-text); background: var(--color-surface-alt); transform: translateX(-2px); }
 
 /* ── Card: SIN overflow:hidden para que DatePicker y RazaSelect salgan ── */
 .nm-card { box-shadow: var(--shadow-md); overflow: visible; }
@@ -444,21 +457,23 @@ function volver() { router.back() }
   background: var(--color-surface-alt);
   border: 2.5px dashed var(--color-border);
   display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
+  position: relative; overflow: visible;
   transition: border-color var(--transition-fast);
 }
 .nm-foto-area:hover .nm-foto-circle { border-color: var(--color-teal); }
-.nm-foto-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.nm-foto-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .nm-foto-placeholder {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%;
 }
 .nm-foto-btn {
-  position: absolute; bottom: 8px; right: 8px;
-  width: 28px; height: 28px; border-radius: 50%;
+  position: absolute; bottom: -8px; right: -8px;
+  width: 36px; height: 36px; border-radius: 50%;
   background: var(--color-teal);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(124,203,194,0.5);
+  box-shadow: 0 6px 16px rgba(124,203,194,0.45);
+  color: #fff;
+  z-index: 2;
 }
 .nm-foto-label { font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; color: var(--color-primary); text-align: center; }
 
@@ -546,7 +561,7 @@ function volver() { router.back() }
 @media (max-width: 768px) {
   /* Radio de género más grande */
   .nm-genero-option { min-height: 48px; padding: 0.65rem 1rem; }
-  .nm-foto-btn { min-height: 40px; font-size: 0.82rem; }
+  .nm-foto-btn { width: 36px; height: 36px; right: -8px; bottom: -8px; }
   .nm-foto-circle { width: 120px; height: 120px; }
   /* Botones de submit grandes */
   .nm-submit-row { flex-direction: column; gap: 0.6rem; }

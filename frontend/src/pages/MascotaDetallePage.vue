@@ -196,14 +196,6 @@ function fmt(iso) {
   return new Date(iso).toLocaleDateString(dateLocale.value,{day:'2-digit',month:'short',year:'numeric'})
 }
 
-async function compartir() {
-  if (navigator.share) {
-    try { await navigator.share({ title:`Ficha de ${mascota.value.nombre}`, url: window.location.href }) } catch {}
-  } else {
-    await navigator.clipboard?.writeText(window.location.href).catch(()=>{})
-    alert('Enlace copiado al portapapeles')
-  }
-}
 </script>
 
 <template>
@@ -332,10 +324,6 @@ async function compartir() {
               <button type="button" class="btn btn-teal" @click="router.push({ name: 'nueva-mascota', query: { editar: mascota.id } })">
                 <Icon :icon="$icons.edit" width="13" height="13" />
                 {{ t('petDetail.editProfile') }}
-              </button>
-              <button type="button" class="btn btn-outline" @click="compartir">
-                <Icon :icon="$icons.share" width="13" height="13" />
-                {{ t('petDetail.shareProfile') }}
               </button>
             </div>
 

@@ -122,7 +122,10 @@ function formatPrecio(precio) {
 
     <!-- Cabecera con progreso -->
     <div class="ncita-head">
-      <button class="btn btn-ghost btn-sm back-btn" @click="volver">← Volver</button>
+      <button class="btn btn-ghost btn-sm back-btn" @click="volver">
+        <Icon :icon="$icons.back" width="17" height="17" />
+        <span>Volver</span>
+      </button>
       <h1>Nueva cita</h1>
 
       <!-- Indicador de pasos -->
@@ -320,7 +323,18 @@ function formatPrecio(precio) {
 <style scoped>
 /* Cabecera */
 .ncita-head { margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem; }
-.back-btn { align-self: flex-start; padding-left: 0; }
+.back-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  background: rgba(255,255,255,0.44);
+}
+.back-btn:hover { color: var(--color-text); background: var(--color-surface-alt); }
 
 /* Pasos */
 .steps { flex-wrap: wrap; gap: 0.5rem; }
