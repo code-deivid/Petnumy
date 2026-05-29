@@ -1211,4 +1211,20 @@ function fmt(iso) {
   .vac-confirm-btns .btn, .btn-eliminar-vac { width: 100%; justify-content: center; }
   .vac-micro-btns { opacity: 1; }  /* Siempre visible en móvil */
 }
+
+
+/* Dark mode — badges de género legibles y diferenciados */
+:global(html.dark) .md-genero-pill--m,
+:global(html[data-theme="dark"]) .md-genero-pill--m {
+  background: rgba(96, 165, 250, 0.18) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(147, 197, 253, 0.24);
+}
+:global(html.dark) .md-genero-pill--f,
+:global(html[data-theme="dark"]) .md-genero-pill--f {
+  background: rgba(244, 114, 182, 0.18) !important;
+  color: #fbcfe8 !important;
+  border: 1px solid rgba(249, 168, 212, 0.24);
+}
+
 </style>

@@ -86,12 +86,17 @@ body {
   font-family: var(--font-body);
   background-color: var(--color-bg);
   /*
-    OLAS — alejadas y pequeñas.
-    Tile: 320×160px. Arco de radio 90px → patrón amplio y sutil.
-    Las olas se ven como en las capturas de referencia del prototipo.
+    Fondo estático Petnumy inspirado en la referencia:
+    patrón tipo escamas/olas pequeñas, muy suave y sin animación.
+    No se mueve para evitar mareos y para mantener una estética limpia.
   */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237CCBC2' stroke-width='1.8' stroke-opacity='0.18'/%3E%3C/svg%3E");
-  background-size: 320px 160px;
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.54) 0 0.07rem, transparent 0.1rem),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='112' viewBox='0 0 160 112'%3E%3Cg fill='none' stroke='%237CCBC2' stroke-width='3.1' stroke-linecap='round' stroke-opacity='0.095'%3E%3Cpath d='M8 58c0-20.4 16.6-37 37-37s37 16.6 37 37'/%3E%3Cpath d='M88 58c0-20.4 16.6-37 37-37s37 16.6 37 37'/%3E%3Cpath d='M-32 112c0-20.4 16.6-37 37-37s37 16.6 37 37'/%3E%3Cpath d='M48 112c0-20.4 16.6-37 37-37s37 16.6 37 37'/%3E%3Cpath d='M128 112c0-20.4 16.6-37 37-37s37 16.6 37 37'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0));
+  background-size: 30rem 22rem, 160px 112px, 100% 100%;
+  background-position: 0 0, 0 0, 0 0;
+  background-repeat: repeat, repeat, no-repeat;
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
@@ -145,8 +150,7 @@ strong { color: var(--color-text); font-weight: 700; }
     --card-gap:       0.875rem;
   }
   body {
-    /* Olas algo más pequeñas en tablet */
-    background-size: 220px 110px;
+    background-size: 24rem 18rem, 138px 96px, 100% 100%;
   }
 }
 
@@ -156,8 +160,7 @@ strong { color: var(--color-text); font-weight: 700; }
     --page-padding-y: 1.25rem;
   }
   body {
-    /* Olas pequeñas en móvil pero no tiny */
-    background-size: 160px 80px;
+    background-size: 20rem 15rem, 124px 86px, 100% 100%;
   }
 }
 
@@ -214,34 +217,51 @@ html[data-theme="dark"] {
   --shadow-card: 0 1px 3px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.04);
 
   /* ── Cards de género adaptadas a la nueva paleta ─────────── */
-  --card-bg-macho:       #162032;
-  --card-bg-macho-borde: rgba(125,211,199,0.18);
-  --card-bg-hembra:      #2a1525;
-  --card-bg-hembra-borde:rgba(255,138,101,0.18);
+  --card-bg-macho:       #14223a;
+  --card-bg-macho-borde: rgba(96,165,250,0.32);
+  --card-bg-hembra:      #2b1526;
+  --card-bg-hembra-borde:rgba(244,114,182,0.32);
 }
 
 /* ── Dark mode: correcciones de elementos hardcodeados ──────── */
 html.dark .card-bg--macho,
 html[data-theme="dark"] .card-bg--macho {
-  background-color: #162032 !important;
-  border: 1px solid rgba(125,211,199,0.18) !important;
+  background-color: #14223a !important;
+  border: 1px solid rgba(96,165,250,0.32) !important;
+  box-shadow: 0 18px 44px rgba(5,10,20,0.34), inset 0 1px 0 rgba(191,219,254,0.06);
 }
 html.dark .card-bg--hembra,
 html[data-theme="dark"] .card-bg--hembra {
-  background-color: #2a1525 !important;
-  border: 1px solid rgba(255,138,101,0.18) !important;
+  background-color: #2b1526 !important;
+  border: 1px solid rgba(244,114,182,0.32) !important;
+  box-shadow: 0 18px 44px rgba(5,10,20,0.34), inset 0 1px 0 rgba(251,207,232,0.06);
 }
 
-/* Tags sobre cards de género en dark */
+/* Tags de género en dark: más legibles y diferenciados */
 html.dark .mm-tag--macho,
 html[data-theme="dark"] .mm-tag--macho {
-  background: rgba(125,211,199,0.12);
-  color: #7dd3c7;
+  background: rgba(96,165,250,0.18) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(147,197,253,0.24);
 }
 html.dark .mm-tag--hembra,
 html[data-theme="dark"] .mm-tag--hembra {
-  background: rgba(255,138,101,0.12);
-  color: #ff8a65;
+  background: rgba(244,114,182,0.18) !important;
+  color: #fbcfe8 !important;
+  border: 1px solid rgba(249,168,212,0.24);
+}
+
+html.dark .md-genero-pill--m,
+html[data-theme="dark"] .md-genero-pill--m {
+  background: rgba(96,165,250,0.18) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(147,197,253,0.24);
+}
+html.dark .md-genero-pill--f,
+html[data-theme="dark"] .md-genero-pill--f {
+  background: rgba(244,114,182,0.18) !important;
+  color: #fbcfe8 !important;
+  border: 1px solid rgba(249,168,212,0.24);
 }
 
 /* Botones de editar/borrar en cards de mascota */
@@ -275,8 +295,10 @@ html[data-theme="dark"] a {
 /* Olas más sutiles en dark */
 html.dark body,
 html[data-theme="dark"] body {
-  /* Ola muy sutil — teal sobre fondo profundo */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160'%3E%3Cpath d='M0 160 A160 160 0 0 1 320 160' fill='none' stroke='%237dd3c7' stroke-width='1.2' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.035) 0 0.08rem, transparent 0.1rem),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='104' height='72' viewBox='0 0 104 72'%3E%3Cg fill='none' stroke='%237dd3c7' stroke-width='2' stroke-linecap='round' stroke-opacity='0.07'%3E%3Cpath d='M2 36c0-14.4 11.6-26 26-26s26 11.6 26 26'/%3E%3Cpath d='M54 36c0-14.4 11.6-26 26-26s26 11.6 26 26'/%3E%3Cpath d='M-24 72c0-14.4 11.6-26 26-26s26 11.6 26 26'/%3E%3Cpath d='M28 72c0-14.4 11.6-26 26-26s26 11.6 26 26'/%3E%3Cpath d='M80 72c0-14.4 11.6-26 26-26s26 11.6 26 26'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
 }
 
 /* ══════════════════════════════════════════════════════════════

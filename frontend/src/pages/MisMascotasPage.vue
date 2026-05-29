@@ -979,4 +979,30 @@ const consejoHoy = computed(() => {
   /* El botón de añadir ocupa todo el ancho */
   .mm-add-btn { width: 100%; justify-content: center; }
 }
+
+
+/* Dark mode — género con contraste premium */
+:global(html.dark) .card-bg--macho,
+:global(html[data-theme="dark"]) .card-bg--macho {
+  background-color: #14223a !important;
+  border-color: rgba(96, 165, 250, 0.32) !important;
+}
+:global(html.dark) .card-bg--hembra,
+:global(html[data-theme="dark"]) .card-bg--hembra {
+  background-color: #2b1526 !important;
+  border-color: rgba(244, 114, 182, 0.32) !important;
+}
+:global(html.dark) .mm-tag--macho,
+:global(html[data-theme="dark"]) .mm-tag--macho {
+  background: rgba(96, 165, 250, 0.18) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(147, 197, 253, 0.24);
+}
+:global(html.dark) .mm-tag--hembra,
+:global(html[data-theme="dark"]) .mm-tag--hembra {
+  background: rgba(244, 114, 182, 0.18) !important;
+  color: #fbcfe8 !important;
+  border: 1px solid rgba(249, 168, 212, 0.24);
+}
+
 </style>
