@@ -1,14 +1,3 @@
-// src/data/vacunasInfo.js
-// ============================================================
-//  Catálogo informativo de vacunas.
-//  Las CLAVES son subcadenas del nombre del CSV (minúsculas, sin tildes).
-//  getVacunaInfo() hace match parcial → "Parvovirus canino" → clave "parvovirus"
-//
-//  Para añadir una vacuna:
-//    1. Añadir entrada con clave = palabra clave del nombre en minúsculas
-//    2. Opcional: añadirla al seed SQL si aún no está en la BD
-// ============================================================
-
 export const vacunasInfo = {
 
   // ── PERRO Y GATO (compartidas) ─────────────────────────────

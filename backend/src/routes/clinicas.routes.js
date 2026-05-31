@@ -1,5 +1,3 @@
-// src/routes/clinicas.routes.js
-// ============================================================
 //  Rutas del módulo de clínicas — solo lectura
 //  Todas protegidas con requireAuth
 //

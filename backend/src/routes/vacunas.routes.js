@@ -1,5 +1,3 @@
-// src/routes/vacunas.routes.js
-// ============================================================
 //  Rutas del módulo de vacunas
 //  Todas protegidas con requireAuth
 //

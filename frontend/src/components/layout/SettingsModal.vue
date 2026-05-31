@@ -1,193 +1,226 @@
-<!-- src/components/layout/SettingsModal.vue -->
-<!-- Panel de configuración: perfil, dark mode, idioma, logout -->
-<!-- Diseño basado exactamente en la imagen de referencia adjunta -->
 <script setup>
-import PetAvatar from '@/components/ui/PetAvatar.vue'
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { setLocale } from '@/i18n/index.js'
-import { useAuthStore } from '@/stores/auth.store.js'
+import PetAvatar from "@/components/ui/PetAvatar.vue";
+import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { setLocale } from "@/i18n/index.js";
+import { useAuthStore } from "@/stores/auth.store.js";
 
 const props = defineProps({
-  visible: { type: Boolean, default: false }
-})
-const emit = defineEmits(['close'])
+  visible: { type: Boolean, default: false },
+});
+const emit = defineEmits(["close"]);
 
-const router    = useRouter()
-const authStore = useAuthStore()
-const { t, locale } = useI18n()
+const router = useRouter();
+const authStore = useAuthStore();
+const { t, locale } = useI18n();
 
-const nombreUsuario = computed(() => authStore.nombreUsuario || 'Usuario')
-const iniciales     = computed(() => {
-  const n = authStore.usuario?.nombre    || ''
-  const a = authStore.usuario?.apellidos || ''
-  return ((n[0] || '') + (a[0] || '')).toUpperCase() || 'U'
-})
-const fotoUsuario = computed(() => authStore.usuario?.foto || null)
+const nombreUsuario = computed(() => authStore.nombreUsuario || "Usuario");
+const iniciales = computed(() => {
+  const n = authStore.usuario?.nombre || "";
+  const a = authStore.usuario?.apellidos || "";
+  return ((n[0] || "") + (a[0] || "")).toUpperCase() || "U";
+});
+const fotoUsuario = computed(() => authStore.usuario?.foto || null);
 
 // ── Dark mode ─────────────────────────────────────────────────
-const isDark = ref(document.documentElement.classList.contains('dark'))
+const isDark = ref(document.documentElement.classList.contains("dark"));
 
 function toggleDark() {
-  isDark.value = !isDark.value
+  isDark.value = !isDark.value;
   if (isDark.value) {
-    document.documentElement.classList.add('dark')
-    document.documentElement.setAttribute('data-theme', 'dark')
-    localStorage.setItem('petnumy_theme', 'dark')
+    document.documentElement.classList.add("dark");
+    document.documentElement.setAttribute("data-theme", "dark");
+    localStorage.setItem("petnumy_theme", "dark");
   } else {
-    document.documentElement.classList.remove('dark')
-    document.documentElement.removeAttribute('data-theme')
-    localStorage.setItem('petnumy_theme', 'light')
+    document.documentElement.classList.remove("dark");
+    document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem("petnumy_theme", "light");
   }
 }
 
 // ── Idioma ────────────────────────────────────────────────────
 const languages = [
-  { code: 'es', label: 'Español',   flag: 'ES' },
-  { code: 'en', label: 'English',   flag: 'EN' },
-  { code: 'va', label: 'Valencià',  flag: 'VA' }
-]
+  { code: "es", label: "Español", flag: "ES" },
+  { code: "en", label: "English", flag: "EN" },
+  { code: "va", label: "Valencià", flag: "VA" },
+];
 
-const langOpen = ref(false)
+const langOpen = ref(false);
 
-const currentLang = computed(() =>
-  languages.find(l => l.code === locale.value) || languages[0]
-)
+const currentLang = computed(
+  () => languages.find((l) => l.code === locale.value) || languages[0],
+);
 
 function selectLang(code) {
-  setLocale(code)
-  langOpen.value = false
+  setLocale(code);
+  langOpen.value = false;
 }
 
 // ── Perfil ────────────────────────────────────────────────────
 function irPerfil() {
-  emit('close')
+  emit("close");
   // Si existe la ruta 'perfil', navegar; si no, ir a home
   try {
-    router.push({ name: 'perfil' })
+    router.push({ name: "perfil" });
   } catch {
-    router.push({ name: 'home' })
+    router.push({ name: "home" });
   }
 }
 
 // ── Logout ────────────────────────────────────────────────────
 function logout() {
-  emit('close')
-  authStore.clearSession()
-  router.push({ name: 'landing' })
+  emit("close");
+  authStore.clearSession();
+  router.push({ name: "landing" });
 }
 
 // Cerrar con Escape
 function onKeydown(e) {
-  if (e.key === 'Escape') emit('close')
+  if (e.key === "Escape") emit("close");
 }
-watch(() => props.visible, (v) => {
-  if (v) {
-    document.addEventListener('keydown', onKeydown)
-  } else {
-    document.removeEventListener('keydown', onKeydown)
-    langOpen.value = false
-  }
-})
+watch(
+  () => props.visible,
+  (v) => {
+    if (v) {
+      document.addEventListener("keydown", onKeydown);
+    } else {
+      document.removeEventListener("keydown", onKeydown);
+      langOpen.value = false;
+    }
+  },
+);
 </script>
 
 <template>
   <Transition name="settings-modal">
-    <div v-if="visible" class="sm-popover" role="dialog" aria-modal="true" :aria-label="t('settings.title')">
+    <div
+      v-if="visible"
+      class="sm-popover"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('settings.title')"
+    >
+      <!-- ── Cabecera beige con avatar ───────────────── -->
+      <div class="sm-header">
+        <!-- Botón cerrar -->
+        <button
+          class="sm-close"
+          @click="$emit('close')"
+          :aria-label="t('settings.close')"
+        >
+          <Icon :icon="$icons.close" width="14" height="14" />
+        </button>
 
-          <!-- ── Cabecera beige con avatar ───────────────── -->
-          <div class="sm-header">
-            <!-- Botón cerrar -->
-            <button class="sm-close" @click="$emit('close')" :aria-label="t('settings.close')">
-              <Icon :icon="$icons.close" width="14" height="14" />
-            </button>
+        <!-- Avatar circular -->
+        <PetAvatar
+          :foto="fotoUsuario"
+          :nombre="nombreUsuario"
+          tipo="usuario"
+          size="xl"
+        />
 
-            <!-- Avatar circular -->
-            <PetAvatar :foto="fotoUsuario" :nombre="nombreUsuario" tipo="usuario" size="xl" />
+        <!-- Saludo -->
+        <p class="sm-greeting">
+          {{ t("settings.hello", { name: nombreUsuario.toUpperCase() }) }}
+        </p>
+      </div>
 
-            <!-- Saludo -->
-            <p class="sm-greeting">
-              {{ t('settings.hello', { name: nombreUsuario.toUpperCase() }) }}
-            </p>
+      <!-- ── Cuerpo ───────────────────────────────────── -->
+      <div class="sm-body">
+        <p class="sm-section-label">{{ t("settings.title").toUpperCase() }}</p>
+
+        <!-- Perfil -->
+        <button class="sm-item" @click="irPerfil">
+          <div class="sm-item-icon sm-item-icon--teal">
+            <Icon :icon="$icons.user" width="16" height="16" />
+          </div>
+          <span class="sm-item-label">{{ t("settings.profile") }}</span>
+          <Icon
+            class="sm-item-arrow"
+            :icon="$icons.chevronRight"
+            width="13"
+            height="13"
+          />
+        </button>
+
+        <!-- Apariencia / dark mode -->
+        <div class="sm-item sm-item--noclick">
+          <div class="sm-item-icon sm-item-icon--teal">
+            <Icon :icon="$icons.light" width="16" height="16" />
+          </div>
+          <span class="sm-item-label">{{ t("settings.darkMode") }}</span>
+          <!-- Toggle dark mode -->
+          <div
+            class="sm-toggle"
+            :class="{ 'sm-toggle--on': isDark }"
+            @click="toggleDark"
+            role="switch"
+            :aria-checked="isDark"
+            tabindex="0"
+            @keydown.enter="toggleDark"
+            @keydown.space.prevent="toggleDark"
+          >
+            <div class="sm-toggle-thumb" />
+          </div>
+        </div>
+
+        <!-- Idioma -->
+        <div class="sm-item sm-item--noclick sm-lang-wrap">
+          <div class="sm-item-icon sm-item-icon--teal">
+            <Icon :icon="$icons.language" width="16" height="16" />
+          </div>
+          <span class="sm-item-label">{{ t("settings.language") }}</span>
+
+          <!-- Selector idioma inline -->
+          <div class="sm-lang-selector" @click.stop="langOpen = !langOpen">
+            <span class="sm-lang-badge">{{ currentLang.flag }}</span>
+            <Icon
+              :style="{
+                transform: langOpen ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.2s',
+              }"
+              :icon="$icons.chevronDown"
+              width="11"
+              height="11"
+            />
           </div>
 
-          <!-- ── Cuerpo ───────────────────────────────────── -->
-          <div class="sm-body">
-            <p class="sm-section-label">{{ t('settings.title').toUpperCase() }}</p>
-
-            <!-- Perfil -->
-            <button class="sm-item" @click="irPerfil">
-              <div class="sm-item-icon sm-item-icon--teal">
-                <Icon :icon="$icons.user" width="16" height="16" />
-              </div>
-              <span class="sm-item-label">{{ t('settings.profile') }}</span>
-              <Icon class="sm-item-arrow" :icon="$icons.chevronRight" width="13" height="13" />
-            </button>
-
-            <!-- Apariencia / dark mode -->
-            <div class="sm-item sm-item--noclick">
-              <div class="sm-item-icon sm-item-icon--teal">
-                <Icon :icon="$icons.light" width="16" height="16" />
-              </div>
-              <span class="sm-item-label">{{ t('settings.darkMode') }}</span>
-              <!-- Toggle dark mode -->
-              <div
-                class="sm-toggle"
-                :class="{ 'sm-toggle--on': isDark }"
-                @click="toggleDark"
-                role="switch"
-                :aria-checked="isDark"
-                tabindex="0"
-                @keydown.enter="toggleDark"
-                @keydown.space.prevent="toggleDark"
+          <!-- Dropdown idiomas -->
+          <Transition name="lang-drop">
+            <div v-if="langOpen" class="sm-lang-dropdown">
+              <button
+                v-for="lang in languages"
+                :key="lang.code"
+                class="sm-lang-opt"
+                :class="{ 'sm-lang-opt--active': lang.code === locale }"
+                @click="selectLang(lang.code)"
               >
-                <div class="sm-toggle-thumb" />
-              </div>
+                <span class="sm-lang-opt-flag">{{ lang.flag }}</span>
+                <span class="sm-lang-opt-label">{{ lang.label }}</span>
+                <Icon
+                  v-if="lang.code === locale"
+                  :icon="$icons.check"
+                  width="12"
+                  height="12"
+                />
+              </button>
             </div>
+          </Transition>
+        </div>
 
-            <!-- Idioma -->
-            <div class="sm-item sm-item--noclick sm-lang-wrap">
-              <div class="sm-item-icon sm-item-icon--teal">
-                <Icon :icon="$icons.language" width="16" height="16" />
-              </div>
-              <span class="sm-item-label">{{ t('settings.language') }}</span>
+        <div class="sm-divider" />
 
-              <!-- Selector idioma inline -->
-              <div class="sm-lang-selector" @click.stop="langOpen = !langOpen">
-                <span class="sm-lang-badge">{{ currentLang.flag }}</span>
-                <Icon :style="{ transform: langOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }" :icon="$icons.chevronDown" width="11" height="11" />
-              </div>
-
-              <!-- Dropdown idiomas -->
-              <Transition name="lang-drop">
-                <div v-if="langOpen" class="sm-lang-dropdown">
-                  <button
-                    v-for="lang in languages"
-                    :key="lang.code"
-                    class="sm-lang-opt"
-                    :class="{ 'sm-lang-opt--active': lang.code === locale }"
-                    @click="selectLang(lang.code)"
-                  >
-                    <span class="sm-lang-opt-flag">{{ lang.flag }}</span>
-                    <span class="sm-lang-opt-label">{{ lang.label }}</span>
-                    <Icon v-if="lang.code === locale" :icon="$icons.check" width="12" height="12" />
-                  </button>
-                </div>
-              </Transition>
-            </div>
-
-            <div class="sm-divider" />
-
-            <!-- Cerrar sesión -->
-            <button class="sm-item sm-item--logout" @click="logout">
-              <div class="sm-item-icon sm-item-icon--danger">
-                <Icon :icon="$icons.logout" width="16" height="16" />
-              </div>
-              <span class="sm-item-label sm-item-label--danger">{{ t('settings.logout') }}</span>
-            </button>
-
+        <!-- Cerrar sesión -->
+        <button class="sm-item sm-item--logout" @click="logout">
+          <div class="sm-item-icon sm-item-icon--danger">
+            <Icon :icon="$icons.logout" width="16" height="16" />
           </div>
+          <span class="sm-item-label sm-item-label--danger">{{
+            t("settings.logout")
+          }}</span>
+        </button>
+      </div>
     </div>
   </Transition>
 </template>
@@ -195,18 +228,13 @@ watch(() => props.visible, (v) => {
 <style scoped>
 /* ── Popover anclado bajo el engranaje ───────────────────────── */
 .sm-popover {
-  /*
-    position: absolute anclado al nav-icons-wrap (position: relative).
-    Se coloca justo debajo del engranaje, alineado a la derecha.
-    El contenedor padre (nav-icons-wrap) tiene position: relative.
-  */
   position: absolute;
-  top: calc(100% + 12px);   /* 12px bajo los botones del navbar */
-  right: 0;                  /* alineado al borde derecho del nav-icons-wrap */
+  top: calc(100% + 12px); /* 12px bajo los botones del navbar */
+  right: 0; /* alineado al borde derecho del nav-icons-wrap */
   width: 360px;
   background: var(--color-surface);
   border-radius: var(--radius-xl);
-  overflow: visible;         /* permite que el dropdown de idiomas salga */
+  overflow: visible; /* permite que el dropdown de idiomas salga */
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--color-border);
   z-index: 400;
@@ -235,7 +263,9 @@ watch(() => props.visible, (v) => {
   align-items: center;
   justify-content: center;
   color: var(--color-text);
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
   box-shadow: 0 1px 4px rgba(60, 46, 31, 0.15);
 }
 .sm-close:hover {
@@ -306,14 +336,18 @@ watch(() => props.visible, (v) => {
   border: none;
   cursor: pointer;
   margin-bottom: 0.5rem;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
   position: relative;
 }
 .sm-item:not(.sm-item--noclick):hover {
   background: var(--color-surface-warm);
   transform: translateX(2px);
 }
-.sm-item--noclick { cursor: default; }
+.sm-item--noclick {
+  cursor: default;
+}
 
 /* Icono circular */
 .sm-item-icon {
@@ -325,8 +359,14 @@ watch(() => props.visible, (v) => {
   justify-content: center;
   flex-shrink: 0;
 }
-.sm-item-icon--teal   { background: var(--color-teal-light);    color: var(--color-teal-dark); }
-.sm-item-icon--danger { background: var(--color-primary-light);  color: var(--color-primary); }
+.sm-item-icon--teal {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+.sm-item-icon--danger {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
 
 .sm-item-label {
   font-family: var(--font-display);
@@ -336,13 +376,23 @@ watch(() => props.visible, (v) => {
   flex: 1;
   text-align: left;
 }
-.sm-item-label--danger { color: var(--color-primary); }
+.sm-item-label--danger {
+  color: var(--color-primary);
+}
 
-.sm-item-arrow { color: var(--color-text-muted); flex-shrink: 0; }
+.sm-item-arrow {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
 
 /* Item logout */
-.sm-item--logout { background: var(--color-primary-light); }
-.sm-item--logout:hover { background: #fad4c4; transform: translateX(2px); }
+.sm-item--logout {
+  background: var(--color-primary-light);
+}
+.sm-item--logout:hover {
+  background: #fad4c4;
+  transform: translateX(2px);
+}
 
 /* ── Toggle dark mode ────────────────────────────────────────── */
 .sm-toggle {
@@ -358,7 +408,9 @@ watch(() => props.visible, (v) => {
 }
 .sm-toggle--on {
   background: var(--color-teal);
-  box-shadow: inset 0 1px 3px rgba(124, 203, 194, 0.3), 0 0 0 3px rgba(124, 203, 194, 0.15);
+  box-shadow:
+    inset 0 1px 3px rgba(124, 203, 194, 0.3),
+    0 0 0 3px rgba(124, 203, 194, 0.15);
 }
 .sm-toggle-thumb {
   position: absolute;
@@ -371,10 +423,14 @@ watch(() => props.visible, (v) => {
   box-shadow: 0 1px 4px rgba(60, 46, 31, 0.2);
   transition: transform var(--transition-normal);
 }
-.sm-toggle--on .sm-toggle-thumb { transform: translateX(20px); }
+.sm-toggle--on .sm-toggle-thumb {
+  transform: translateX(20px);
+}
 
 /* ── Selector de idioma ──────────────────────────────────────── */
-.sm-lang-wrap { flex-wrap: wrap; }
+.sm-lang-wrap {
+  flex-wrap: wrap;
+}
 
 .sm-lang-selector {
   display: flex;
@@ -387,7 +443,9 @@ watch(() => props.visible, (v) => {
   transition: background var(--transition-fast);
   flex-shrink: 0;
 }
-.sm-lang-selector:hover { background: var(--color-teal-mid); }
+.sm-lang-selector:hover {
+  background: var(--color-teal-mid);
+}
 
 .sm-lang-badge {
   font-family: var(--font-display);
@@ -426,8 +484,15 @@ watch(() => props.visible, (v) => {
   cursor: pointer;
   text-align: left;
 }
-.sm-lang-opt:hover { background: var(--color-surface-alt); color: var(--color-text); }
-.sm-lang-opt--active { background: var(--color-teal-light); color: var(--color-teal-dark); font-weight: 700; }
+.sm-lang-opt:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+.sm-lang-opt--active {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+  font-weight: 700;
+}
 
 .sm-lang-opt-flag {
   font-family: var(--font-display);
@@ -438,7 +503,9 @@ watch(() => props.visible, (v) => {
   padding: 0.1rem 0.35rem;
   border-radius: var(--radius-xs);
 }
-.sm-lang-opt-label { flex: 1; }
+.sm-lang-opt-label {
+  flex: 1;
+}
 
 /* ── Divider ─────────────────────────────────────────────────── */
 .sm-divider {
@@ -450,7 +517,9 @@ watch(() => props.visible, (v) => {
 /* ── Animación popover: aparece desde arriba-derecha ─────────── */
 .settings-modal-enter-active,
 .settings-modal-leave-active {
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
   transform-origin: top right;
 }
 .settings-modal-enter-from,
@@ -460,9 +529,16 @@ watch(() => props.visible, (v) => {
 }
 
 .lang-drop-enter-active,
-.lang-drop-leave-active { transition: opacity var(--transition-fast), transform var(--transition-fast); }
+.lang-drop-leave-active {
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
 .lang-drop-enter-from,
-.lang-drop-leave-to     { opacity: 0; transform: translateY(-6px) scale(0.97); }
+.lang-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+}
 
 /* ── Responsive móvil ───────────────────────────────────────── */
 /*
@@ -491,10 +567,19 @@ watch(() => props.visible, (v) => {
     opacity: 0;
     transform: translateX(-50%) scale(0.96) translateY(-8px);
   }
-  .sm-header { padding: 1.5rem 1.25rem 1.35rem; }
-  .sm-avatar { width: 70px; height: 70px; }
-  .sm-body { padding: 0.8rem 0.9rem 0.95rem; }
-  .sm-item { min-height: 58px; }
+  .sm-header {
+    padding: 1.5rem 1.25rem 1.35rem;
+  }
+  .sm-avatar {
+    width: 70px;
+    height: 70px;
+  }
+  .sm-body {
+    padding: 0.8rem 0.9rem 0.95rem;
+  }
+  .sm-item {
+    min-height: 58px;
+  }
 }
 
 @media (max-width: 380px) {
@@ -503,8 +588,15 @@ watch(() => props.visible, (v) => {
     top: calc(var(--navbar-height) + 6px);
     max-height: calc(100dvh - var(--navbar-height) - 12px);
   }
-  .sm-header { padding: 1.25rem 1rem 1.15rem; }
-  .sm-avatar { width: 62px; height: 62px; }
-  .sm-body { padding: 0.65rem; }
+  .sm-header {
+    padding: 1.25rem 1rem 1.15rem;
+  }
+  .sm-avatar {
+    width: 62px;
+    height: 62px;
+  }
+  .sm-body {
+    padding: 0.65rem;
+  }
 }
 </style>

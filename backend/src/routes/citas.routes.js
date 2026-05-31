@@ -1,5 +1,3 @@
-// src/routes/citas.routes.js
-// ============================================================
 //  Rutas del módulo de citas — todas protegidas
 //
 //  GET   /api/citas             → listar citas del usuario

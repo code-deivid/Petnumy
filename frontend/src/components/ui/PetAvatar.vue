@@ -1,48 +1,47 @@
-<!-- src/components/ui/PetAvatar.vue -->
-<!--
-  Avatar limpio para usuarios y mascotas.
-  UN solo círculo — sin wrappers, sin fondos duplicados.
-
-  Props:
-  - foto:   string|null
-  - nombre: string
-  - tipo:   'usuario' | 'mascota'
-  - genero: 'macho' | 'hembra' | null
-  - size:   'xs' | 'sm' | 'md' | 'lg' | 'xl'
--->
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
-  foto:   { type: String,  default: null },
-  nombre: { type: String,  default: ''   },
-  tipo:   { type: String,  default: 'mascota' },
-  genero: { type: String,  default: null },
-  size:   { type: String,  default: 'md' },
-})
+  foto: { type: String, default: null },
+  nombre: { type: String, default: "" },
+  tipo: { type: String, default: "mascota" },
+  genero: { type: String, default: null },
+  size: { type: String, default: "md" },
+});
 
 // Una sola inicial (nombre corto de mascota — no necesita 2 letras)
-const inicial = computed(() =>
-  (props.nombre || '').trim()[0]?.toUpperCase() || '?'
-)
+const inicial = computed(
+  () => (props.nombre || "").trim()[0]?.toUpperCase() || "?",
+);
 
 // Clases compuestas
 const rootClass = computed(() => [
-  'pav',
+  "pav",
   `pav--${props.size}`,
-  props.foto ? 'pav--foto' : `pav--${props.tipo === 'usuario' ? 'usuario' : (props.genero || 'neutral')}`,
-])
+  props.foto
+    ? "pav--foto"
+    : `pav--${props.tipo === "usuario" ? "usuario" : props.genero || "neutral"}`,
+]);
 
 // Font size según tamaño
-const fs = computed(() => ({
-  xs: '0.65rem', sm: '0.8rem', md: '1.1rem', lg: '1.6rem', xl: '2.1rem'
-})[props.size] || '1.1rem')
+const fs = computed(
+  () =>
+    ({
+      xs: "0.65rem",
+      sm: "0.8rem",
+      md: "1.1rem",
+      lg: "1.6rem",
+      xl: "2.1rem",
+    })[props.size] || "1.1rem",
+);
 </script>
 
 <template>
   <div :class="rootClass">
     <img v-if="foto" :src="foto" :alt="nombre" class="pav-img" loading="lazy" />
-    <span v-else class="pav-letra" :style="{ fontSize: fs }">{{ inicial }}</span>
+    <span v-else class="pav-letra" :style="{ fontSize: fs }">{{
+      inicial
+    }}</span>
   </div>
 </template>
 
@@ -59,16 +58,33 @@ const fs = computed(() => ({
 }
 
 /* ── Tamaños ─────────────────────────────────────────────────── */
-.pav--xs { width: 28px;  height: 28px; }
-.pav--sm { width: 36px;  height: 36px; }
-.pav--md { width: 52px;  height: 52px; }
-.pav--lg { width: 72px;  height: 72px; }
-.pav--xl { width: 100px; height: 100px; }
+.pav--xs {
+  width: 28px;
+  height: 28px;
+}
+.pav--sm {
+  width: 36px;
+  height: 36px;
+}
+.pav--md {
+  width: 52px;
+  height: 52px;
+}
+.pav--lg {
+  width: 72px;
+  height: 72px;
+}
+.pav--xl {
+  width: 100px;
+  height: 100px;
+}
 
 /* ── Foto ────────────────────────────────────────────────────── */
 .pav-img {
-  width: 100%; height: 100%;
-  object-fit: cover; display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ── Letra ───────────────────────────────────────────────────── */
@@ -81,36 +97,44 @@ const fs = computed(() => ({
 
 /* ── Placeholder: usuario (coral) ────────────────────────────── */
 .pav--usuario {
-  background: #FBDDD3;
+  background: #fbddd3;
 }
-.pav--usuario .pav-letra { color: #C04A25; }
+.pav--usuario .pav-letra {
+  color: #c04a25;
+}
 
 /* ── Placeholder: macho (azul pastel) ───────────────────────── */
 .pav--macho {
-  background: #D6E8F8;
+  background: #d6e8f8;
 }
-.pav--macho .pav-letra { color: #2A5A90; }
+.pav--macho .pav-letra {
+  color: #2a5a90;
+}
 
 /* ── Placeholder: hembra (rosa pastel) ──────────────────────── */
 .pav--hembra {
-  background: #FADDE9;
+  background: #fadde9;
 }
-.pav--hembra .pav-letra { color: #8A2050; }
+.pav--hembra .pav-letra {
+  color: #8a2050;
+}
 
 /* ── Placeholder: neutral (beige) ───────────────────────────── */
 .pav--neutral {
   background: var(--color-surface-alt);
 }
-.pav--neutral .pav-letra { color: var(--color-text-soft); }
+.pav--neutral .pav-letra {
+  color: var(--color-text-soft);
+}
 
 /* ── Dark mode ───────────────────────────────────────────────── */
 :global(html.dark) .pav--usuario,
 :global(html[data-theme="dark"]) .pav--usuario {
-  background: #3D1A0E;
+  background: #3d1a0e;
 }
 :global(html.dark) .pav--usuario .pav-letra,
 :global(html[data-theme="dark"]) .pav--usuario .pav-letra {
-  color: #FFA07A;
+  color: #ffa07a;
 }
 
 :global(html.dark) .pav--macho,
@@ -119,16 +143,16 @@ const fs = computed(() => ({
 }
 :global(html.dark) .pav--macho .pav-letra,
 :global(html[data-theme="dark"]) .pav--macho .pav-letra {
-  color: #7BAFD4;
+  color: #7bafd4;
 }
 
 :global(html.dark) .pav--hembra,
 :global(html[data-theme="dark"]) .pav--hembra {
-  background: #2E0E1C;
+  background: #2e0e1c;
 }
 :global(html.dark) .pav--hembra .pav-letra,
 :global(html[data-theme="dark"]) .pav--hembra .pav-letra {
-  color: #D47BA8;
+  color: #d47ba8;
 }
 
 :global(html.dark) .pav--neutral,

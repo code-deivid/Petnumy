@@ -1,5 +1,3 @@
-// src/routes/auth.routes.js
-// ============================================================
 //  Rutas del módulo de autenticación
 //
 //  Públicas (sin token):

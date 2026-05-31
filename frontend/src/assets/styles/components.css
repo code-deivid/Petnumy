@@ -1,15 +1,9 @@
-/* src/assets/styles/components.css — Petnumy Design v5 */
-
-/* ══════════════════════════════════════════════════════════════
-   BOTONES
-   Prototipo: pill (rx=24 en h=48px → completamente pill), coral #F08263
-   ══════════════════════════════════════════════════════════════ */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.75rem 1.75rem;       /* h≈48px como en el prototipo */
+  padding: 0.75rem 1.75rem;
   border-radius: var(--radius-full);
   font-family: var(--font-display);
   font-weight: 700;
@@ -34,11 +28,11 @@
 .btn-primary {
   background-color: var(--color-primary);
   color: #fff;
-  box-shadow: 0 3px 12px rgba(240,130,99,0.32);
+  box-shadow: 0 3px 12px rgba(240, 130, 99, 0.32);
 }
 .btn-primary:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
-  box-shadow: 0 5px 18px rgba(240,130,99,0.42);
+  box-shadow: 0 5px 18px rgba(240, 130, 99, 0.42);
   transform: translateY(-1px);
 }
 
@@ -46,11 +40,11 @@
 .btn-teal {
   background-color: var(--color-teal);
   color: #fff;
-  box-shadow: 0 3px 12px rgba(124,203,194,0.32);
+  box-shadow: 0 3px 12px rgba(124, 203, 194, 0.32);
 }
 .btn-teal:hover:not(:disabled) {
   background-color: var(--color-teal-dark);
-  box-shadow: 0 5px 18px rgba(124,203,194,0.42);
+  box-shadow: 0 5px 18px rgba(124, 203, 194, 0.42);
   transform: translateY(-1px);
 }
 
@@ -96,10 +90,21 @@
 }
 
 /* Tamaños */
-.btn-sm    { padding: 0.45rem 1.1rem; font-size: 0.8rem; }
-.btn-lg    { padding: 0.85rem 2.25rem; font-size: 0.9375rem; }
-.btn-xl    { padding: 1rem 2.75rem; font-size: 1rem; }
-.btn-block { width: 100%; }
+.btn-sm {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.8rem;
+}
+.btn-lg {
+  padding: 0.85rem 2.25rem;
+  font-size: 0.9375rem;
+}
+.btn-xl {
+  padding: 1rem 2.75rem;
+  font-size: 1rem;
+}
+.btn-block {
+  width: 100%;
+}
 
 /* Deshabilitado */
 .btn:disabled {
@@ -115,14 +120,16 @@
    ══════════════════════════════════════════════════════════════ */
 .card {
   background: var(--color-surface);
-  border-radius: var(--radius-lg);   /* 24px — exacto del prototipo */
+  border-radius: var(--radius-lg); /* 24px — exacto del prototipo */
   box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
 /* Variante hover (clickeable) */
 .card-hover {
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
   cursor: pointer;
 }
 .card-hover:hover {
@@ -136,15 +143,27 @@
 }
 
 /* Padding interno */
-.card-body   { padding: 1.5rem; }
-.card-header { padding: 1.5rem 1.5rem 0; }
-.card-footer { padding: 0 1.5rem 1.5rem; }
+.card-body {
+  padding: 1.5rem;
+}
+.card-header {
+  padding: 1.5rem 1.5rem 0;
+}
+.card-footer {
+  padding: 0 1.5rem 1.5rem;
+}
 
 /* Padding más amplio en desktop */
 @media (min-width: 768px) {
-  .card-body   { padding: 1.75rem 2rem; }
-  .card-header { padding: 1.75rem 2rem 0; }
-  .card-footer { padding: 0 2rem 1.75rem; }
+  .card-body {
+    padding: 1.75rem 2rem;
+  }
+  .card-header {
+    padding: 1.75rem 2rem 0;
+  }
+  .card-footer {
+    padding: 0 2rem 1.75rem;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -177,9 +196,9 @@
 .input {
   width: 100%;
   padding: 0.78rem 1.1rem;
-  background: var(--color-surface-alt);  /* #F7F2EA — beige muy claro */
+  background: var(--color-surface-alt); /* #F7F2EA — beige muy claro */
   border: 1.5px solid transparent;
-  border-radius: var(--radius-full);     /* pill */
+  border-radius: var(--radius-full); /* pill */
   color: var(--color-text);
   font-size: 0.9375rem;
   transition:
@@ -200,7 +219,7 @@
 .input:focus {
   border-color: var(--color-teal);
   background: var(--color-surface);
-  box-shadow: 0 0 0 3px rgba(124,203,194,0.18);
+  box-shadow: 0 0 0 3px rgba(124, 203, 194, 0.18);
 }
 
 .input:hover:not(:focus) {
@@ -227,7 +246,7 @@ select.input {
 /* Estado error */
 .input-error {
   border-color: var(--color-danger) !important;
-  box-shadow: 0 0 0 3px rgba(217,95,95,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(217, 95, 95, 0.12) !important;
 }
 
 /* Etiqueta */
@@ -240,8 +259,16 @@ select.input {
   color: var(--color-text-soft);
 }
 
-.input-hint      { font-size: 0.77rem; color: var(--color-text-muted); margin-top: 0.2rem; }
-.input-error-msg { font-size: 0.77rem; color: var(--color-danger); margin-top: 0.2rem; }
+.input-hint {
+  font-size: 0.77rem;
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+.input-error-msg {
+  font-size: 0.77rem;
+  color: var(--color-danger);
+  margin-top: 0.2rem;
+}
 
 /* ══════════════════════════════════════════════════════════════
    BADGES / TAGS
@@ -251,7 +278,7 @@ select.input {
   display: inline-flex;
   align-items: center;
   padding: 0.2rem 0.65rem;
-  border-radius: var(--radius-sm);   /* rx≈8 */
+  border-radius: var(--radius-sm); /* rx≈8 */
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.68rem;
@@ -260,12 +287,30 @@ select.input {
   white-space: nowrap;
 }
 
-.badge-green   { background: #D8F0DC; color: #2A7A3A; }
-.badge-teal    { background: var(--color-teal-light);    color: var(--color-teal-dark); }
-.badge-orange  { background: var(--color-primary-light); color: var(--color-primary-dark); }
-.badge-red     { background: var(--color-danger-light);  color: var(--color-danger); }
-.badge-muted   { background: var(--color-surface-alt);   color: var(--color-text-muted); }
-.badge-yellow  { background: #FEF3D0; color: #9A6A10; }
+.badge-green {
+  background: #d8f0dc;
+  color: #2a7a3a;
+}
+.badge-teal {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+.badge-orange {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+.badge-red {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+.badge-muted {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+.badge-yellow {
+  background: #fef3d0;
+  color: #9a6a10;
+}
 
 /* Tag — variante más grande con radio full */
 .tag {
@@ -282,9 +327,18 @@ select.input {
   background: var(--color-surface-alt);
   color: var(--color-text-soft);
 }
-.tag-primary { background: var(--color-primary-light); color: var(--color-primary-dark); }
-.tag-teal    { background: var(--color-teal-light);    color: var(--color-teal-dark); }
-.tag-mint    { background: var(--color-surface-mint);  color: #3A7A4A; }
+.tag-primary {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+.tag-teal {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+.tag-mint {
+  background: var(--color-surface-mint);
+  color: #3a7a4a;
+}
 
 /* ══════════════════════════════════════════════════════════════
    AVATAR CIRCLES
@@ -302,18 +356,46 @@ select.input {
   user-select: none;
 }
 
-.avatar-sm  { width: 32px;  height: 32px;  font-size: 0.75rem; }
-.avatar-md  { width: 44px;  height: 44px;  font-size: 1rem; }
-.avatar-lg  { width: 60px;  height: 60px;  font-size: 1.25rem; }
-.avatar-xl  { width: 80px;  height: 80px;  font-size: 1.5rem; }
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+}
+.avatar-md {
+  width: 44px;
+  height: 44px;
+  font-size: 1rem;
+}
+.avatar-lg {
+  width: 60px;
+  height: 60px;
+  font-size: 1.25rem;
+}
+.avatar-xl {
+  width: 80px;
+  height: 80px;
+  font-size: 1.5rem;
+}
 
 /* Colores del prototipo para avatares */
-.avatar-warm   { background: #C4B09A; }   /* beige cálido */
-.avatar-teal   { background: #8EC8C4; }   /* teal suave */
-.avatar-salmon { background: #E8A090; }   /* salmón pastel */
-.avatar-mint   { background: #9EC89A; }   /* verde menta */
-.avatar-rose   { background: #E0A8B0; }   /* rosa suave */
-.avatar-sand   { background: #D4B896; }   /* arena */
+.avatar-warm {
+  background: #c4b09a;
+} /* beige cálido */
+.avatar-teal {
+  background: #8ec8c4;
+} /* teal suave */
+.avatar-salmon {
+  background: #e8a090;
+} /* salmón pastel */
+.avatar-mint {
+  background: #9ec89a;
+} /* verde menta */
+.avatar-rose {
+  background: #e0a8b0;
+} /* rosa suave */
+.avatar-sand {
+  background: #d4b896;
+} /* arena */
 
 /* ══════════════════════════════════════════════════════════════
    DIVIDERS
@@ -335,7 +417,7 @@ select.input {
 }
 .divider-label::before,
 .divider-label::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: var(--color-border);
@@ -352,10 +434,22 @@ select.input {
   font-weight: 600;
   line-height: 1.4;
 }
-.msg-success { background: var(--color-teal-light);    color: var(--color-teal-dark); }
-.msg-error   { background: var(--color-danger-light);  color: var(--color-danger);    }
-.msg-info    { background: var(--color-surface-alt);   color: var(--color-text-soft); }
-.msg-warning { background: #FEF3D0;                    color: #9A6A10;                }
+.msg-success {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
+.msg-error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+.msg-info {
+  background: var(--color-surface-alt);
+  color: var(--color-text-soft);
+}
+.msg-warning {
+  background: #fef3d0;
+  color: #9a6a10;
+}
 
 /* ══════════════════════════════════════════════════════════════
    SPINNER
@@ -364,12 +458,16 @@ select.input {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2.5px solid rgba(255,255,255,0.3);
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
   border-top-color: currentColor;
   animation: _spin 0.65s linear infinite;
   flex-shrink: 0;
 }
-@keyframes _spin { to { transform: rotate(360deg); } }
+@keyframes _spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .spinner-dark {
   border-color: var(--color-border);
@@ -404,7 +502,7 @@ select.input {
 .btn-social {
   width: 100%;
   padding: 0.75rem 1rem;
-  border-radius: var(--radius-full);     /* pill como en el prototipo */
+  border-radius: var(--radius-full); /* pill como en el prototipo */
   border: 2px solid var(--color-teal);
   background: transparent;
   display: flex;
@@ -455,12 +553,18 @@ select.input {
 
 /* ── Tags/pills en móvil ─────────────────────────────────── */
 @media (max-width: 480px) {
-  .tag { font-size: 0.6rem; padding: 0.18rem 0.5rem; }
+  .tag {
+    font-size: 0.6rem;
+    padding: 0.18rem 0.5rem;
+  }
 }
 
 /* ── Spinners en móvil ───────────────────────────────────── */
 @media (max-width: 768px) {
-  .spinner { width: 22px; height: 22px; }
+  .spinner {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 /* ── Overlays/modales ────────────────────────────────────── */
@@ -470,7 +574,8 @@ select.input {
     align-items: flex-end;
   }
   /* Modal como sheet */
-  .cita-modal, .modal-card {
+  .cita-modal,
+  .modal-card {
     width: 100% !important;
     max-width: 100% !important;
     border-radius: 24px 24px 0 0 !important;
@@ -479,32 +584,49 @@ select.input {
   /* Barra drag handle */
   .cita-header::before,
   .modal-header::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 8px;
     left: 50%;
     transform: translateX(-50%);
-    width: 36px; height: 4px;
-    background: rgba(0,0,0,0.12);
+    width: 36px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.12);
     border-radius: 2px;
   }
-  .cita-header, .modal-header { position: relative; padding-top: 1.25rem; }
+  .cita-header,
+  .modal-header {
+    position: relative;
+    padding-top: 1.25rem;
+  }
 }
 
 /* ── Stepper en móvil ────────────────────────────────────── */
 @media (max-width: 480px) {
-  .cita-stepper, .modal-stepper {
+  .cita-stepper,
+  .modal-stepper {
     gap: 0;
     padding: 0.75rem 0.75rem 0;
   }
-  .stepper-label { font-size: 0.62rem; }
-  .stepper-dot   { width: 22px; height: 22px; font-size: 0.65rem; }
-  .stepper-line  { width: 16px; }
+  .stepper-label {
+    font-size: 0.62rem;
+  }
+  .stepper-dot {
+    width: 22px;
+    height: 22px;
+    font-size: 0.65rem;
+  }
+  .stepper-line {
+    width: 16px;
+  }
 }
 
 /* ── DatePicker en móvil ─────────────────────────────────── */
 @media (max-width: 480px) {
-  .dp-trigger { min-height: 48px; font-size: 0.875rem; }
+  .dp-trigger {
+    min-height: 48px;
+    font-size: 0.875rem;
+  }
 }
 
 /* ── RazaSelect dropdown en móvil ───────────────────────── */
@@ -516,6 +638,11 @@ select.input {
 
 /* ── Empty states en móvil ───────────────────────────────── */
 @media (max-width: 480px) {
-  .empty-state { padding: 2.5rem 1rem; }
-  .empty-state-icon { width: 56px; height: 56px; }
+  .empty-state {
+    padding: 2.5rem 1rem;
+  }
+  .empty-state-icon {
+    width: 56px;
+    height: 56px;
+  }
 }

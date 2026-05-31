@@ -1,4 +1,3 @@
-<!-- src/pages/MisMascotasPage.vue -->
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
@@ -64,7 +63,8 @@ function calcEdad(nacimiento) {
     (Date.now() - new Date(nacimiento)) / (1000 * 60 * 60 * 24 * 30.44),
   );
   if (meses < 1) return t("pets.lessThanOneMonth");
-  if (meses < 12) return `${meses} ${meses === 1 ? t("common.month") : t("common.months")}`;
+  if (meses < 12)
+    return `${meses} ${meses === 1 ? t("common.month") : t("common.months")}`;
   const años = Math.floor(meses / 12);
   return `${años} ${años === 1 ? t("common.year") : t("common.years")}`;
 }
@@ -73,19 +73,22 @@ function iniciales(n) {
 }
 
 function normalizarValor(v) {
-  return String(v || '').trim().toLowerCase();
+  return String(v || "")
+    .trim()
+    .toLowerCase();
 }
 function displaySpecies(especie) {
   const v = normalizarValor(especie);
-  if (v === 'perro' || v === 'dog' || v === 'gos') return t('common.dog');
-  if (v === 'gato' || v === 'cat' || v === 'gat') return t('common.cat');
-  return especie || '';
+  if (v === "perro" || v === "dog" || v === "gos") return t("common.dog");
+  if (v === "gato" || v === "cat" || v === "gat") return t("common.cat");
+  return especie || "";
 }
 function displayGender(genero) {
   const v = normalizarValor(genero);
-  if (v === 'macho' || v === 'male' || v === 'mascle') return t('common.male');
-  if (v === 'hembra' || v === 'female' || v === 'femella') return t('common.female');
-  return genero || '';
+  if (v === "macho" || v === "male" || v === "mascle") return t("common.male");
+  if (v === "hembra" || v === "female" || v === "femella")
+    return t("common.female");
+  return genero || "";
 }
 
 const paleta = [
@@ -126,7 +129,7 @@ const consejoHoy = computed(() => {
         <h1 class="mm-title">{{ t("pets.title") }}</h1>
         <p class="mm-sub">
           <template v-if="mascotas.length > 0">
-            {{ t('pets.companionsUnderCare', { count: mascotas.length }) }}
+            {{ t("pets.companionsUnderCare", { count: mascotas.length }) }}
           </template>
           <template v-else>{{ t("pets.subtitle") }}</template>
         </p>
@@ -219,7 +222,11 @@ const consejoHoy = computed(() => {
               </div>
               <div class="mm-fam-count">
                 <span class="mm-fam-num">{{ mascotas.length }}</span>
-                <span class="mm-fam-lbl">{{ mascotas.length === 1 ? t('pets.petSingular') : t('pets.petPlural') }}</span>
+                <span class="mm-fam-lbl">{{
+                  mascotas.length === 1
+                    ? t("pets.petSingular")
+                    : t("pets.petPlural")
+                }}</span>
               </div>
             </div>
           </div>
@@ -308,7 +315,12 @@ const consejoHoy = computed(() => {
                         : 'mm-tag--hembra',
                     ]"
                   >
-                    <Icon style="flex-shrink: 0" :icon="$icons.male" width="11" height="11" />
+                    <Icon
+                      style="flex-shrink: 0"
+                      :icon="$icons.male"
+                      width="11"
+                      height="11"
+                    />
                     {{ displayGender(mascota.genero) }}
                   </span>
                 </div>
@@ -383,7 +395,7 @@ const consejoHoy = computed(() => {
             :disabled="confirmModal.eliminando"
             @click="cancelarEliminar"
           >
-            {{ t('common.cancel') }}
+            {{ t("common.cancel") }}
           </button>
           <button
             class="btn btn-eliminar"
@@ -395,7 +407,7 @@ const consejoHoy = computed(() => {
               class="spinner"
               style="width: 14px; height: 14px; border-width: 2px"
             />
-            <span v-else>{{ t('common.delete') }}</span>
+            <span v-else>{{ t("common.delete") }}</span>
           </button>
         </div>
       </div>
@@ -961,12 +973,20 @@ const consejoHoy = computed(() => {
     gap: 0.75rem;
   }
   /* Ajustar card para 2 col */
-  .mm-card { min-width: 0; }
-  .mm-card-nombre { font-size: 1rem; }
-  .mm-card-raza   { font-size: 0.72rem; }
+  .mm-card {
+    min-width: 0;
+  }
+  .mm-card-nombre {
+    font-size: 1rem;
+  }
+  .mm-card-raza {
+    font-size: 0.72rem;
+  }
 }
 @media (max-width: 360px) {
-  .mm-grid { grid-template-columns: 1fr; }
+  .mm-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── Botón añadir mascota siempre accesible ─────────────── */
@@ -977,9 +997,11 @@ const consejoHoy = computed(() => {
     gap: 0.75rem;
   }
   /* El botón de añadir ocupa todo el ancho */
-  .mm-add-btn { width: 100%; justify-content: center; }
+  .mm-add-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
-
 
 /* Dark mode — género con contraste premium */
 :global(html.dark) .card-bg--macho,
@@ -1004,5 +1026,4 @@ const consejoHoy = computed(() => {
   color: #fbcfe8 !important;
   border: 1px solid rgba(249, 168, 212, 0.24);
 }
-
 </style>

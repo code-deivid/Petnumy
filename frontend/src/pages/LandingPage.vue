@@ -1,8 +1,7 @@
-<!-- src/pages/LandingPage.vue -->
 <!-- Página pública de bienvenida. Visible SOLO cuando no hay sesión. -->
 <script setup>
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 </script>
 
 <template>
@@ -125,8 +124,6 @@ const { t } = useI18n()
   font-size: 1.1rem;
   color: var(--color-text);
   margin-bottom: 1.5rem;
-
-  
 }
 
 .hero-title {

@@ -1,5 +1,3 @@
-// src/routes/razas.routes.js
-// ============================================================
 //  Rutas del módulo de razas — solo lectura
 //
 //  GET /api/razas               → todas las razas

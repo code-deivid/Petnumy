@@ -1,182 +1,217 @@
-<!-- src/components/ui/CropModal.vue -->
-<!-- Modal de recorte circular con Canvas API nativo — sin librerías -->
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps({
-  imageSrc: { type: String, default: '' },
-  visible:  { type: Boolean, default: false }
-})
+  imageSrc: { type: String, default: "" },
+  visible: { type: Boolean, default: false },
+});
 
-const emit = defineEmits(['confirm', 'cancel'])
-const { t } = useI18n()
+const emit = defineEmits(["confirm", "cancel"]);
+const { t } = useI18n();
 
-const canvasRef  = ref(null)
-const wrapRef    = ref(null)
+const canvasRef = ref(null);
+const wrapRef = ref(null);
 
 // Estado del recorte
 const state = ref({
-  scale:     1,
-  minScale:  1,
-  offsetX:   0,
-  offsetY:   0,
-  dragging:  false,
-  startX:    0,
-  startY:    0
-})
+  scale: 1,
+  minScale: 1,
+  offsetX: 0,
+  offsetY: 0,
+  dragging: false,
+  startX: 0,
+  startY: 0,
+});
 
-const img = new Image()
-let canvasSize = 320
+const img = new Image();
+let canvasSize = 320;
 
 function initCanvas() {
-  if (!canvasRef.value || !props.imageSrc) return
-  const canvas = canvasRef.value
-  const ctx    = canvas.getContext('2d')
-  canvas.width  = canvasSize
-  canvas.height = canvasSize
+  if (!canvasRef.value || !props.imageSrc) return;
+  const canvas = canvasRef.value;
+  const ctx = canvas.getContext("2d");
+  canvas.width = canvasSize;
+  canvas.height = canvasSize;
 
   img.onload = () => {
     // Calcular escala mínima para que llene el círculo
-    const minS = Math.max(canvasSize / img.naturalWidth, canvasSize / img.naturalHeight)
-    state.value.minScale = minS
-    state.value.scale    = minS
+    const minS = Math.max(
+      canvasSize / img.naturalWidth,
+      canvasSize / img.naturalHeight,
+    );
+    state.value.minScale = minS;
+    state.value.scale = minS;
     // Centrar
-    state.value.offsetX = (canvasSize - img.naturalWidth  * minS) / 2
-    state.value.offsetY = (canvasSize - img.naturalHeight * minS) / 2
-    draw(ctx)
-  }
-  img.src = props.imageSrc
+    state.value.offsetX = (canvasSize - img.naturalWidth * minS) / 2;
+    state.value.offsetY = (canvasSize - img.naturalHeight * minS) / 2;
+    draw(ctx);
+  };
+  img.src = props.imageSrc;
 }
 
 function draw(ctx) {
-  if (!ctx || !img.complete) return
-  const { scale, offsetX, offsetY } = state.value
-  ctx.clearRect(0, 0, canvasSize, canvasSize)
+  if (!ctx || !img.complete) return;
+  const { scale, offsetX, offsetY } = state.value;
+  ctx.clearRect(0, 0, canvasSize, canvasSize);
 
   // Máscara circular
-  ctx.save()
-  ctx.beginPath()
-  ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2)
-  ctx.clip()
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
+  ctx.clip();
 
-  ctx.drawImage(img, offsetX, offsetY, img.naturalWidth * scale, img.naturalHeight * scale)
-  ctx.restore()
+  ctx.drawImage(
+    img,
+    offsetX,
+    offsetY,
+    img.naturalWidth * scale,
+    img.naturalHeight * scale,
+  );
+  ctx.restore();
 
   // Borde circular decorativo
-  ctx.beginPath()
-  ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2)
-  ctx.strokeStyle = 'rgba(124,203,194,0.6)'
-  ctx.lineWidth   = 2.5
-  ctx.stroke()
+  ctx.beginPath();
+  ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2 - 1, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(124,203,194,0.6)";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
 }
 
 function redraw() {
-  if (!canvasRef.value) return
-  draw(canvasRef.value.getContext('2d'))
+  if (!canvasRef.value) return;
+  draw(canvasRef.value.getContext("2d"));
 }
 
 // Arrastrar
 function onMouseDown(e) {
-  e.preventDefault()
-  const { clientX, clientY } = e.touches ? e.touches[0] : e
-  state.value.dragging = true
-  state.value.startX   = clientX - state.value.offsetX
-  state.value.startY   = clientY - state.value.offsetY
+  e.preventDefault();
+  const { clientX, clientY } = e.touches ? e.touches[0] : e;
+  state.value.dragging = true;
+  state.value.startX = clientX - state.value.offsetX;
+  state.value.startY = clientY - state.value.offsetY;
 }
 
 function onMouseMove(e) {
-  if (!state.value.dragging) return
-  e.preventDefault()
-  const { clientX, clientY } = e.touches ? e.touches[0] : e
-  const { scale, minScale } = state.value
-  const w = img.naturalWidth  * scale
-  const h = img.naturalHeight * scale
+  if (!state.value.dragging) return;
+  e.preventDefault();
+  const { clientX, clientY } = e.touches ? e.touches[0] : e;
+  const { scale, minScale } = state.value;
+  const w = img.naturalWidth * scale;
+  const h = img.naturalHeight * scale;
 
-  let nx = clientX - state.value.startX
-  let ny = clientY - state.value.startY
+  let nx = clientX - state.value.startX;
+  let ny = clientY - state.value.startY;
 
   // Limitar para que no salga del círculo
-  nx = Math.min(0, Math.max(canvasSize - w, nx))
-  ny = Math.min(0, Math.max(canvasSize - h, ny))
+  nx = Math.min(0, Math.max(canvasSize - w, nx));
+  ny = Math.min(0, Math.max(canvasSize - h, ny));
 
-  state.value.offsetX = nx
-  state.value.offsetY = ny
-  redraw()
+  state.value.offsetX = nx;
+  state.value.offsetY = ny;
+  redraw();
 }
 
-function onMouseUp() { state.value.dragging = false }
+function onMouseUp() {
+  state.value.dragging = false;
+}
 
 // Zoom con rueda
 function onWheel(e) {
-  e.preventDefault()
-  const delta     = e.deltaY > 0 ? -0.05 : 0.05
-  const newScale  = Math.max(state.value.minScale, Math.min(4, state.value.scale + delta))
-  const factor    = newScale / state.value.scale
-  state.value.scale   = newScale
-  state.value.offsetX = canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetX)
-  state.value.offsetY = canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetY)
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.05 : 0.05;
+  const newScale = Math.max(
+    state.value.minScale,
+    Math.min(4, state.value.scale + delta),
+  );
+  const factor = newScale / state.value.scale;
+  state.value.scale = newScale;
+  state.value.offsetX =
+    canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetX);
+  state.value.offsetY =
+    canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetY);
 
   // Reclamp
-  const w = img.naturalWidth  * newScale
-  const h = img.naturalHeight * newScale
-  state.value.offsetX = Math.min(0, Math.max(canvasSize - w, state.value.offsetX))
-  state.value.offsetY = Math.min(0, Math.max(canvasSize - h, state.value.offsetY))
-  redraw()
+  const w = img.naturalWidth * newScale;
+  const h = img.naturalHeight * newScale;
+  state.value.offsetX = Math.min(
+    0,
+    Math.max(canvasSize - w, state.value.offsetX),
+  );
+  state.value.offsetY = Math.min(
+    0,
+    Math.max(canvasSize - h, state.value.offsetY),
+  );
+  redraw();
 }
 
 function onZoom(dir) {
-  const delta = dir === '+' ? 0.1 : -0.1
-  const newScale = Math.max(state.value.minScale, Math.min(4, state.value.scale + delta))
-  const factor   = newScale / state.value.scale
-  state.value.scale   = newScale
-  state.value.offsetX = canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetX)
-  state.value.offsetY = canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetY)
-  const w = img.naturalWidth  * newScale
-  const h = img.naturalHeight * newScale
-  state.value.offsetX = Math.min(0, Math.max(canvasSize - w, state.value.offsetX))
-  state.value.offsetY = Math.min(0, Math.max(canvasSize - h, state.value.offsetY))
-  redraw()
+  const delta = dir === "+" ? 0.1 : -0.1;
+  const newScale = Math.max(
+    state.value.minScale,
+    Math.min(4, state.value.scale + delta),
+  );
+  const factor = newScale / state.value.scale;
+  state.value.scale = newScale;
+  state.value.offsetX =
+    canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetX);
+  state.value.offsetY =
+    canvasSize / 2 - factor * (canvasSize / 2 - state.value.offsetY);
+  const w = img.naturalWidth * newScale;
+  const h = img.naturalHeight * newScale;
+  state.value.offsetX = Math.min(
+    0,
+    Math.max(canvasSize - w, state.value.offsetX),
+  );
+  state.value.offsetY = Math.min(
+    0,
+    Math.max(canvasSize - h, state.value.offsetY),
+  );
+  redraw();
 }
 
 // Confirmar: exportar canvas como dataURL
 function confirmar() {
-  const canvas = canvasRef.value
-  const out    = document.createElement('canvas')
-  out.width    = 300
-  out.height   = 300
-  const ctx    = out.getContext('2d')
+  const canvas = canvasRef.value;
+  const out = document.createElement("canvas");
+  out.width = 300;
+  out.height = 300;
+  const ctx = out.getContext("2d");
 
   // Máscara circular en el canvas de salida
-  ctx.beginPath()
-  ctx.arc(150, 150, 150, 0, Math.PI * 2)
-  ctx.clip()
-  ctx.drawImage(canvas, 0, 0, canvasSize, canvasSize, 0, 0, 300, 300)
+  ctx.beginPath();
+  ctx.arc(150, 150, 150, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(canvas, 0, 0, canvasSize, canvasSize, 0, 0, 300, 300);
 
-  emit('confirm', out.toDataURL('image/jpeg', 0.92))
+  emit("confirm", out.toDataURL("image/jpeg", 0.92));
 }
 
-watch(() => props.visible, (v) => { if (v) setTimeout(initCanvas, 50) })
+watch(
+  () => props.visible,
+  (v) => {
+    if (v) setTimeout(initCanvas, 50);
+  },
+);
 
 onMounted(() => {
-  document.addEventListener('mousemove', onMouseMove)
-  document.addEventListener('mouseup',   onMouseUp)
-  document.addEventListener('touchmove', onMouseMove, { passive: false })
-  document.addEventListener('touchend',  onMouseUp)
-})
+  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener("mouseup", onMouseUp);
+  document.addEventListener("touchmove", onMouseMove, { passive: false });
+  document.addEventListener("touchend", onMouseUp);
+});
 onBeforeUnmount(() => {
-  document.removeEventListener('mousemove', onMouseMove)
-  document.removeEventListener('mouseup',   onMouseUp)
-  document.removeEventListener('touchmove', onMouseMove)
-  document.removeEventListener('touchend',  onMouseUp)
-})
+  document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("mouseup", onMouseUp);
+  document.removeEventListener("touchmove", onMouseMove);
+  document.removeEventListener("touchend", onMouseUp);
+});
 </script>
 
 <template>
   <Transition name="crop-modal">
     <div v-if="visible" class="crop-overlay" @click.self="$emit('cancel')">
       <div class="crop-modal">
-
         <!-- Header -->
         <div class="crop-header">
           <h3 class="crop-title">{{ t("crop.title") }}</h3>
@@ -200,7 +235,15 @@ onBeforeUnmount(() => {
             <Icon :icon="$icons.close" width="16" height="16" />
           </button>
           <div class="zoom-track">
-            <div class="zoom-fill" :style="{ width: ((state.scale - state.minScale) / (4 - state.minScale) * 100) + '%' }" />
+            <div
+              class="zoom-fill"
+              :style="{
+                width:
+                  ((state.scale - state.minScale) / (4 - state.minScale)) *
+                    100 +
+                  '%',
+              }"
+            />
           </div>
           <button type="button" class="zoom-btn" @click="onZoom('+')">
             <Icon :icon="$icons.add" width="16" height="16" />
@@ -209,10 +252,13 @@ onBeforeUnmount(() => {
 
         <!-- Botones -->
         <div class="crop-actions">
-          <button type="button" class="btn btn-ghost" @click="$emit('cancel')">{{ t('common.cancel') }}</button>
-          <button type="button" class="btn btn-teal"  @click="confirmar">{{ t("crop.usePhoto") }}</button>
+          <button type="button" class="btn btn-ghost" @click="$emit('cancel')">
+            {{ t("common.cancel") }}
+          </button>
+          <button type="button" class="btn btn-teal" @click="confirmar">
+            {{ t("crop.usePhoto") }}
+          </button>
         </div>
-
       </div>
     </div>
   </Transition>
@@ -246,8 +292,13 @@ onBeforeUnmount(() => {
   box-shadow: var(--shadow-xl);
 }
 
-.crop-header { text-align: center; }
-.crop-title  { font-size: 1.15rem; margin-bottom: 0.2rem; }
+.crop-header {
+  text-align: center;
+}
+.crop-title {
+  font-size: 1.15rem;
+  margin-bottom: 0.2rem;
+}
 .crop-subtitle {
   font-size: 0.78rem;
   color: var(--color-text-muted);
@@ -266,9 +317,11 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   cursor: grab;
   display: block;
-  box-shadow: 0 4px 20px rgba(60,46,31,0.15);
+  box-shadow: 0 4px 20px rgba(60, 46, 31, 0.15);
 }
-.crop-canvas:active { cursor: grabbing; }
+.crop-canvas:active {
+  cursor: grabbing;
+}
 
 /* Zoom */
 .crop-zoom {
@@ -278,15 +331,21 @@ onBeforeUnmount(() => {
 }
 
 .zoom-btn {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--color-surface-alt);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--color-text-soft);
   flex-shrink: 0;
   transition: background var(--transition-fast);
 }
-.zoom-btn:hover { background: var(--color-teal-light); color: var(--color-teal-dark); }
+.zoom-btn:hover {
+  background: var(--color-teal-light);
+  color: var(--color-teal-dark);
+}
 
 .zoom-track {
   flex: 1;
@@ -313,7 +372,9 @@ onBeforeUnmount(() => {
 /* Animación del modal */
 .crop-modal-enter-active,
 .crop-modal-leave-active {
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
+  transition:
+    opacity var(--transition-normal),
+    transform var(--transition-normal);
 }
 .crop-modal-enter-from,
 .crop-modal-leave-to {

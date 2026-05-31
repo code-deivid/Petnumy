@@ -1,5 +1,3 @@
-// src/composables/useRecordatorios.js
-// ============================================================
 //  Estado global de recordatorios — compartido entre navbar
 //  y cualquier página que lo use.
 //  Patrón singleton: el array vive fuera de la función,

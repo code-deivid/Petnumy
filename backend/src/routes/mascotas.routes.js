@@ -1,5 +1,3 @@
-// src/routes/mascotas.routes.js
-// ============================================================
 //  Rutas del módulo de mascotas
 //  Todas protegidas con requireAuth — ninguna es pública
 //

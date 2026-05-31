@@ -1,12 +1,10 @@
-<!-- src/components/ui/AppToggle.vue -->
-<!-- Toggle switch custom — estilo Petnumy -->
 <script setup>
 defineProps({
   modelValue: { type: Boolean, default: false },
-  label:      { type: String,  default: '' },
-  sublabel:   { type: String,  default: '' }
-})
-defineEmits(['update:modelValue'])
+  label: { type: String, default: "" },
+  sublabel: { type: String, default: "" },
+});
+defineEmits(["update:modelValue"]);
 </script>
 
 <template>
@@ -61,12 +59,14 @@ defineEmits(['update:modelValue'])
   position: relative;
   flex-shrink: 0;
   transition: background var(--transition-normal);
-  box-shadow: inset 0 1px 3px rgba(60,46,31,0.12);
+  box-shadow: inset 0 1px 3px rgba(60, 46, 31, 0.12);
 }
 
 .toggle-track--on {
   background: var(--color-teal);
-  box-shadow: inset 0 1px 3px rgba(124,203,194,0.3), 0 0 0 3px rgba(124,203,194,0.15);
+  box-shadow:
+    inset 0 1px 3px rgba(124, 203, 194, 0.3),
+    0 0 0 3px rgba(124, 203, 194, 0.15);
 }
 
 .toggle-thumb {
@@ -77,7 +77,7 @@ defineEmits(['update:modelValue'])
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 1px 4px rgba(60,46,31,0.18);
+  box-shadow: 0 1px 4px rgba(60, 46, 31, 0.18);
   transition: transform var(--transition-normal);
 }
 

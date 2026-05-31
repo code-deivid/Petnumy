@@ -1,7 +1,3 @@
-// src/lib/icons.js
-// Sistema centralizado de iconos Petnumy usando un único pack Iconify.
-// Pack elegido: MDI (Material Design Icons), por cobertura amplia y consistencia visual.
-
 export const ICONS = {
   home: 'mdi:home',
   pets: 'mdi:paw',

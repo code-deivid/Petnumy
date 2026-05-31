@@ -1,18 +1,3 @@
-// src/config/supabase.js
-// ============================================================
-//  Dos clientes de Supabase:
-//
-//  supabase      → cliente anónimo. Se usa cuando queremos que
-//                  RLS se aplique normalmente (lectura de catálogos,
-//                  operaciones públicas).
-//
-//  supabaseAdmin → cliente con service_role. Bypasea RLS. Solo
-//                  se usa en el backend para operaciones que el
-//                  sistema realiza en nombre del usuario
-//                  (crear perfil tras registro, insertar historial, etc.)
-//                  NUNCA enviar esta clave al frontend.
-// ============================================================
-
 import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
 

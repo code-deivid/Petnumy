@@ -1,5 +1,3 @@
-// src/routes/veterinarios.routes.js
-// ============================================================
 //  Rutas del módulo de veterinarios — solo lectura
 //  Todas protegidas con requireAuth
 //

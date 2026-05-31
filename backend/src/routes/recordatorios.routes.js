@@ -1,4 +1,3 @@
-// src/routes/recordatorios.routes.js
 import { Router } from 'express'
 import { requireAuth } from '../middleware/auth.middleware.js'
 import {
